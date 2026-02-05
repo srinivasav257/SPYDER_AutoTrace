@@ -24,6 +24,13 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QHBoxLayout>
+#include <QGroupBox>
+#include <QFormLayout>
+#include <QSplitter>
+#include <QComboBox>
+#include <QSpinBox>
+#include <QDoubleSpinBox>
+#include <QStackedWidget>
 
 // ---------------------------------------------------------------------------
 // Helper: creates a QTreeView with TestTreeModel and Toolbar
@@ -169,10 +176,183 @@ void registerSamplePanels()
                        ads::CenterDockWidgetArea,
                        [](QWidget *p)
                        {
-                           auto *edit = new QTextEdit(p);
-                           edit->setPlaceholderText("// Write your test script here...\n\nfunction test() {\n    return true;\n}");
-                           edit->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
-                           return edit;
+                           auto *container = new QWidget(p);
+                           auto *mainLayout = new QVBoxLayout(container); // Main container layout
+                           mainLayout->setContentsMargins(0,0,0,0);
+
+                           // Main Vertical Splitter
+                           auto *splitter = new QSplitter(Qt::Vertical, container);
+                           mainLayout->addWidget(splitter);
+
+                           // =========================================================
+                           // TOP PANE: Case Properties + Toolbar + Execution Sequence
+                           // =========================================================
+                           auto *topPane = new QWidget(splitter);
+                           auto *topLayout = new QVBoxLayout(topPane);
+                           
+                           // 1. Test Case Properties
+                           auto *metaGroup = new QGroupBox("Test Case Properties", topPane);
+                           auto *metaLayout = new QFormLayout(metaGroup);
+                           metaLayout->addRow("Name:", new QLineEdit("TestCase_01_Enter_MD_Session", metaGroup));
+                           metaLayout->addRow("Description:", new QLineEdit("Verify entry into Manual Diagnostic session.", metaGroup));
+                           
+                           topLayout->addWidget(metaGroup);
+
+                           // 2. Toolbar (Add/Remove Steps)
+                           auto *toolbarLayout = new QHBoxLayout();
+                           auto *btnAddStep = new QPushButton("Add Step", topPane);
+                           auto *btnRemoveStep = new QPushButton("Remove Step", topPane);
+                           toolbarLayout->addWidget(btnAddStep);
+                           toolbarLayout->addWidget(btnRemoveStep);
+                           toolbarLayout->addStretch(); // Push buttons to left
+                           topLayout->addLayout(toolbarLayout);
+
+                           // 3. Execution Sequence Table
+                           auto *seqGroup = new QGroupBox("Execution Sequence", topPane);
+                           auto *seqBoxLayout = new QVBoxLayout(seqGroup);
+                           auto *seqTable = new QTableWidget(4, 4, seqGroup); // 4 Columns
+                           seqTable->setHorizontalHeaderLabels({"#", "Type", "Command", "Parameters"});
+                           seqTable->horizontalHeader()->setStretchLastSection(true);
+                           seqTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+                           // seqTable->setEditTriggers(QAbstractItemView::NoEditTriggers); // Allow editing for ComboBoxes
+                           seqTable->verticalHeader()->setVisible(false);
+
+                           // Helper lambda to add a row with logic
+                           auto addRow = [seqTable](int row, const QString& num, const QString& type, const QString& cmd, const QString& params) {
+                               seqTable->setItem(row, 0, new QTableWidgetItem(num));
+                               
+                               // Type ComboBox
+                               auto *typeCombo = new QComboBox();
+                               typeCombo->addItems({"ManDiag", "Power", "CAN", "Flow"});
+                               typeCombo->setCurrentText(type);
+                               seqTable->setCellWidget(row, 1, typeCombo);
+
+                               // Command ComboBox
+                               auto *cmdCombo = new QComboBox();
+                               seqTable->setCellWidget(row, 2, cmdCombo);
+
+                               // Parameters Item
+                               seqTable->setItem(row, 3, new QTableWidgetItem(params));
+
+                               // Logic to update Commands based on Type
+                               auto updateCmds = [typeCombo, cmdCombo](const QString& t) {
+                                   cmdCombo->clear();
+                                   if (t == "ManDiag") {
+                                       cmdCombo->addItems({"Enter_MD_Session", "Exit_MD_Session", "Read_DID", "Write_DID"});
+                                   } else if (t == "Power") {
+                                       cmdCombo->addItems({"Turn_ON_PPS", "Turn_OFF_PPS", "Set_Voltage", "Read_Current"});
+                                   } else if (t == "CAN") {
+                                       cmdCombo->addItems({"SEND_CAN", "CHECK_VAL", "READ_MSG"});
+                                   } else if (t == "Flow") {
+                                       cmdCombo->addItems({"WAIT", "LOOP", "IF_CONDITION"});
+                                   }
+                               };
+
+                               // Connect change signal
+                               QObject::connect(typeCombo, &QComboBox::currentTextChanged, updateCmds);
+                               
+                               // Initial population
+                               updateCmds(type);
+                               cmdCombo->setCurrentText(cmd);
+                           };
+
+                           // Populate Data
+                           addRow(0, "1", "Power", "Turn_ON_PPS", "12.0V");
+                           addRow(1, "2", "Flow", "WAIT", "500ms");
+                           addRow(2, "3", "CAN", "SEND_CAN", "ID: 0x100");
+                           addRow(3, "4", "Flow", "WAIT", "100ms");
+
+                           seqBoxLayout->addWidget(seqTable);
+                           topLayout->addWidget(seqGroup);
+
+                           // =========================================================
+                           // BOTTOM PANE: Step Configuration
+                           // =========================================================
+                           auto *bottomPane = new QWidget(splitter);
+                           auto *bottomLayout = new QVBoxLayout(bottomPane);
+                           auto *propGroup = new QGroupBox("Step Configuration", bottomPane);
+                           auto *propLayout = new QVBoxLayout(propGroup);
+                           auto *stack = new QStackedWidget(propGroup);
+                           propLayout->addWidget(stack);
+                           bottomLayout->addWidget(propGroup);
+
+                           // --- Page 0: Default/Empty ---
+                           auto *pageEmpty = new QLabel("Select a step to edit.", stack);
+                           pageEmpty->setAlignment(Qt::AlignCenter);
+                           stack->addWidget(pageEmpty);
+
+                           // --- Page 1: WAIT Editor ---
+                           auto *pageWait = new QWidget(stack);
+                           auto *formWait = new QFormLayout(pageWait);
+                           auto *spinTime = new QSpinBox(pageWait);
+                           spinTime->setRange(0, 60000); spinTime->setSuffix(" ms");
+                           formWait->addRow("Wait Duration:", spinTime);
+                           formWait->addRow(new QLabel("Pauses execution for the specified time.", pageWait));
+                           stack->addWidget(pageWait);
+
+                           // --- Page 2: SEND_CAN Editor ---
+                           auto *pageCan = new QWidget(stack);
+                           auto *formCan = new QFormLayout(pageCan);
+                           auto *spinId = new QSpinBox(pageCan);
+                           spinId->setDisplayIntegerBase(16); spinId->setPrefix("0x"); spinId->setRange(0, 0x1FFFFFFF);
+                           auto *editData = new QLineEdit("00 00 00 00", pageCan);
+                           formCan->addRow("Message ID:", spinId);
+                           formCan->addRow("Payload:", editData);
+                           formCan->addRow("DLC:", new QSpinBox(pageCan));
+                           stack->addWidget(pageCan);
+
+                           // --- Page 3: PPS Editor ---
+                           auto *pagePps = new QWidget(stack);
+                           auto *formPps = new QFormLayout(pagePps);
+                           auto *spinVolt = new QDoubleSpinBox(pagePps);
+                           spinVolt->setSuffix(" V");
+                           formPps->addRow("Voltage:", spinVolt);
+                           formPps->addRow("Current Limit:", new QDoubleSpinBox(pagePps));
+                           stack->addWidget(pagePps);
+
+                           // --- LOGIC: Connect Selection to Stack Index ---
+                           QObject::connect(seqTable, &QTableWidget::itemSelectionChanged, [seqTable, stack, spinTime, spinId, spinVolt]() {
+                               auto items = seqTable->selectedItems();
+                               if (items.isEmpty()) {
+                                   stack->setCurrentIndex(0); // Empty
+                                   return;
+                               }
+                               
+                               // Get Command String from Column 2 (Command ComboBox)
+                               int row = items.first()->row();
+                               auto *cmdCombo = qobject_cast<QComboBox*>(seqTable->cellWidget(row, 2));
+                               if (!cmdCombo) return;
+                               QString cmd = cmdCombo->currentText();
+
+                               // Update Editor based on Command
+                               if (cmd == "WAIT") {
+                                   stack->setCurrentIndex(1);
+                                   auto *pItem = seqTable->item(row, 3);
+                                   if (pItem) {
+                                       QString val = pItem->text().replace("ms","");
+                                       spinTime->setValue(val.toInt());
+                                   }
+                               }
+                               else if (cmd == "SEND_CAN") {
+                                   stack->setCurrentIndex(2);
+                                   spinId->setValue(0x100);
+                               }
+                               else if (cmd == "Turn_ON_PPS") {
+                                   stack->setCurrentIndex(3);
+                                   spinVolt->setValue(12.0);
+                               }
+                               else {
+                                   stack->setCurrentIndex(0); 
+                               }
+                           });
+                           
+                           // Add widgets to splitter
+                           splitter->addWidget(topPane);
+                           splitter->addWidget(bottomPane);
+                           splitter->setStretchFactor(0, 3); // Give more space to sequence
+                           splitter->setStretchFactor(1, 1);
+
+                           return container;
                        }});
 
     // Progress Window
