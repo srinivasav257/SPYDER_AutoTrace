@@ -6,6 +6,8 @@ set(PROJECT_SOURCES
     main.cpp
     panels/SamplePanels.cpp
     panels/SamplePanels.h
+    panels/TestTreeModel.cpp
+    panels/TestTreeModel.h
     "${CMAKE_SOURCE_DIR}/resources/resources.qrc"
 )
 

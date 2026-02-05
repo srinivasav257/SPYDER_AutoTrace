@@ -15,23 +15,22 @@
 #include <QVector>
 #include <QPair>
 
+#include "TestTreeModel.h"
+#include <QTreeView>
+
 // ---------------------------------------------------------------------------
-// Helper: creates a QTreeWidget for Test Explorer
+// Helper: creates a QTreeView with TestTreeModel
 // ---------------------------------------------------------------------------
-static QWidget *makeTreePanel(QWidget *parent, const QString &title,
-                              const QMap<QString, QStringList> &data)
+static QWidget *makeTestTreePanel(QWidget *parent)
 {
-    auto *tree = new QTreeWidget(parent);
-    tree->setHeaderLabel(title);
-    
-    for (auto it = data.begin(); it != data.end(); ++it) {
-        auto *root = new QTreeWidgetItem(tree, {it.key()});
-        for (const auto &childText : it.value()) {
-            new QTreeWidgetItem(root, {childText});
-        }
-        root->setExpanded(true);
-    }
-    return tree;
+    auto *view = new QTreeView(parent);
+    auto *model = new TestTreeModel("", view);
+    view->setModel(model);
+    view->expandAll();
+    // Optimize column width
+    view->header()->setStretchLastSection(true);
+    view->resizeColumnToContents(0);
+    return view;
 }
 
 // ---------------------------------------------------------------------------
@@ -118,14 +117,8 @@ void registerSamplePanels()
                        ads::LeftDockWidgetArea,
                        [](QWidget *p)
                        {
-                           QMap<QString, QStringList> tests;
-                           tests["Sanity Checks"] = {"PowerOn_Test", "Communication_Test", "Heartbeat_Test"};
-                           tests["Functional Tests"] = {"Brake_System_Test", "Acceleration_Profile", "Emergency_Stop"};
-                           tests["Performance"] = {"Long_Run_Stress", "High_Load_Data"};
-                           
-                           return makeTreePanel(p, "Test Suites", tests);
+                           return makeTestTreePanel(p);
                        }});
-
 
     // Test Editor
     reg.registerPanel({"test_editor", "Test Editor", "TestExecutor",
