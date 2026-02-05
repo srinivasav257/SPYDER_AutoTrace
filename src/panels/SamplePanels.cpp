@@ -126,6 +126,18 @@ void registerSamplePanels()
                            return makeTreePanel(p, "Test Suites", tests);
                        }});
 
+
+    // Test Editor
+    reg.registerPanel({"test_editor", "Test Editor", "TestExecutor",
+                       ads::CenterDockWidgetArea,
+                       [](QWidget *p)
+                       {
+                           auto *edit = new QTextEdit(p);
+                           edit->setPlaceholderText("// Write your test script here...\n\nfunction test() {\n    return true;\n}");
+                           edit->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
+                           return edit;
+                       }});
+
     // Progress Window
     reg.registerPanel({"progress_window", "Progress Window", "TestExecutor",
                        ads::BottomDockWidgetArea,
