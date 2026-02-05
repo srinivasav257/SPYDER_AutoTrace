@@ -51,8 +51,8 @@ cmake -S . -B build %CMAKE_GEN% -DCMAKE_BUILD_TYPE=Debug
 if %errorlevel% neq 0 pause && goto EOF
 cmake --build build --config Debug
 if %errorlevel% neq 0 pause && goto EOF
-echo [INFO] Launching QtTemplateApp (Debug)...
-start "" "build\src\Debug\QtTemplateApp.exe"
+echo [INFO] Launching SPYDER_AutoTrace (Debug)...
+start "" "build\src\Debug\SPYDER_AutoTrace.exe"
 pause
 goto EOF
 
@@ -64,8 +64,8 @@ cmake -S . -B build %CMAKE_GEN% -DCMAKE_BUILD_TYPE=Release
 if %errorlevel% neq 0 pause && goto EOF
 cmake --build build --config Release
 if %errorlevel% neq 0 pause && goto EOF
-echo [INFO] Launching QtTemplateApp (Release)...
-start "" "build\src\Release\QtTemplateApp.exe"
+echo [INFO] Launching SPYDER_AutoTrace (Release)...
+start "" "build\src\Release\SPYDER_AutoTrace.exe"
 pause
 goto EOF
 
@@ -145,7 +145,7 @@ echo [INFO] Generating Visual Studio Solution...
 cmake .. %CMAKE_GEN%
 if %errorlevel% neq 0 pause && cd .. && goto EOF
 echo [INFO] Opening Solution...
-start QtTemplateProject.sln
+start SPYDER_AutoTrace.sln
 cd ..
 goto EOF
 
@@ -163,8 +163,8 @@ if %errorlevel% neq 0 pause && goto EOF
 
 :: Sign the Application Executable (so the ZIP version is also signed)
 echo [INFO] Signing Application Binary...
-if exist "build\src\Release\QtTemplateApp.exe" (
-    powershell -NoProfile -ExecutionPolicy Bypass -File "scripts\SignInstaller.ps1" -TargetFile "build\src\Release\QtTemplateApp.exe"
+if exist "build\src\Release\SPYDER_AutoTrace.exe" (
+    powershell -NoProfile -ExecutionPolicy Bypass -File "scripts\SignInstaller.ps1" -TargetFile "build\src\Release\SPYDER_AutoTrace.exe"
 )
 
 echo [INFO] Packaging (CPack)...
@@ -174,7 +174,7 @@ if %errorlevel% neq 0 pause && goto EOF
 
 :: Sign the Installer (The setup.exe wrapper)
 echo [INFO] Signing Installer...
-for %%f in (QtTemplateProject-*-win64.exe) do (
+for %%f in (SPYDER_AutoTrace-*-win64.exe) do (
     powershell -NoProfile -ExecutionPolicy Bypass -File "..\scripts\SignInstaller.ps1" -TargetFile "%%f"
 )
 

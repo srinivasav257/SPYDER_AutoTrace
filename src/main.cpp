@@ -7,8 +7,8 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
     // Set application metadata (used by QSettings for state persistence)
-    QApplication::setApplicationName("QtADS_MasterTemplate");
-    QApplication::setOrganizationName("QtADSTemplate");
+    QApplication::setApplicationName("AutoTrace");
+    QApplication::setOrganizationName("SPYDER");
     QApplication::setApplicationVersion("1.0.0");
 
     // Register all panel types before creating the window
@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
 
     // Create and show the dock main window
     DockManager::DockMainWindow window;
-    window.setWindowTitle("QtADS Master Template");
+    window.setWindowTitle("SPYDER AutoTrace");
     window.show();
 
     return app.exec();

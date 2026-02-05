@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.21)  # Match CMakePresets.json requirement
 include(cmake/PackageManager.cmake)
 
 # --- Project Meta ---
-project(QtTemplateProject VERSION 1.0.0 LANGUAGES CXX)
+project(SPYDER_AutoTrace VERSION 1.0.0 LANGUAGES CXX)
 
 # --- Options ---
 option(ENABLE_SUPERBUILD "Enable SuperBuild mode (build deps then project)" OFF)

@@ -54,12 +54,12 @@ Write-Host "[INFO] Found SignTool: $SignToolPath"
 $CertPath = $PfxFile
 
 if ([string]::IsNullOrEmpty($CertPath)) {
-    $CertName = "QtTemplateDevCert"
+    $CertName = "SpyderAutoTraceDevCert"
     $CertPath = "$PSScriptRoot\$CertName.pfx"
 
     if (-not (Test-Path $CertPath)) {
         Write-Host "[INFO] Creating Self-Signed Certificate..."
-        $cert = New-SelfSignedCertificate -Type CodeSigningCert -Subject "CN=QtTemplate Development" -CertStoreLocation Cert:\CurrentUser\My -NotAfter (Get-Date).AddYears(5)
+        $cert = New-SelfSignedCertificate -Type CodeSigningCert -Subject "CN=SpyderAutoTrace Development" -CertStoreLocation Cert:\CurrentUser\My -NotAfter (Get-Date).AddYears(5)
 
         # Prompt for password if not provided
         if ([string]::IsNullOrEmpty($Password)) {

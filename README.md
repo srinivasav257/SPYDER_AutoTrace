@@ -1,4 +1,4 @@
-# Professional Qt CMake Template
+# SPYDER AutoTrace
 
 A "Lifetime-Stable" industry-grade CMake template for Qt 6 C++ projects.
 
@@ -130,6 +130,9 @@ Or run directly:
 
 **Build:**
 ```bash
+cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Debug
+cmake --build build --config Debug
+
 # Windows (MSVC)
 cmake -S . -B build -G "Visual Studio 17 2022" -A x64
 cmake --build build --config Release
