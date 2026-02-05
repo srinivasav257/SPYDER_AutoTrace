@@ -157,7 +157,58 @@ void TestTreeModel::setupModelData(const QStringList &lines, TestTreeItem *paren
     // We ignore the input string for this specific layout to match the image exactly
     // In a real app, we would parse the 'lines' or load from file.
     
-    // Level 1: Suite
+    // --------------------------------------------------------------------------
+    // Test Suite: ManDiag_SWE5 (Added as per request)
+    // --------------------------------------------------------------------------
+    TestTreeItem *suite5 = new TestTreeItem({"ManDiag_SWE5"}, parent);
+    parent->appendChild(suite5);
+
+    // Group 1: 0x0001_Enter_ManDag_Session
+    TestTreeItem *group5_1 = new TestTreeItem({"0x0001_Enter_ManDag_Session"}, suite5);
+    suite5->appendChild(group5_1);
+
+        // TestCase 1: Enter MD Session
+        TestTreeItem *tc5_1 = new TestTreeItem({"TestCase_01_Enter_MD_Session"}, group5_1);
+        group5_1->appendChild(tc5_1);
+            tc5_1->appendChild(new TestTreeItem({"Test Description"}, tc5_1));
+            tc5_1->appendChild(new TestTreeItem({"Turn ON PPS"}, tc5_1));
+            tc5_1->appendChild(new TestTreeItem({"SEND SET VOLTAGE"}, tc5_1));
+            tc5_1->appendChild(new TestTreeItem({"SEND MD_REQ_SET_TYPE1"}, tc5_1));
+            tc5_1->appendChild(new TestTreeItem({"SEND MD_REQ_GET_TYPE1"}, tc5_1));
+
+        // TestCase 2: Exit MD Session
+        TestTreeItem *tc5_2 = new TestTreeItem({"TestCase_01_Exit_MD_Session"}, group5_1);
+        group5_1->appendChild(tc5_2);
+            tc5_2->appendChild(new TestTreeItem({"Test Description"}, tc5_2));
+            tc5_2->appendChild(new TestTreeItem({"SEND MD_REQ_GET_TYPE1"}, tc5_2));
+            tc5_2->appendChild(new TestTreeItem({"SEND SET VOLTAGE"}, tc5_2));
+            tc5_2->appendChild(new TestTreeItem({"SEND MD_REQ_SET_TYPE1"}, tc5_2));
+
+    // Group 2: 0x0002_Power_Mode
+    TestTreeItem *group5_2 = new TestTreeItem({"0x0002_Power_Mode"}, suite5);
+    suite5->appendChild(group5_2);
+
+        // TestCase 3: Enter Sleep
+        TestTreeItem *tc5_3 = new TestTreeItem({"TestCase_01_Enter_Sleep"}, group5_2);
+        group5_2->appendChild(tc5_3);
+            tc5_3->appendChild(new TestTreeItem({"Test Description"}, tc5_3));
+            tc5_3->appendChild(new TestTreeItem({"TURN OFF CL15"}, tc5_3));
+            tc5_3->appendChild(new TestTreeItem({"WAIT 15 Sec"}, tc5_3));
+            tc5_3->appendChild(new TestTreeItem({"CHECK SERIAL FOR SLEEP"}, tc5_3));
+            tc5_3->appendChild(new TestTreeItem({"READ CURRENT"}, tc5_3));
+
+        // TestCase 4: Enter S2R
+        TestTreeItem *tc5_4 = new TestTreeItem({"TestCase_02_Enter_S2R"}, group5_2);
+        group5_2->appendChild(tc5_4);
+            tc5_4->appendChild(new TestTreeItem({"Test Description"}, tc5_4));
+            tc5_4->appendChild(new TestTreeItem({"TURN OFF CL15"}, tc5_4));
+            tc5_4->appendChild(new TestTreeItem({"WAIT 15 Sec"}, tc5_4));
+            tc5_4->appendChild(new TestTreeItem({"CHECK SERIAL FOR SLEEP"}, tc5_4));
+            tc5_4->appendChild(new TestTreeItem({"READ CURRENT"}, tc5_4));
+
+    // --------------------------------------------------------------------------
+    // Test Suite: ManDiag_SWE6
+    // --------------------------------------------------------------------------
     TestTreeItem *suite = new TestTreeItem({"ManDiag_SWE6"}, parent);
     parent->appendChild(suite);
 
