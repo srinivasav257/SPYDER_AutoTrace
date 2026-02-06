@@ -188,6 +188,16 @@ void TestExecutorEngine::runTests(const QStringList& testCaseIds)
     setState(ExecutorState::Running);
     emit sessionStarted(m_currentSession->id, testCaseIds.size());
     
+    // Clean up previous worker thread if any
+    if (m_workerThread) {
+        if (m_workerThread->isRunning()) {
+            m_workerThread->quit();
+            m_workerThread->wait();
+        }
+        delete m_workerThread;
+        m_workerThread = nullptr;
+    }
+
     // Execute tests in a worker thread
     m_workerThread = QThread::create([this]() { executeTests(); });
     m_workerThread->start();

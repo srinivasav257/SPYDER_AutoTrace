@@ -514,76 +514,75 @@ void TestEditorPanel::setupUi()
 {
     auto* mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(4, 4, 4, 4);
-    
+
     auto* splitter = new QSplitter(Qt::Vertical, this);
     mainLayout->addWidget(splitter);
-    
-    // === TOP: Metadata + Steps ===
-    auto* topWidget = new QWidget(splitter);
-    auto* topLayout = new QVBoxLayout(topWidget);
-    
-    // Metadata Group
-    auto* metaGroup = new QGroupBox("Test Case Information", topWidget);
+
+    // === SECTION 1: Test Case Information (collapsible via splitter) ===
+    auto* metaGroup = new QGroupBox("Test Case Information", this);
     auto* metaLayout = new QFormLayout(metaGroup);
-    
+    metaLayout->setSpacing(4);
+    metaLayout->setContentsMargins(8, 12, 8, 8);
+
     m_nameEdit = new QLineEdit(metaGroup);
     m_nameEdit->setPlaceholderText("Enter test name...");
     metaLayout->addRow("Name *:", m_nameEdit);
-    
+
     m_descriptionEdit = new QLineEdit(metaGroup);
     m_descriptionEdit->setPlaceholderText("Enter description...");
     metaLayout->addRow("Description *:", m_descriptionEdit);
-    
+
     m_requirementIdEdit = new QLineEdit(metaGroup);
     m_requirementIdEdit->setPlaceholderText("REQ-XXX-XXX");
     metaLayout->addRow("Requirement ID *:", m_requirementIdEdit);
-    
+
     m_requirementLinkEdit = new QLineEdit(metaGroup);
     m_requirementLinkEdit->setPlaceholderText("https://polarion.example.com/...");
     metaLayout->addRow("Requirement Link:", m_requirementLinkEdit);
-    
+
     m_jiraTicketEdit = new QLineEdit(metaGroup);
     m_jiraTicketEdit->setPlaceholderText("PROJ-1234");
     metaLayout->addRow("JIRA Ticket *:", m_jiraTicketEdit);
-    
+
     m_jiraLinkEdit = new QLineEdit(metaGroup);
     m_jiraLinkEdit->setPlaceholderText("https://jira.example.com/browse/...");
     metaLayout->addRow("JIRA Link:", m_jiraLinkEdit);
-    
+
     m_componentEdit = new QLineEdit(metaGroup);
     metaLayout->addRow("Component:", m_componentEdit);
-    
+
     m_tagsEdit = new QLineEdit(metaGroup);
     m_tagsEdit->setPlaceholderText("EOL, ManDiag, Smoke");
     metaLayout->addRow("Tags:", m_tagsEdit);
-    
+
     auto* optionsLayout = new QHBoxLayout();
     m_prioritySpin = new QSpinBox(metaGroup);
     m_prioritySpin->setRange(1, 10);
     m_prioritySpin->setValue(5);
     optionsLayout->addWidget(new QLabel("Priority:", metaGroup));
     optionsLayout->addWidget(m_prioritySpin);
-    
+
     m_timeoutSpin = new QSpinBox(metaGroup);
     m_timeoutSpin->setRange(1000, 600000);
     m_timeoutSpin->setValue(60000);
     m_timeoutSpin->setSuffix(" ms");
     optionsLayout->addWidget(new QLabel("Timeout:", metaGroup));
     optionsLayout->addWidget(m_timeoutSpin);
-    
+
     m_enabledCheck = new QCheckBox("Enabled", metaGroup);
     m_enabledCheck->setChecked(true);
     optionsLayout->addWidget(m_enabledCheck);
     optionsLayout->addStretch();
-    
+
     metaLayout->addRow("Options:", optionsLayout);
-    
-    topLayout->addWidget(metaGroup);
-    
-    // Steps Group
-    auto* stepsGroup = new QGroupBox("Test Steps", topWidget);
+
+    splitter->addWidget(metaGroup);
+
+    // === SECTION 2: Test Steps ===
+    auto* stepsGroup = new QGroupBox("Test Steps", this);
     auto* stepsLayout = new QVBoxLayout(stepsGroup);
-    
+    stepsLayout->setContentsMargins(8, 12, 8, 8);
+
     // Steps toolbar
     auto* stepsToolbar = new QHBoxLayout();
     m_btnAddStep = new QPushButton("+ Add Step", stepsGroup);
@@ -591,7 +590,7 @@ void TestEditorPanel::setupUi()
     m_btnMoveUp = new QPushButton("▲ Up", stepsGroup);
     m_btnMoveDown = new QPushButton("▼ Down", stepsGroup);
     m_btnDuplicate = new QPushButton("Duplicate", stepsGroup);
-    
+
     stepsToolbar->addWidget(m_btnAddStep);
     stepsToolbar->addWidget(m_btnRemoveStep);
     stepsToolbar->addWidget(m_btnMoveUp);
@@ -599,7 +598,7 @@ void TestEditorPanel::setupUi()
     stepsToolbar->addWidget(m_btnDuplicate);
     stepsToolbar->addStretch();
     stepsLayout->addLayout(stepsToolbar);
-    
+
     // Steps table
     m_stepsTable = new QTableWidget(stepsGroup);
     m_stepsTable->setColumnCount(5);
@@ -613,40 +612,42 @@ void TestEditorPanel::setupUi()
     m_stepsTable->setSelectionMode(QAbstractItemView::SingleSelection);
     m_stepsTable->setAlternatingRowColors(true);
     stepsLayout->addWidget(m_stepsTable);
-    
-    topLayout->addWidget(stepsGroup);
-    
-    // === BOTTOM: Step Editor ===
-    auto* bottomWidget = new QWidget(splitter);
-    auto* bottomLayout = new QVBoxLayout(bottomWidget);
-    
-    auto* stepEditorGroup = new QGroupBox("Step Configuration", bottomWidget);
+
+    splitter->addWidget(stepsGroup);
+
+    // === SECTION 3: Step Configuration ===
+    auto* stepEditorGroup = new QGroupBox("Step Configuration", this);
     auto* stepEditorLayout = new QVBoxLayout(stepEditorGroup);
-    
+    stepEditorLayout->setContentsMargins(8, 12, 8, 8);
+
     auto* scrollArea = new QScrollArea(stepEditorGroup);
     scrollArea->setWidgetResizable(true);
+    scrollArea->setFrameShape(QFrame::NoFrame);
     m_stepEditor = new StepEditorWidget(scrollArea);
     scrollArea->setWidget(m_stepEditor);
     stepEditorLayout->addWidget(scrollArea);
-    
-    bottomLayout->addWidget(stepEditorGroup);
-    
+
+    splitter->addWidget(stepEditorGroup);
+
+    // Set initial splitter proportions: metadata compact, steps and config share remaining space
+    splitter->setStretchFactor(0, 0);  // Metadata: no stretch, stays at natural size
+    splitter->setStretchFactor(1, 1);  // Steps: expands
+    splitter->setStretchFactor(2, 1);  // Step Config: expands equally
+
+    // Set initial sizes (metadata ~280px, steps and config split the rest)
+    splitter->setSizes({280, 300, 300});
+
     // === Save/Revert Buttons ===
     auto* buttonLayout = new QHBoxLayout();
     buttonLayout->addStretch();
-    
+
     m_btnRevert = new QPushButton("Revert", this);
     m_btnSave = new QPushButton("Save", this);
     m_btnSave->setStyleSheet("QPushButton { background-color: #2196F3; color: white; font-weight: bold; padding: 8px 20px; }");
-    
+
     buttonLayout->addWidget(m_btnRevert);
     buttonLayout->addWidget(m_btnSave);
     mainLayout->addLayout(buttonLayout);
-    
-    splitter->addWidget(topWidget);
-    splitter->addWidget(bottomWidget);
-    splitter->setStretchFactor(0, 2);
-    splitter->setStretchFactor(1, 1);
 }
 
 void TestEditorPanel::setupConnections()
@@ -740,15 +741,26 @@ void TestEditorPanel::syncStepFromEditor(int row)
     const CommandDef* cmd = CommandRegistry::instance().command(updatedStep.command);
     QString cmdName = cmd ? cmd->name : updatedStep.command;
     
-    m_stepsTable->item(row, 1)->setText(TestStep::categoryToString(updatedStep.category));
-    m_stepsTable->item(row, 2)->setText(cmdName);
-    
+    if (row >= m_stepsTable->rowCount()) {
+        return;
+    }
+
+    auto setItemText = [this](int r, int col, const QString& text) {
+        QTableWidgetItem* item = m_stepsTable->item(r, col);
+        if (item) {
+            item->setText(text);
+        }
+    };
+
+    setItemText(row, 1, TestStep::categoryToString(updatedStep.category));
+    setItemText(row, 2, cmdName);
+
     QStringList paramStrs;
     for (auto it = updatedStep.parameters.constBegin(); it != updatedStep.parameters.constEnd(); ++it) {
         paramStrs.append(QString("%1=%2").arg(it.key(), it.value().toString()));
     }
-    m_stepsTable->item(row, 3)->setText(paramStrs.join(", "));
-    m_stepsTable->item(row, 4)->setText(updatedStep.enabled ? "Enabled" : "Disabled");
+    setItemText(row, 3, paramStrs.join(", "));
+    setItemText(row, 4, updatedStep.enabled ? "Enabled" : "Disabled");
 }
 
 void TestEditorPanel::setDirty(bool dirty)

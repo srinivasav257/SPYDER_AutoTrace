@@ -126,7 +126,7 @@ public:
      * @param filePath Path to save to
      * @return true if successful
      */
-    bool saveToFile(const QString& filePath) const;
+    bool saveToFile(const QString& filePath);
     
     /**
      * @brief Import test cases from JSON (merges with existing)

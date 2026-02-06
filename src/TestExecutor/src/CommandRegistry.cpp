@@ -13,6 +13,7 @@
  */
 
 #include "CommandRegistry.h"
+#include <QDateTime>
 #include <QDebug>
 #include <QThread>
 #include <QRegularExpression>
@@ -1002,6 +1003,9 @@ void CommandRegistry::registerValidationCommands()
             QString pattern = params.value("pattern").toString();
             
             QRegularExpression regex(pattern);
+            if (!regex.isValid()) {
+                return CommandResult::Failure("Invalid regex pattern: " + regex.errorString());
+            }
             if (regex.match(text).hasMatch()) {
                 return CommandResult::Success("Regex match successful");
             } else {

@@ -22,6 +22,7 @@ bool TestReportGenerator::generateReport(const TestSession& session,
 {
     switch (format) {
         case ReportFormat::HTML:
+        case ReportFormat::HTMLSimple:
             return generateHtmlReport(session, filePath, options);
         case ReportFormat::JSON:
             return generateJsonReport(session, filePath, options);
@@ -39,6 +40,7 @@ QString TestReportGenerator::defaultFilename(ReportFormat format)
     
     switch (format) {
         case ReportFormat::HTML:
+        case ReportFormat::HTMLSimple:
             return QString("TestReport_%1.html").arg(timestamp);
         case ReportFormat::JSON:
             return QString("TestReport_%1.json").arg(timestamp);

@@ -17,6 +17,7 @@
 #include <QMutex>
 #include <QWaitCondition>
 #include <QElapsedTimer>
+#include <atomic>
 
 namespace TestExecutor {
 
@@ -281,8 +282,8 @@ private:
     QThread* m_workerThread = nullptr;
     QMutex m_mutex;
     QWaitCondition m_pauseCondition;
-    bool m_stopRequested = false;
-    bool m_pauseRequested = false;
+    std::atomic<bool> m_stopRequested{false};
+    std::atomic<bool> m_pauseRequested{false};
     
     QElapsedTimer m_sessionTimer;
     QElapsedTimer m_testTimer;

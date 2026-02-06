@@ -383,24 +383,24 @@ bool TestRepository::loadFromFile(const QString& filePath)
     return true;
 }
 
-bool TestRepository::saveToFile(const QString& filePath) const
+bool TestRepository::saveToFile(const QString& filePath)
 {
     QJsonObject root;
-    
+
     // Save suites
     QJsonArray suitesArray;
     for (const auto& suite : m_testSuites) {
         suitesArray.append(suite.toJson());
     }
     root["suites"] = suitesArray;
-    
+
     // Save test cases
     QJsonArray testCasesArray;
     for (const auto& tc : m_testCases) {
         testCasesArray.append(tc.toJson());
     }
     root["testCases"] = testCasesArray;
-    
+
     // Metadata
     QJsonObject meta;
     meta["version"] = "1.0";
@@ -408,22 +408,22 @@ bool TestRepository::saveToFile(const QString& filePath) const
     meta["testCount"] = m_testCases.size();
     meta["suiteCount"] = m_testSuites.size();
     root["metadata"] = meta;
-    
+
     QJsonDocument doc(root);
-    
+
     QFile file(filePath);
     if (!file.open(QIODevice::WriteOnly)) {
         qWarning() << "Failed to open file for writing:" << filePath;
         return false;
     }
-    
+
     file.write(doc.toJson(QJsonDocument::Indented));
     file.close();
-    
-    const_cast<TestRepository*>(this)->m_currentFilePath = filePath;
-    const_cast<TestRepository*>(this)->setDirty(false);
-    
-    emit const_cast<TestRepository*>(this)->repositorySaved(filePath);
+
+    m_currentFilePath = filePath;
+    setDirty(false);
+
+    emit repositorySaved(filePath);
     return true;
 }
 
