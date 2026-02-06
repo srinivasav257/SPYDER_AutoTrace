@@ -1,0 +1,24 @@
+# Core dependencies for Infotainment Automation Framework
+
+# === Testing and Reporting ===
+pytest
+pytest-html
+pytest-order
+pytest-metadata
+pytest-xdist
+
+# === Serial and Hardware Communication ===
+pyserial
+pyvisa
+cantools
+
+# === Data and Reporting Utilities ===
+openpyxl
+pandas
+XlsxWriter
+
+# === Logging and Utilities ===
+colorlog
+
+# === Optional for VISA instruments and Keysight devices ===
+PyVISA

@@ -1,0 +1,834 @@
+[10-21-25 15:24:02] [    MIB4_project_setup.py: 56]     INFO >> Initializing ManDiag connection on COM38
+[10-21-25 15:24:02] [           base_serial.py: 88]    DEBUG >> [Attempt 1] Connected to COM38 at 115200 baud. (Parity=N, Stopbits=1, Bytesize=8)
+[10-21-25 15:24:02] [    MIB4_project_setup.py:189]     INFO >> -------------------------------------- System_Check -----------------------------------------
+[10-21-25 15:24:02] [           base_serial.py:168]    DEBUG >> LogLine: 6D643E 00 01 01 00 01 01
+[10-21-25 15:24:02] [           base_serial.py:168]    DEBUG >> LogLine: [56050]-N-man_diag.c:1015 UART is Unlocked ...
+[10-21-25 15:24:02] [           base_serial.py:168]    DEBUG >> LogLine: [56050]-H-sys_man_main.c:2010 ==> DIAG_EV_HISIP_MANUF_MSG_CMD
+[10-21-25 15:24:02] [           base_serial.py:168]    DEBUG >> LogLine: 6D643C 00 01 01 01 00
+[10-21-25 15:24:02] [           base_serial.py:177]    DEBUG >> Found substring '6D643C' in line: 6D643C 00 01 01 01 00
+[10-21-25 15:24:02] [         util_man_diag.py: 36]    DEBUG >> Response Dictionary: {'Prefix': '6D643C', 'GroupId': '00', 'TestId': '01', 'Operation': '01', 'Status': '01', 'DataLength': '00', 'Databytes': ''}
+[10-21-25 15:24:02] [               mandiag.py: 58]    DEBUG >> Command executed successfully for 6D643E 00 01 01 00 01 01
+[10-21-25 15:24:02] [               mandiag.py: 97]    DEBUG >> Validation Success - response received for command: 6D643E 00 01 01 00 01 01 in attempt 1
+[10-21-25 15:24:02] [               mandiag.py:102]    DEBUG >> Request  CMD: 6D643E 00 01 01 00 01 01
+[10-21-25 15:24:02] [               mandiag.py:103]    DEBUG >> Response CMD: {'Prefix': '6D643C', 'GroupId': '00', 'TestId': '01', 'Operation': '01', 'Status': '01', 'DataLength': '00', 'Databytes': ''}
+[10-21-25 15:24:02] [    MIB4_project_setup.py:201]     INFO >> -------------------------------------- System_Check Completed -------------------------------
+[10-21-25 15:24:02] [    MIB4_project_setup.py:209]  WARNING >> ----------------------------- PreConditional_check Start --------------------------------
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56051]-N-crypto_diag_router.c:324 MDiag session changed to 1
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56051]-N-CDD_CustDiag_cbk.c:446 MDiag session change to: 0x01
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56051]-H-diag_calibration_engine.c:512 Item DIA_MAN_SESSION received from original, crc: 0, dflt: 0
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56052]-H-sys_man_callouts.c:2023 DIAG msg_evId:13  key=100001  data=1
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56052]-H-sys_man_callouts.c:1630 MD ACTIVE: 1
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56052]-H-sys_target_def_imp.c:211 ==> SYS_EV_TD_DIAG_START
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56052]-N-CDD_CanDiag.c:4029 MDiag session change to: 0x01
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56053]-H-sys_target_def.c:221 TDef_Evt: SYS_EV_TD_DIAG_START
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56053]-N-sys_target_def_callouts.c:8819 CrntCond:(DIAG,MIBCAN,DISPL,LO_ON)
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56053]-H-sys_target_def_callouts.c:1803 ==> SYS_EV_SHD_WAKEUP
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56053]-H-sys_target_def_callouts.c:7976 Calculted remaining time for STANDBY_PWR_SAVE_T: 00:00:00 (0s)
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56053]-N-sys_target_def_callouts.c:8219 STANDBY_PWR_SAVE_T stopped
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56053]-H-sys_target_def_callouts.c:6311 New target runlevel: Full_On
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56053]-H-sys_target_def_callouts.c:6314 New state: SYS_TD_MMI_ON_DIAG (triggered by: SYS_EV_TD_DIAG_START, from: SYS_TD_MMI_STANDBY_PWR_SAVE_1)
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56053]-H-sys_hw_ctrl.c:2258 ==> SYS_EV_PWR_MODE_VIP_REPORT
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56053]-N-sys_man_callouts.c:903 Pwr_Mode2_CPSC: td:MMI_ON_DIAG rl:Power_Save
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56053]-N-sys_man_callouts.c:954 Pwr_Mode4_CPSC: BEM:0 Cl15:0 ClS:0 LON:0x1 RCC_em:0 OnlDly:0 per_prop:0x60 popup:0x0
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56053]-H-sys_man_callouts.c:962 ==> SYS_EV_PWR_MODE_VIP_REPORT
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56053]-N-sys_hw_ctrl_callouts.c:2079 clamp 30 sts 1 (old: 0)
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56054]-H-sys_post_office_pwr.c:2597 ==> SYS_EV_PO_IOC_MMX
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56054]-N-sys_post_office_pwr.c:1548 PWR->MMX:8,16
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56054]-H-sys_shd_mgr.c:1175 ShdM_Ev: SYS_EV_SHD_WAKEUP
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56054]-H-sys_man_callouts.c:604 ==> SYS_EV_RL_CHANGE
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56054]-H-sys_hw_ctrl.c:2127 RL -> HC :9
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56054]-H-sys_hw_ctrl.c:2128 ==> SYS_EV_RL_CHANGE
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56054]-H-sys_man_callouts.c:611 Sys_Run_Level_set: HMI_Stdby  to CP 0x7 HC.
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56054]-H-sys_target_def_callouts.c:5804 Cluster enabled: 1, cluster active: 0, current can mode: 0 req can mode: 0
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56054]-H-sys_target_def_callouts.c:5831 IntCAN FULL_COMM
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56054]-H-sys_target_def_callouts.c:5939 ==> SYS_EV_TD_PWR_MODE_REP_DATA_CHANGED
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56054]-H-sys_hw_ctrl.c:2258 ==> SYS_EV_PWR_MODE_VIP_REPORT
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56055]-N-sys_man_callouts.c:930 Pwr_Mode3_CPSC:  pwrfail:0 boost:0 em_r_ntfy:0 tp_m:0 cp_sh: 0 sc_sh:0 T:1 Amp_OV:0
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56055]-N-sys_man_callouts.c:954 Pwr_Mode4_CPSC: BEM:0 Cl15:0 ClS:0 LON:0x1 RCC_em:0 OnlDly:0 per_prop:0xe0 popup:0x0
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56055]-H-sys_man_callouts.c:962 ==> SYS_EV_PWR_MODE_VIP_REPORT
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56055]-N-sys_hw_ctrl.c:2494 ICAN_COMM 1: BSWM_NM 4, BSWM_COM 2, SM 2 TRCV 2 CC 0x0 COM_REQ 2
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56055]-N-sys_post_office_pwr.c:1703 IOC evt: 25
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56055]-N-fan_mgr.c:474 Fan: KL_15:0
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56056]-N-antenna_diag.c:254 ANTENNA Enabled
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56056]-N-mic_diag.c:203 Mic Enabled
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56056]-N-antenna_diag.c:254 ANTENNA Enabled
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56056]-N-mic_diag.c:203 Mic Enabled
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56056]-N-CDD_KeyPanel.c:3656 c/n runlvl:9
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56056]-N-CDD_KeyPanel.c:3660 Current_Mmi_State 8
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56056]-N-CDD_KeyPanel.c:3681 ICAN-MIBCAN: 1 - 1
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56056]-N-CDD_kp_tp.c:1923 StopCommSts: 0
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56056]-N-CDD_kp_tp.c:1923 StopCommSts: 1
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56057]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 128
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56057]-N-CDD_KeyPanel_swdl.c:1767 Tx CAN_COMM_STATUS_REBOOT=0
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56057]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 122
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56057]-N-CDD_KeyPanel_swdl.c:1767 Tx CAN_COMM_STATUS_REBOOT=0
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56057]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 124
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56057]-N-CDD_KeyPanel_swdl.c:1767 Tx CAN_COMM_STATUS_REBOOT=0
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56057]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 125
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56057]-N-CDD_KeyPanel_swdl.c:1767 Tx CAN_COMM_STATUS_REBOOT=0
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56057]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 126
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56057]-N-CDD_KeyPanel_swdl.c:1767 Tx CAN_COMM_STATUS_REBOOT=0
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56057]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 133
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56057]-N-CDD_KeyPanel_swdl.c:1767 Tx CAN_COMM_STATUS_REBOOT=0
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56057]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 134
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56057]-N-CDD_KeyPanel_swdl.c:1767 Tx CAN_COMM_STATUS_REBOOT=0
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56057]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 129
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56057]-N-CDD_KeyPanel_swdl.c:1767 Tx CAN_COMM_STATUS_REBOOT=0
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56057]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 127
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56058]-N-CDD_KeyPanel_swdl.c:1767 Tx CAN_COMM_STATUS_REBOOT=0
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56058]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 255
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56058]-N-CDD_KeyPanel_swdl.c:1767 Tx CAN_COMM_STATUS_REBOOT=0
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56058]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 255
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56058]-N-CDD_KeyPanel_swdl.c:1767 Tx CAN_COMM_STATUS_REBOOT=0
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56058]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 255
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56058]-N-CDD_KeyPanel_swdl.c:1767 Tx CAN_COMM_STATUS_REBOOT=0
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56058]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 123
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56058]-N-CDD_KeyPanel_swdl.c:1767 Tx CAN_COMM_STATUS_REBOOT=0
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56058]-H-CDD_KeyPanel.c:3703 I106-9
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56058]-N-CDD_KeyPanel.c:3714 KL15= 0
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56059]-N-sys_man_main.c:4466 TEST: KP SWDL MCAN req 1
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56059]-N-sys_target_def_callouts.c:5709 SWDL dev registration sts 1 ex_comm_sts 0
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56059]-H-sys_target_def_callouts.c:5723 ==> EV_SYS_MAN_PROPERTY_CHANGED
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56060]-H-sys_target_def_callouts.c:5804 Cluster enabled: 1, cluster active: 0, current can mode: 0 req can mode: 2
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56060]-H-sys_target_def_callouts.c:5831 IntCAN FULL_COMM
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56060]-N-CDD_kp_tp.c:888 KP->CAN:DL=2,HR:=3800555555555555,CS=0,PG=FEBE94CC,CH=5
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56060]-N-CDD_kp_tp.c:942 dev 0,ch 5,Stpcmd 1
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56060]-N-CDD_kp_tp.c:966 STOPcommshar 1 255
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56060]-N-CDD_kp_tp.c:888 KP->CAN:DL=2,HR:=3800555555555555,CS=0,PG=FEBE9538,CH=6
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56060]-N-CDD_kp_tp.c:942 dev 1,ch 6,Stpcmd 3
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56060]-N-CDD_kp_tp.c:966 STOPcommshar 3 255
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56060]-N-CDD_kp_tp.c:888 KP->CAN:DL=2,HR:=3800555555555555,CS=0,PG=FEBE95A4,CH=7
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56060]-N-CDD_kp_tp.c:942 dev 2,ch 7,Stpcmd 7
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56061]-N-CDD_kp_tp.c:966 STOPcommshar 7 255
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56061]-N-CDD_kp_tp.c:888 KP->CAN:DL=2,HR:=3800555555555555,CS=0,PG=FEBE9610,CH=8
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56061]-N-CDD_kp_tp.c:942 dev 3,ch 8,Stpcmd 15
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56061]-N-CDD_kp_tp.c:966 STOPcommshar 15 255
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56061]-N-CDD_kp_tp.c:888 KP->CAN:DL=2,HR:=3800555555555555,CS=0,PG=FEBE967C,CH=9
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56061]-N-CDD_kp_tp.c:942 dev 4,ch 9,Stpcmd 31
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56061]-N-CDD_kp_tp.c:966 STOPcommshar 31 255
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56061]-N-CDD_kp_tp.c:888 KP->CAN:DL=2,HR:=3800555555555555,CS=0,PG=FEBE982C,CH=13
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56061]-N-CDD_kp_tp.c:942 dev 5,ch 13,Stpcmd 63
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56061]-N-CDD_kp_tp.c:966 STOPcommshar 63 255
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56061]-N-CDD_kp_tp.c:888 KP->CAN:DL=2,HR:=3800555555555555,CS=0,PG=FEBE9904,CH=15
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56061]-N-CDD_kp_tp.c:942 dev 7,ch 15,Stpcmd 191
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56061]-N-CDD_kp_tp.c:966 STOPcommshar 191 255
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56062]-N-CDD_kp_tp.c:888 KP->CAN:DL=2,HR:=3800555555555555,CS=0,PG=FEBE9970,CH=16
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56062]-N-CDD_kp_tp.c:942 dev 6,ch 16,Stpcmd 255
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56062]-N-CDD_kp_tp.c:952 STcomshardall
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56062]-N-CDD_kp_tp.c:888 KP->CAN:DL=2,HR:=3800555555555555,CS=0,PG=FEBE9A48,CH=18
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56062]-N-CDD_kp_tp.c:918 Irrmsg 0 1
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56062]-N-CDD_kp_tp.c:888 KP->CAN:DL=2,HR:=3800555555555555,CS=0,PG=FEBE9AB4,CH=19
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56062]-N-CDD_kp_tp.c:918 Irrmsg 0 1
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56063]-N-CDD_KeyPanel.c:2948 I105
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56063]-N-CDD_KeyPanel.c:2948 I105
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56063]-N-sys_man_main.c:4466 TEST: KP SWDL MCAN req 0
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56063]-N-sys_target_def_callouts.c:5709 SWDL dev registration sts 0 ex_comm_sts 1
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56063]-H-sys_target_def_callouts.c:5723 ==> EV_SYS_MAN_PROPERTY_CHANGED
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56064]-H-sys_target_def_callouts.c:5804 Cluster enabled: 1, cluster active: 0, current can mode: 0 req can mode: 2
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56064]-H-sys_target_def_callouts.c:5831 IntCAN FULL_COMM
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56067]-H-sys_target_def_imp.c:1130 ICAN=1
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56067]-H-sys_target_def_imp.c:1133 ==> SYS_EV_TD_ICAN_STATE_CHANGED
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56067]-N-sys_target_def_imp.c:464 Wakeup ICAN
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56067]-H-sys_target_def_imp.c:465 ==> SYS_EV_TD_CAN_WAKEUP
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56067]-H-sys_target_def_callouts.c:4432 ICAN_Wakeup_Lock_Cnt: 29
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56067]-N-sys_target_def_callouts.c:8819 CrntCond:(DIAG,MIBCAN,ICAN,DISPL,LO_ON)
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56067]-N-sys_hw_ctrl.c:2494 ICAN_COMM 2: BSWM_NM 4, BSWM_COM 2, SM 2 TRCV 2 CC 0x0 COM_REQ 2
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56068]-H-sys_target_def.c:221 TDef_Evt: SYS_EV_TD_CAN_WAKEUP
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56068]-H-sys_target_def_callouts.c:4302 CAN Sts=> ICAN:1 MIBCAN:1
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56078]-N-sys_hw_ctrl.c:2494 ICAN_COMM 2: BSWM_NM 4, BSWM_COM 2, SM 2 TRCV 0 CC 0x0 COM_REQ _version.c:175 Version:             IOC_20251020_CL45/2863fef405043ed937b1faeff585d1d3187e18a4
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56950]-N-shell_cmd_version.c:176 Build Time:          20251020  21:40:55
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56950]-N-shell_cmd_version.c:177 Build ID/UBN:        477/0001
+[10-21-25 15:24:03] [           base_serial.py:177]    DEBUG >> Found substring 'Build ID/UBN' in line: [56950]-N-shell_cmd_version.c:177 Build ID/UBN:        477/0001
+[10-21-25 15:24:03] [    MIB4_project_setup.py:231]     INFO >> SW_Build_Version: 477/0001
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56950]-N-shell_cmd_version.c:178 Computer\User Name:  MY26-PORSCHE-MI\ContainerAdministrator
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56950]-N-shell_cmd_version.c:179 RD CERT:             0xFFFFFFFF
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56950]-N-hw_version.c:290 H02 HW Detected = 3
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56950]-N-shell_cmd_version.c:188 HW:                  HW_14 H02 (001)
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [56950]-N-shell_cmd_version.c:189 Product Part Number: R7F701565
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: ===========================================================================
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: > 6D643E 78 01 00 00 01 02
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: [57550]-N-hw_version.c:290 H02 HW Detected = 3
+[10-21-25 15:24:03] [           base_serial.py:168]    DEBUG >> LogLine: 6D643C 78 01 00 01 1E 02 48 57 5F 31 34 20 48 30 32 20 28 30 30 31 29 28 52 37 46 37 30 31 35 36 35 20 20 20 29
+[10-21-25 15:24:03] [           base_serial.py:177]    DEBUG >> Found substring '6D643C' in line: 6D643C 78 01 00 01 1E 02 48 57 5F 31 34 20 48 30 32 20 28 30 30 31 29 28 52 37 46 37 30 31 35 36 35 20 20 20 29
+[10-21-25 15:24:03] [         util_man_diag.py: 36]    DEBUG >> Response Dictionary: {'Prefix': '6D643C', 'GroupId': '78', 'TestId': '01', 'Operation': '00', 'Status': '01', 'DataLength': '1E', 'Databytes': '02 48 57 5F 31 34 20 48 30 32 20 28 30 30 31 29 28 52 37 46 37 30 31 35 36 35 20 20 20 29'}
+[10-21-25 15:24:03] [               mandiag.py: 58]    DEBUG >> Command executed successfully for 6D643E 78 01 00 00 01 02
+[10-21-25 15:24:03] [               mandiag.py: 97]    DEBUG >> Validation Success - response received for command: 6D643E 78 01 00 00 01 02 in attempt 1
+[10-21-25 15:24:03] [               mandiag.py:102]    DEBUG >> Request  CMD: 6D643E 78 01 00 00 01 02
+[10-21-25 15:24:03] [               mandiag.py:103]    DEBUG >> Response CMD: {'Prefix': '6D643C', 'GroupId': '78', 'TestId': '01', 'Operation': '00', 'Status': '01', 'DataLength': '1E', 'Databytes': '02 48 57 5F 31 34 20 48 30 32 20 28 30 30 31 29 28 52 37 46 37 30 31 35 36 35 20 20 20 29'}
+[10-21-25 15:24:03] [    MIB4_project_setup.py:240]     INFO >> Silver_Box_HW_Version: HW_14 H02 (001)(R7F701565   )
+[10-21-25 15:24:04] [           base_serial.py:168]    DEBUG >> LogLine: [57751]-N-SOLA.c:1017 SOLA key not set!
+[10-21-25 15:24:04] [           base_serial.py:168]    DEBUG >> LogLine: [57960]-N-CDD_kp_tp.c:888 KP->CAN:DL=3,HR:=4001035555555555,CS=0,PG=FEBE96E8,CH=10
+[10-21-25 15:24:04] [           base_serial.py:168]    DEBUG >> LogLine: [57960]-N-CDD_kp_tp.c:918 Irrmsg 0 0
+[10-21-25 15:24:04] [           base_serial.py:168]    DEBUG >> LogLine: [58062]-N-CDD_kp_tp.c:492 TxFail:Ch=10,Reason=1
+[10-21-25 15:24:04] [           base_serial.py:168]    DEBUG >> LogLine: [58062]-N-CDD_kp_tp.c:888 KP->CAN:DL=3,HR:=4001035555555555,CS=0,PG=FEBE96E8,CH=10
+[10-21-25 15:24:04] [           base_serial.py:168]    DEBUG >> LogLine: [58062]-N-CDD_kp_tp.c:918 Irrmsg 0 0
+[10-21-25 15:24:04] [           base_serial.py:168]    DEBUG >> LogLine: [58062]-N-CDD_kp_tp.c:1194 TxMsgRetryChnl:Ch=10
+[10-21-25 15:24:04] [           base_serial.py:168]    DEBUG >> LogLine: 6D643E 64 01 00 00 01 02
+[10-21-25 15:24:04] [           base_serial.py:168]    DEBUG >> LogLine: 6D643C 64 01 00 01 05 02 30 30 30 31
+[10-21-25 15:24:04] [           base_serial.py:177]    DEBUG >> Found substring '6D643C' in line: 6D643C 64 01 00 01 05 02 30 30 30 31
+[10-21-25 15:24:04] [         util_man_diag.py: 36]    DEBUG >> Response Dictionary: {'Prefix': '6D643C', 'GroupId': '64', 'TestId': '01', 'Operation': '00', 'Status': '01', 'DataLength': '05', 'Databytes': '02 30 30 30 31'}
+[10-21-25 15:24:04] [               mandiag.py: 58]    DEBUG >> Command executed successfully for 6D643E 64 01 00 00 01 02
+[10-21-25 15:24:04] [               mandiag.py: 97]    DEBUG >> Validation Success - response received for command: 6D643E 64 01 00 00 01 02 in attempt 1
+[10-21-25 15:24:04] [               mandiag.py:102]    DEBUG >> Request  CMD: 6D643E 64 01 00 00 01 02
+[10-21-25 15:24:04] [               mandiag.py:103]    DEBUG >> Response CMD: {'Prefix': '6D643C', 'GroupId': '64', 'TestId': '01', 'Operation': '00', 'Status': '01', 'DataLength': '05', 'Databytes': '02 30 30 30 31'}
+[10-21-25 15:24:04] [    MIB4_project_setup.py:240]     INFO >> IOC_SoftwareVersion: 0001
+[10-21-25 15:24:04] [           base_serial.py:168]    DEBUG >> LogLine: [58164]-N-most_hisip_handlers.c:152  RX_HISIP: SNID:0x01, AID :0x15 FID:0x29
+[10-21-25 15:24:04] [           base_serial.py:168]    DEBUG >> LogLine: [58164]-N-most_hisip_handlers.c:236 state : 0
+[10-21-25 15:24:04] [           base_serial.py:168]    DEBUG >> LogLine: [58167]-N-CDD_kp_tp.c:492 TxFail:Ch=10,Reason=1
+[10-21-25 15:24:04] [           base_serial.py:168]    DEBUG >> LogLine: [58167]-N-CDD_kp_tp.c:888 KP->CAN:DL=3,HR:=4001035555555555,CS=0,PG=FEBE96E8,CH=10
+[10-21-25 15:24:04] [           base_serial.py:168]    DEBUG >> LogLine: [58167]-N-CDD_kp_tp.c:918 Irrmsg 0 0
+[10-21-25 15:24:04] [           base_serial.py:168]    DEBUG >> LogLine: [58167]-N-CDD_kp_tp.c:1194 TxMsgRetryChnl:Ch=10
+[10-21-25 15:24:04] [           base_serial.py:168]    DEBUG >> LogLine: [58272]-N-CDD_kp_tp.c:492 TxFail:Ch=10,Reason=1
+[10-21-25 15:24:04] [           base_serial.py:168]    DEBUG >> LogLine: [58272]-N-CDD_kp_tp.c:888 KP->CAN:DL=3,HR:=4001035555555555,CS=0,PG=FEBE96E8,CH=10
+[10-21-25 15:24:04] [           base_serial.py:168]    DEBUG >> LogLine: [58272]-N-CDD_kp_tp.c:918 Irrmsg 0 0
+[10-21-25 15:24:04] [           base_serial.py:168]    DEBUG >> LogLine: [58272]-N-CDD_kp_tp.c:1194 TxMsgRetryChnl:Ch=10
+[10-21-25 15:24:04] [           base_serial.py:168]    DEBUG >> LogLine: [58377]-N-CDD_kp_tp.c:492 TxFail:Ch=10,Reason=1
+[10-21-25 15:24:04] [           base_serial.py:168]    DEBUG >> LogLine: [58377]-N-CDD_kp_tp.c:888 KP->CAN:DL=3,HR:=4001035555555555,CS=0,PG=FEBE96E8,CH=10
+[10-21-25 15:24:04] [           base_serial.py:168]    DEBUG >> LogLine: [58377]-N-CDD_kp_tp.c:918 Irrmsg 0 0
+[10-21-25 15:24:04] [           base_serial.py:168]    DEBUG >> LogLine: [58377]-N-CDD_kp_tp.c:1194 TxMsgRetryChnl:Ch=10
+[10-21-25 15:24:04] [           base_serial.py:168]    DEBUG >> LogLine: [58482]-N-CDD_kp_tp.c:492 TxFail:Ch=10,Reason=1
+[10-21-25 15:24:04] [           base_serial.py:168]    DEBUG >> LogLine: [58482]-N-CDD_kp_tp.c:1199 InitChannel:Ch=10
+[10-21-25 15:24:04] [           base_serial.py:168]    DEBUG >> LogLine: 6D643E 64 01 00 00 01 01
+[10-21-25 15:24:04] [           base_serial.py:168]    DEBUG >> LogLine: [58762]-N-man_diag.c:217 MDIAG: On key: 170002; data size: 6
+[10-21-25 15:24:04] [           base_serial.py:168]    DEBUG >> LogLine: 6D643C 64 01 00 01 05 01 30 30 30 31
+[10-21-25 15:24:04] [           base_serial.py:177]    DEBUG >> Found substring '6D643C' in line: 6D643C 64 01 00 01 05 01 30 30 30 31
+[10-21-25 15:24:04] [         util_man_diag.py: 36]    DEBUG >> Response Dictionary: {'Prefix': '6D643C', 'GroupId': '64', 'TestId': '01', 'Operation': '00', 'Status': '01', 'DataLength': '05', 'Databytes': '01 30 30 30 31'}
+[10-21-25 15:24:04] [               mandiag.py: 58]    DEBUG >> Command executed successfully for 6D643E 64 01 00 00 01 01
+[10-21-25 15:24:04] [               mandiag.py: 97]    DEBUG >> Validation Success - response received for command: 6D643E 64 01 00 00 01 01 in attempt 1
+[10-21-25 15:24:04] [               mandiag.py:102]    DEBUG >> Request  CMD: 6D643E 64 01 00 00 01 01
+[10-21-25 15:24:04] [               mandiag.py:103]    DEBUG >> Response CMD: {'Prefix': '6D643C', 'GroupId': '64', 'TestId': '01', 'Operation': '00', 'Status': '01', 'DataLength': '05', 'Databytes': '01 30 30 30 31'}
+[10-21-25 15:24:04] [    MIB4_project_setup.py:240]     INFO >> CPA_SoftwareVersion: 0001
+[10-21-25 15:24:05] [           base_serial.py:168]    DEBUG >> LogLine: [59034]-H-CDD_KeyPanel_swdl.c:1380 CommunicationStateGet (COMMUNICATION_STATE_GET,RxdCanId=37, DestCanId=128)
+[10-21-25 15:24:05] [           base_serial.py:168]    DEBUG >> LogLine: [59034]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 128
+[10-21-25 15:24:05] [           base_serial.py:168]    DEBUG >> LogLine: [59040]-N-CDD_kp_tp.c:888 KP->CAN:DL=2,HR:=3800555555555555,CS=0,PG=FEBE94CC,CH=5
+[10-21-25 15:24:05] [           base_serial.py:168]    DEBUG >> LogLine: [59040]-N-CDD_kp_tp.c:918 Irrmsg 0 1
+[10-21-25 15:24:05] [           base_serial.py:168]    DEBUG >> LogLine: 6D643E 64 01 00 00 01 05
+[10-21-25 15:24:05] [           base_serial.py:168]    DEBUG >> LogLine: [59358]-N-man_diag.c:217 MDIAG: On key: 170006; data size: 6
+[10-21-25 15:24:05] [           base_serial.py:168]    DEBUG >> LogLine: 6D643C 64 01 00 01 05 05 30 30 30 31
+[10-21-25 15:24:05] [           base_serial.py:177]    DEBUG >> Found substring '6D643C' in line: 6D643C 64 01 00 01 05 05 30 30 30 31
+[10-21-25 15:24:05] [         util_man_diag.py: 36]    DEBUG >> Response Dictionary: {'Prefix': '6D643C', 'GroupId': '64', 'TestId': '01', 'Operation': '00', 'Status': '01', 'DataLength': '05', 'Databytes': '05 30 30 30 31'}
+[10-21-25 15:24:05] [               mandiag.py: 58]    DEBUG >> Command executed successfully for 6D643E 64 01 00 00 01 05
+[10-21-25 15:24:05] [               mandiag.py: 97]    DEBUG >> Validation Success - response received for command: 6D643E 64 01 00 00 01 05 in attempt 1
+[10-21-25 15:24:05] [               mandiag.py:102]    DEBUG >> Request  CMD: 6D643E 64 01 00 00 01 05
+[10-21-25 15:24:05] [               mandiag.py:103]    DEBUG >> Response CMD: {'Prefix': '6D643C', 'GroupId': '64', 'TestId': '01', 'Operation': '00', 'Status': '01', 'DataLength': '05', 'Databytes': '05 30 30 30 31'}
+[10-21-25 15:24:05] [    MIB4_project_setup.py:240]     INFO >> CPV_SoftwareVersion: 0001
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [59422]-H-CDD_KeyPanel_swdl.c:1380 CommunicationStateGet (COMMUNICATION_STATE_GET,RxdCanId=2, DestCanId=124)
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [59423]-H-CDD_KeyPanel_swdl.c:1909 Tx delayd CommunicationStateStatus, DestCanId=124)
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [59423]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 124
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [59430]-N-CDD_kp_tp.c:888 KP->CAN:DL=2,HR:=3800555555555555,CS=0,PG=FEBE95A4,CH=7
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [59430]-N-CDD_kp_tp.c:918 Irrmsg 0 1
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [59809]-N-sys_post_office_system.c:285 Early msg first tx: 640 successful tx 640
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: 6D643E 64 01 00 00 01 06
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [59960]-N-CDD_kp_tp.c:888 KP->CAN:DL=3,HR:=4001035555555555,CS=0,PG=FEBE96E8,CH=10
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [59960]-N-CDD_kp_tp.c:918 Irrmsg 0 0
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [59961]-N-man_diag.c:217 MDIAG: On key: 170007; data size: 6
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: 6D643C 64 01 00 01 05 06 30 30 30 31
+[10-21-25 15:24:06] [           base_serial.py:177]    DEBUG >> Found substring '6D643C' in line: 6D643C 64 01 00 01 05 06 30 30 30 31
+[10-21-25 15:24:06] [         util_man_diag.py: 36]    DEBUG >> Response Dictionary: {'Prefix': '6D643C', 'GroupId': '64', 'TestId': '01', 'Operation': '00', 'Status': '01', 'DataLength': '05', 'Databytes': '06 30 30 30 31'}
+[10-21-25 15:24:06] [               mandiag.py: 58]    DEBUG >> Command executed successfully for 6D643E 64 01 00 00 01 06
+[10-21-25 15:24:06] [               mandiag.py: 97]    DEBUG >> Validation Success - response received for command: 6D643E 64 01 00 00 01 06 in attempt 1
+[10-21-25 15:24:06] [               mandiag.py:102]    DEBUG >> Request  CMD: 6D643E 64 01 00 00 01 06
+[10-21-25 15:24:06] [               mandiag.py:103]    DEBUG >> Response CMD: {'Prefix': '6D643C', 'GroupId': '64', 'TestId': '01', 'Operation': '00', 'Status': '01', 'DataLength': '05', 'Databytes': '06 30 30 30 31'}
+[10-21-25 15:24:06] [    MIB4_project_setup.py:240]     INFO >> CPR_SoftwareVersion: 0001
+[10-21-25 15:24:06] [    MIB4_project_setup.py:245]  WARNING >> --------------------------- PreConditional_check Completed ----------------------------
+[10-21-25 15:24:06] [    MIB4_project_setup.py: 97]     INFO >> Initializing TENMA Power Supply on COM112
+[10-21-25 15:24:06] [           base_serial.py: 88]    DEBUG >> [Attempt 1] Connected to COM112 at 9600 baud. (Parity=N, Stopbits=1, Bytesize=8)
+[10-21-25 15:24:06] [    MIB4_project_setup.py:131]     INFO >> Initializing Keysight 34465A DMM on USB0::0x2A8D::0x0301::MY57503803::0::INSTR
+[10-21-25 15:24:06] [     test_0x0A04_Sleep.py: 52]    DEBUG >> 
+                Test Case: Unit Sleep Normal mode
+                Steps:
+                1. Pre-condition: The Unit should be powered ON and VIP must be fully BootUp and Running.
+                2. Actual Test: Send SET Unit Sleep in normal mode.          
+                3. Post-condition: Read ManDiag session and verify the exit status.
+
+                Expected Result:
+                - The response should indicate that Unit is requested for Normal sleep and within 30 Sec sleep should complete
+                  and current consumption should go below 10mA.
+                
+[10-21-25 15:24:06] [     test_0x0A04_Sleep.py: 53]     INFO >> Starting test: Unit Sleep normal mode feature Validation
+[10-21-25 15:24:06] [     test_0x0A04_Sleep.py: 59]     INFO >> Executing actual test: Unit Sleep in Normal mode and wait for 30sec and verify current consumption below 10mA 
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60062]-N-CDD_kp_tp.c:492 TxFail:Ch=10,Reason=1
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60062]-N-CDD_kp_tp.c:888 KP->CAN:DL=3,HR:=4001035555555555,CS=0,PG=FEBE96E8,CH=10
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60062]-N-CDD_kp_tp.c:918 Irrmsg 0 0
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60062]-N-CDD_kp_tp.c:1194 TxMsgRetryChnl:Ch=10
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60150]-N-hisip_statistics.c:208 DeSIP0 STATS | Rx(463/53) Tx(620/102) TmO(0/0) WCS(0/0) BFu(0/0) ILe(0/0) OE(1/0)
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60150]-N-hisip_statistics.c:315 HiSIP0 Ap:PwMgr Rx(44/10) Tx(109/28)
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60150]-N-hisip_statistics.c:315 HiSIP0 Ap:DiagR Rx(225/18) Tx(213/18)
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60150]-N-hisip_statistics.c:315 HiSIP0 Ap:Wdg Rx(120/20) Tx(66/10)
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60150]-N-hisip_statistics.c:315 HiSIP0 Ap:Most Rx(6/2) Tx(54/9)
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60150]-N-hisip_statistics.c:315 HiSIP0 Ap:DbgTrace Rx(2/0) Tx(121/35)
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60151]-N-hisip_statistics.c:315 HiSIP0 Ap:System Rx(38/3) Tx(32/2)
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60151]-N-hisip_statistics.c:208 DeSIP1 STATS | Rx(0/0) Tx(0/0) TmO(0/0) WCS(0/0) BFu(0/0) ILe(0/0) OE(0/0)
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60151]-N-hisip_statistics.c:356 NBUF Pool0 m65 c77 Pool1 m79 c79 Items m172 c206
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60151]-N-RstpStats.c:828 RX | FR(183/18) NoBuf(0/0) CRC(0/0) IF(0/0) IT(1/0) OERR(0/0)
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60151]-N-RstpStats.c:863 TX | FT(267/19) NoBuf(0/0) IL(0/0) IT(0/0) TE(0/0) TQD(0/0) BLK(0/0) FLOW(0/0) IP(0/0) IS(1/0) ALF(0/0) OERR(0/0)
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60151]-N-RstpStats.c:951 CH | SYSTEM(0/40/28/0/1/0 [0/3/1] 0/5/5/0/0/0) POWMGMT(16/26/8/12/1/0 [0/10/2] 2/2/1/2/0/0)
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60151]-N-RstpStats.c:1241 CH | VINFO(3/4/3/3/0/0 [0/3/0] 0/0/0/0/0/0) ISOTP(24/0/0/24/0/0 [0/0/0] 5/0/0/5/0/0)
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60151]-N-RstpStats.c:1460 CH | CYBERSEC(2/2/2/2/0/0 [0/1/0] 0/0/0/0/0/0) MONITORING(26/28/0/0/0/0 [0/1/1] 5/5/0/0/0/0)
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60152]-N-uart_rh850.c:2316 B1_CTS_DETECTED
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60152]-N-RstpStats.c:1687 UART2 Info: TxOvf(0) TxMax(233) TxMaxRecent(21) RTS(ACTIVE) CTS(ACTIVE)
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60152]-N-ResourceMonitor_CpuLoad.c:192 CPU Load Cur:42% Avg:40% Peak:42%
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60167]-N-CDD_kp_tp.c:492 TxFail:Ch=10,Reason=1
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60167]-N-CDD_kp_tp.c:888 KP->CAN:DL=3,HR:=4001035555555555,CS=0,PG=FEBE96E8,CH=10
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60167]-N-CDD_kp_tp.c:918 Irrmsg 0 0
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60167]-N-CDD_kp_tp.c:1194 TxMsgRetryChnl:Ch=10
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60237]-N-CDD_KeyPanel.c:4890 BY_KINEMATIC - BEDIENTEIL timeout
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60272]-N-CDD_kp_tp.c:492 TxFail:Ch=10,Reason=1
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60272]-N-CDD_kp_tp.c:888 KP->CAN:DL=3,HR:=4001035555555555,CS=0,PG=FEBE96E8,CH=10
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60272]-N-CDD_kp_tp.c:918 Irrmsg 0 0
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60272]-N-CDD_kp_tp.c:1194 TxMsgRetryChnl:Ch=10
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60377]-N-CDD_kp_tp.c:492 TxFail:Ch=10,Reason=1
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60377]-N-CDD_kp_tp.c:888 KP->CAN:DL=3,HR:=4001035555555555,CS=0,PG=FEBE96E8,CH=10
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60377]-N-CDD_kp_tp.c:918 Irrmsg 0 0
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60377]-N-CDD_kp_tp.c:1194 TxMsgRetryChnl:Ch=10
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60387]-H-sys_man_main.c:1340 ==> EV_SYS_MAN_PROPERTY_CHANGED
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60387]-H-sys_man_main.c:1340 ==> EV_SYS_MAN_PROPERTY_CHANGED
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60387]-H-sys_target_def_callouts.c:5804 Cluster enabled: 1, cluster active: 0, current can mode: 2 req can mode: 2
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60388]-H-sys_target_def_callouts.c:5804 Cluster enabled: 1, cluster active: 0, current can mode: 2 req can mode: 2
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60468]-N-most_hisip_handlers.c:152  RX_HISIP: SNID:0x01, AID :0x15 FID:0x29
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60468]-N-most_hisip_handlers.c:236 state : 0
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60482]-N-CDD_kp_tp.c:492 TxFail:Ch=10,Reason=1
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60482]-N-CDD_kp_tp.c:1199 InitChannel:Ch=10
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60504]-H-sys_target_def_callouts.c:1125 RL HMI_Stdby Ack: CPA|CPV|CPR
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60505]-H-sys_hw_ctrl.c:2258 ==> SYS_EV_PWR_MODE_VIP_REPORT
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60505]-N-sys_man_callouts.c:903 Pwr_Mode2_CPSC: td:MMI_ON_DIAG rl:HMI_Stdby
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60505]-N-sys_man_callouts.c:954 Pwr_Mode4_CPSC: BEM:0 Cl15:0 ClS:0 LON:0x1 RCC_em:0 OnlDly:0 per_prop:0xe0 popup:0x0
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60505]-H-sys_man_callouts.c:962 ==> SYS_EV_PWR_MODE_VIP_REPORT
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60505]-H-sys_man_callouts.c:604 ==> SYS_EV_RL_CHANGE
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60505]-H-sys_hw_ctrl.c:2127 RL -> HC :10
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60505]-H-sys_hw_ctrl.c:2128 ==> SYS_EV_RL_CHANGE
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60505]-H-sys_man_callouts.c:611 Sys_Run_Level_set: Full_On  to CP 0x7 HC.
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60505]-H-sys_target_def_callouts.c:5804 Cluster enabled: 1, cluster active: 0, current can mode: 2 req can mode: 2
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60506]-N-fan_mgr.c:474 Fan: KL_15:0
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60506]-N-antenna_diag.c:254 ANTENNA Enabled
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60506]-N-mic_diag.c:203 Mic Enabled
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60506]-N-CDD_KeyPanel.c:3656 c/n runlvl:10
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60506]-N-CDD_KeyPanel.c:3660 Current_Mmi_State 8
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60506]-N-CDD_KeyPanel.c:3681 ICAN-MIBCAN: 1 - 1
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60506]-N-CDD_KeyPanel.c:3714 KL15= 0
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60514]-N-CDD_KeyPanel.c:2948 I105
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60514]-N-CDD_KeyPanel.c:2948 I105
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60526]-H-sys_target_def_callouts.c:1125 RL Full_On Ack: CPA|CPV|CPR
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60529]-H-sys_hw_ctrl.c:2258 ==> SYS_EV_PWR_MODE_VIP_REPORT
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60529]-N-sys_man_callouts.c:903 Pwr_Mode2_CPSC: td:MMI_ON_DIAG rl:Full_On
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60529]-N-sys_man_callouts.c:954 Pwr_Mode4_CPSC: BEM:0 Cl15:0 ClS:0 LON:0x1 RCC_em:0 OnlDly:0 per_prop:0xe0 popup:0x0
+[10-21-25 15:24:06] [           base_serial.py:168]    DEBUG >> LogLine: [60529]-H-sys_man_callouts.c:962 ==> SYS_EV_PWR_MODE_VIP_REPORT
+[10-21-25 15:24:07] [           base_serial.py:168]    DEBUG >> LogLine: 6D643E 0A 04 01 00 01 01
+[10-21-25 15:24:07] [           base_serial.py:168]    DEBUG >> LogLine: [60750]-H-sys_man_main.c:2010 ==> DIAG_EV_HISIP_MANUF_MSG_REQ
+[10-21-25 15:24:07] [           base_serial.py:168]    DEBUG >> LogLine: [60751]-H-sys_man_callouts.c:2134 DIAG msg_evId:12  key=0x190a4  data=1
+[10-21-25 15:24:07] [           base_serial.py:168]    DEBUG >> LogLine: [60751]-H-sys_man_callouts.c:2094 MD SHD NORMAL REQ
+[10-21-25 15:24:07] [           base_serial.py:168]    DEBUG >> LogLine: [60751]-H-sys_man_callouts.c:2095 ==> SYS_EV_TD_IMMEDIATELY_SHUTDOWN
+[10-21-25 15:24:07] [           base_serial.py:168]    DEBUG >> LogLine: 6D643C 0A 04 01 01 01 01
+[10-21-25 15:24:07] [           base_serial.py:177]    DEBUG >> Found substring '6D643C' in line: 6D643C 0A 04 01 01 01 01
+[10-21-25 15:24:07] [         util_man_diag.py: 36]    DEBUG >> Response Dictionary: {'Prefix': '6D643C', 'GroupId': '0A', 'TestId': '04', 'Operation': '01', 'Status': '01', 'DataLength': '01', 'Databytes': '01'}
+[10-21-25 15:24:07] [               mandiag.py: 58]    DEBUG >> Command executed successfully for 6D643E 0A 04 01 00 01 01
+[10-21-25 15:24:07] [               mandiag.py:127]    DEBUG >> Validation Success - response received for command: 6D643E 0A 04 01 00 01 01 in attempt 1
+[10-21-25 15:24:07] [               mandiag.py:168]    DEBUG >> Response validated successfully: {'Prefix': '6D643C', 'GroupId': '0A', 'TestId': '04', 'Operation': '01', 'Status': '01', 'DataLength': '01', 'Databytes': '01'}
+[10-21-25 15:24:07] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:07  2.794446 A  (2794446.4 µA)  [range=3.0]
+[10-21-25 15:24:07] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:07  2.693377 A  (2693377.0 µA)  [range=3.0]
+[10-21-25 15:24:08] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:08  1.698738 A  (1698738.4 µA)  [range=3.0]
+[10-21-25 15:24:08] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:08  1.540299 A  (1540299.4 µA)  [range=3.0]
+[10-21-25 15:24:09] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:09  1.413583 A  (1413582.9 µA)  [range=3.0]
+[10-21-25 15:24:09] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:09  1.620929 A  (1620929.4 µA)  [range=3.0]
+[10-21-25 15:24:10] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:10  1.390389 A  (1390388.9 µA)  [range=3.0]
+[10-21-25 15:24:10] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:10  1.553835 A  (1553834.5 µA)  [range=3.0]
+[10-21-25 15:24:11] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:11  1.457537 A  (1457536.6 µA)  [range=3.0]
+[10-21-25 15:24:12] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:12  1.522137 A  (1522136.9 µA)  [range=3.0]
+[10-21-25 15:24:12] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:12  1.569362 A  (1569361.6 µA)  [range=3.0]
+[10-21-25 15:24:13] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:13  1.384800 A  (1384800.3 µA)  [range=3.0]
+[10-21-25 15:24:13] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:13  1.581328 A  (1581328.2 µA)  [range=3.0]
+[10-21-25 15:24:14] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:14  1.423203 A  (1423203.1 µA)  [range=3.0]
+[10-21-25 15:24:14] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:14  1.592300 A  (1592300.3 µA)  [range=3.0]
+[10-21-25 15:24:15] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:15  1.462640 A  (1462639.8 µA)  [range=3.0]
+[10-21-25 15:24:15] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:15  1.463095 A  (1463095.2 µA)  [range=3.0]
+[10-21-25 15:24:16] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:16  1.593962 A  (1593962.2 µA)  [range=3.0]
+[10-21-25 15:24:16] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:16  1.386362 A  (1386361.6 µA)  [range=3.0]
+[10-21-25 15:24:17] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:17  1.445040 A  (1445039.7 µA)  [range=3.0]
+[10-21-25 15:24:17] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:17  1.418880 A  (1418879.6 µA)  [range=3.0]
+[10-21-25 15:24:18] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:18  1.416535 A  (1416535.1 µA)  [range=3.0]
+[10-21-25 15:24:18] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:18  1.460175 A  (1460174.5 µA)  [range=3.0]
+[10-21-25 15:24:19] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:19  1.412450 A  (1412449.6 µA)  [range=3.0]
+[10-21-25 15:24:19] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:19  1.553719 A  (1553718.8 µA)  [range=3.0]
+[10-21-25 15:24:20] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:20  1.458017 A  (1458017.2 µA)  [range=3.0]
+[10-21-25 15:24:20] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:20  1.559935 A  (1559934.5 µA)  [range=3.0]
+[10-21-25 15:24:21] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:21  1.463789 A  (1463789.1 µA)  [range=3.0]
+[10-21-25 15:24:21] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:21  1.651865 A  (1651865.3 µA)  [range=3.0]
+[10-21-25 15:24:22] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:22  1.416976 A  (1416976.4 µA)  [range=3.0]
+[10-21-25 15:24:22] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:22  1.576912 A  (1576912.2 µA)  [range=3.0]
+[10-21-25 15:24:23] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:23  1.413845 A  (1413844.9 µA)  [range=3.0]
+[10-21-25 15:24:23] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:23  1.443355 A  (1443355.3 µA)  [range=3.0]
+[10-21-25 15:24:24] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:24  1.561376 A  (1561376.0 µA)  [range=3.0]
+[10-21-25 15:24:24] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:24  1.380217 A  (1380217.0 µA)  [range=3.0]
+[10-21-25 15:24:25] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:25  1.447260 A  (1447259.9 µA)  [range=3.0]
+[10-21-25 15:24:26] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:26  1.637409 A  (1637409.5 µA)  [range=3.0]
+[10-21-25 15:24:26] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:26  1.438295 A  (1438294.9 µA)  [range=3.0]
+[10-21-25 15:24:27] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:27  1.471805 A  (1471805.2 µA)  [range=3.0]
+[10-21-25 15:24:27] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:27  1.556957 A  (1556956.9 µA)  [range=3.0]
+[10-21-25 15:24:28] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:28  1.379628 A  (1379627.5 µA)  [range=3.0]
+[10-21-25 15:24:28] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:28  1.444019 A  (1444019.0 µA)  [range=3.0]
+[10-21-25 15:24:29] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:29  1.439583 A  (1439582.6 µA)  [range=3.0]
+[10-21-25 15:24:29] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:29  1.396858 A  (1396858.4 µA)  [range=3.0]
+[10-21-25 15:24:30] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:30  0.024851 A  (24851.3 µA)  [range=3.0]
+[10-21-25 15:24:30] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:30  0.002301 A  (2300.8 µA)  [range=3.0]
+[10-21-25 15:24:31] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:31  0.002011 A  (2011.1 µA)  [range=3.0]
+[10-21-25 15:24:31] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:31  0.001951 A  (1951.0 µA)  [range=3.0]
+[10-21-25 15:24:32] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:32  0.001990 A  (1990.0 µA)  [range=3.0]
+[10-21-25 15:24:32] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:32  0.002017 A  (2016.7 µA)  [range=3.0]
+[10-21-25 15:24:33] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:33  0.002090 A  (2090.0 µA)  [range=3.0]
+[10-21-25 15:24:33] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:33  0.001982 A  (1982.5 µA)  [range=3.0]
+[10-21-25 15:24:34] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:34  0.001959 A  (1958.5 µA)  [range=3.0]
+[10-21-25 15:24:34] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:34  0.001965 A  (1964.5 µA)  [range=3.0]
+[10-21-25 15:24:35] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:35  0.001967 A  (1966.7 µA)  [range=3.0]
+[10-21-25 15:24:35] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:35  0.001920 A  (1920.2 µA)  [range=3.0]
+[10-21-25 15:24:36] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:36  0.001969 A  (1968.9 µA)  [range=3.0]
+[10-21-25 15:24:36] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:36  0.001969 A  (1969.2 µA)  [range=3.0]
+[10-21-25 15:24:37] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:37  0.001944 A  (1943.8 µA)  [range=3.0]
+[10-21-25 15:24:37] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:37  0.001951 A  (1951.3 µA)  [range=3.0]
+[10-21-25 15:24:38] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:38  0.001946 A  (1946.3 µA)  [range=3.0]
+[10-21-25 15:24:39] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:39  0.001952 A  (1951.6 µA)  [range=3.0]
+[10-21-25 15:24:39] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:39  0.001925 A  (1924.6 µA)  [range=3.0]
+[10-21-25 15:24:40] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:40  0.001954 A  (1953.8 µA)  [range=3.0]
+[10-21-25 15:24:40] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:40  0.001945 A  (1945.3 µA)  [range=3.0]
+[10-21-25 15:24:41] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:41  0.001950 A  (1950.4 µA)  [range=3.0]
+[10-21-25 15:24:41] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:41  0.001960 A  (1960.4 µA)  [range=3.0]
+[10-21-25 15:24:42] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:42  0.001955 A  (1955.1 µA)  [range=3.0]
+[10-21-25 15:24:42] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:42  0.001941 A  (1940.6 µA)  [range=3.0]
+[10-21-25 15:24:43] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:43  0.001950 A  (1950.1 µA)  [range=3.0]
+[10-21-25 15:24:43] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:43  0.001948 A  (1948.2 µA)  [range=3.0]
+[10-21-25 15:24:44] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:44  0.001946 A  (1946.3 µA)  [range=3.0]
+[10-21-25 15:24:44] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:44  0.001950 A  (1950.4 µA)  [range=3.0]
+[10-21-25 15:24:45] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:45  0.001964 A  (1963.6 µA)  [range=3.0]
+[10-21-25 15:24:45] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:45  0.001956 A  (1955.7 µA)  [range=3.0]
+[10-21-25 15:24:46] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:46  0.001933 A  (1933.1 µA)  [range=3.0]
+[10-21-25 15:24:46] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:46  0.001944 A  (1943.8 µA)  [range=3.0]
+[10-21-25 15:24:47] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:47  0.001957 A  (1957.3 µA)  [range=3.0]
+[10-21-25 15:24:47] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:47  0.001927 A  (1927.1 µA)  [range=3.0]
+[10-21-25 15:24:48] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:48  0.001948 A  (1947.9 µA)  [range=3.0]
+[10-21-25 15:24:48] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:48  0.001950 A  (1950.4 µA)  [range=3.0]
+[10-21-25 15:24:49] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:49  0.001940 A  (1940.3 µA)  [range=3.0]
+[10-21-25 15:24:49] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:49  0.001943 A  (1943.5 µA)  [range=3.0]
+[10-21-25 15:24:50] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:50  0.001929 A  (1928.7 µA)  [range=3.0]
+[10-21-25 15:24:50] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:50  0.001945 A  (1944.7 µA)  [range=3.0]
+[10-21-25 15:24:51] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:51  0.001954 A  (1954.5 µA)  [range=3.0]
+[10-21-25 15:24:52] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:52  0.001936 A  (1935.6 µA)  [range=3.0]
+[10-21-25 15:24:52] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:52  0.001918 A  (1918.3 µA)  [range=3.0]
+[10-21-25 15:24:53] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:53  0.001948 A  (1948.2 µA)  [range=3.0]
+[10-21-25 15:24:53] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:53  0.001949 A  (1948.8 µA)  [range=3.0]
+[10-21-25 15:24:54] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:54  0.001915 A  (1914.5 µA)  [range=3.0]
+[10-21-25 15:24:54] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:54  0.001925 A  (1924.6 µA)  [range=3.0]
+[10-21-25 15:24:55] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:55  0.001915 A  (1915.2 µA)  [range=3.0]
+[10-21-25 15:24:55] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:55  0.001936 A  (1936.2 µA)  [range=3.0]
+[10-21-25 15:24:56] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:56  0.001932 A  (1931.8 µA)  [range=3.0]
+[10-21-25 15:24:56] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:56  0.001930 A  (1930.2 µA)  [range=3.0]
+[10-21-25 15:24:57] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:57  0.001930 A  (1929.6 µA)  [range=3.0]
+[10-21-25 15:24:57] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:57  0.001929 A  (1929.3 µA)  [range=3.0]
+[10-21-25 15:24:58] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:58  0.001941 A  (1940.9 µA)  [range=3.0]
+[10-21-25 15:24:58] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:58  0.001914 A  (1913.9 µA)  [range=3.0]
+[10-21-25 15:24:59] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:59  0.001921 A  (1921.4 µA)  [range=3.0]
+[10-21-25 15:24:59] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:24:59  0.001955 A  (1955.1 µA)  [range=3.0]
+[10-21-25 15:25:00] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:00  0.001914 A  (1913.6 µA)  [range=3.0]
+[10-21-25 15:25:00] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:00  0.001961 A  (1961.4 µA)  [range=3.0]
+[10-21-25 15:25:01] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:01  0.001942 A  (1942.2 µA)  [range=3.0]
+[10-21-25 15:25:01] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:01  0.001915 A  (1914.8 µA)  [range=3.0]
+[10-21-25 15:25:02] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:02  0.001936 A  (1935.6 µA)  [range=3.0]
+[10-21-25 15:25:02] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:02  0.001920 A  (1920.2 µA)  [range=3.0]
+[10-21-25 15:25:03] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:03  0.001925 A  (1925.2 µA)  [range=3.0]
+[10-21-25 15:25:04] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:04  0.001934 A  (1934.4 µA)  [range=3.0]
+[10-21-25 15:25:04] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:04  0.001930 A  (1929.9 µA)  [range=3.0]
+[10-21-25 15:25:05] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:05  0.001933 A  (1933.4 µA)  [range=3.0]
+[10-21-25 15:25:05] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:05  0.001913 A  (1912.9 µA)  [range=3.0]
+[10-21-25 15:25:06] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:06  0.001914 A  (1913.6 µA)  [range=3.0]
+[10-21-25 15:25:06] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:06  0.001934 A  (1933.7 µA)  [range=3.0]
+[10-21-25 15:25:07] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:07  0.001918 A  (1918.0 µA)  [range=3.0]
+[10-21-25 15:25:07] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:07  0.001921 A  (1920.5 µA)  [range=3.0]
+[10-21-25 15:25:08] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:08  0.001910 A  (1910.4 µA)  [range=3.0]
+[10-21-25 15:25:08] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:08  0.001937 A  (1936.9 µA)  [range=3.0]
+[10-21-25 15:25:09] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:09  0.001922 A  (1921.8 µA)  [range=3.0]
+[10-21-25 15:25:09] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:09  0.001933 A  (1933.1 µA)  [range=3.0]
+[10-21-25 15:25:10] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:10  0.001927 A  (1927.4 µA)  [range=3.0]
+[10-21-25 15:25:10] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:10  0.001936 A  (1935.6 µA)  [range=3.0]
+[10-21-25 15:25:11] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:11  0.001913 A  (1913.2 µA)  [range=3.0]
+[10-21-25 15:25:11] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:11  0.001937 A  (1937.2 µA)  [range=3.0]
+[10-21-25 15:25:12] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:12  0.001935 A  (1934.7 µA)  [range=3.0]
+[10-21-25 15:25:12] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:12  0.001909 A  (1909.5 µA)  [range=3.0]
+[10-21-25 15:25:13] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:13  0.001909 A  (1908.8 µA)  [range=3.0]
+[10-21-25 15:25:13] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:13  0.001916 A  (1916.4 µA)  [range=3.0]
+[10-21-25 15:25:14] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:14  0.001943 A  (1942.8 µA)  [range=3.0]
+[10-21-25 15:25:14] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:14  0.001929 A  (1929.0 µA)  [range=3.0]
+[10-21-25 15:25:15] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:15  0.001951 A  (1951.0 µA)  [range=3.0]
+[10-21-25 15:25:15] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:15  0.001923 A  (1923.3 µA)  [range=3.0]
+[10-21-25 15:25:16] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:16  0.001896 A  (1895.7 µA)  [range=3.0]
+[10-21-25 15:25:17] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:17  0.001924 A  (1924.0 µA)  [range=3.0]
+[10-21-25 15:25:17] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:17  0.001919 A  (1918.9 µA)  [range=3.0]
+[10-21-25 15:25:18] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:18  0.001908 A  (1907.9 µA)  [range=3.0]
+[10-21-25 15:25:18] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:18  0.001907 A  (1907.3 µA)  [range=3.0]
+[10-21-25 15:25:19] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:19  0.001931 A  (1930.9 µA)  [range=3.0]
+[10-21-25 15:25:19] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:19  0.001926 A  (1925.5 µA)  [range=3.0]
+[10-21-25 15:25:20] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:20  0.001918 A  (1917.7 µA)  [range=3.0]
+[10-21-25 15:25:20] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:20  0.001909 A  (1908.9 µA)  [range=3.0]
+[10-21-25 15:25:21] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:21  0.001921 A  (1921.1 µA)  [range=3.0]
+[10-21-25 15:25:21] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:21  0.001938 A  (1938.1 µA)  [range=3.0]
+[10-21-25 15:25:22] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:22  0.001937 A  (1937.2 µA)  [range=3.0]
+[10-21-25 15:25:22] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:22  0.001909 A  (1909.5 µA)  [range=3.0]
+[10-21-25 15:25:23] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:23  0.001909 A  (1909.5 µA)  [range=3.0]
+[10-21-25 15:25:23] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:23  0.001928 A  (1927.7 µA)  [range=3.0]
+[10-21-25 15:25:24] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:24  0.001932 A  (1931.5 µA)  [range=3.0]
+[10-21-25 15:25:24] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:24  0.001915 A  (1915.2 µA)  [range=3.0]
+[10-21-25 15:25:25] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:25  0.001901 A  (1901.3 µA)  [range=3.0]
+[10-21-25 15:25:25] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:25  0.001922 A  (1922.4 µA)  [range=3.0]
+[10-21-25 15:25:26] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:26  0.001907 A  (1907.0 µA)  [range=3.0]
+[10-21-25 15:25:26] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:26  0.001921 A  (1921.1 µA)  [range=3.0]
+[10-21-25 15:25:27] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:27  0.001909 A  (1909.2 µA)  [range=3.0]
+[10-21-25 15:25:27] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:27  0.001915 A  (1915.2 µA)  [range=3.0]
+[10-21-25 15:25:28] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:28  0.001907 A  (1907.3 µA)  [range=3.0]
+[10-21-25 15:25:29] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:29  0.001925 A  (1924.9 µA)  [range=3.0]
+[10-21-25 15:25:29] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:29  0.001908 A  (1907.6 µA)  [range=3.0]
+[10-21-25 15:25:30] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:30  0.001928 A  (1928.0 µA)  [range=3.0]
+[10-21-25 15:25:30] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:30  0.001910 A  (1909.8 µA)  [range=3.0]
+[10-21-25 15:25:31] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:31  0.001911 A  (1910.8 µA)  [range=3.0]
+[10-21-25 15:25:31] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:31  0.001920 A  (1919.9 µA)  [range=3.0]
+[10-21-25 15:25:32] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:32  0.001914 A  (1914.2 µA)  [range=3.0]
+[10-21-25 15:25:32] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:32  0.001910 A  (1909.8 µA)  [range=3.0]
+[10-21-25 15:25:33] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:33  0.001925 A  (1924.9 µA)  [range=3.0]
+[10-21-25 15:25:33] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:33  0.001924 A  (1924.3 µA)  [range=3.0]
+[10-21-25 15:25:34] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:34  0.001916 A  (1916.4 µA)  [range=3.0]
+[10-21-25 15:25:34] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:34  0.001903 A  (1902.6 µA)  [range=3.0]
+[10-21-25 15:25:35] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:35  0.001933 A  (1932.8 µA)  [range=3.0]
+[10-21-25 15:25:35] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:35  0.001922 A  (1922.1 µA)  [range=3.0]
+[10-21-25 15:25:36] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:36  0.001898 A  (1897.5 µA)  [range=3.0]
+[10-21-25 15:25:36] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:36  0.001923 A  (1922.7 µA)  [range=3.0]
+[10-21-25 15:25:37] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:37  0.001919 A  (1919.2 µA)  [range=3.0]
+[10-21-25 15:25:37] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:37  0.001915 A  (1915.5 µA)  [range=3.0]
+[10-21-25 15:25:38] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:38  0.001908 A  (1907.6 µA)  [range=3.0]
+[10-21-25 15:25:38] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:38  0.001920 A  (1919.6 µA)  [range=3.0]
+[10-21-25 15:25:39] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:39  0.001933 A  (1933.1 µA)  [range=3.0]
+[10-21-25 15:25:39] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:39  0.001927 A  (1927.4 µA)  [range=3.0]
+[10-21-25 15:25:40] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:40  0.001919 A  (1918.9 µA)  [range=3.0]
+[10-21-25 15:25:41] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:41  0.001927 A  (1927.1 µA)  [range=3.0]
+[10-21-25 15:25:41] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:41  0.001931 A  (1930.6 µA)  [range=3.0]
+[10-21-25 15:25:42] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:42  0.001907 A  (1907.3 µA)  [range=3.0]
+[10-21-25 15:25:42] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:42  0.001917 A  (1917.0 µA)  [range=3.0]
+[10-21-25 15:25:43] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:43  0.001913 A  (1913.3 µA)  [range=3.0]
+[10-21-25 15:25:43] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:43  0.001886 A  (1885.9 µA)  [range=3.0]
+[10-21-25 15:25:44] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:44  0.001887 A  (1886.8 µA)  [range=3.0]
+[10-21-25 15:25:44] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:44  0.001909 A  (1909.2 µA)  [range=3.0]
+[10-21-25 15:25:45] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:45  0.001925 A  (1924.6 µA)  [range=3.0]
+[10-21-25 15:25:45] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:45  0.001904 A  (1903.5 µA)  [range=3.0]
+[10-21-25 15:25:46] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:46  0.001891 A  (1890.9 µA)  [range=3.0]
+[10-21-25 15:25:46] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:46  0.001909 A  (1908.9 µA)  [range=3.0]
+[10-21-25 15:25:47] [   Keysight_34465A_DMM.py: 63]     INFO >> 2025-10-21 15:25:47  0.001905 A  (1905.1 µA)  [range=3.0]
+[10-21-25 15:25:47] [     test_0x0A04_Sleep.py: 68]     INFO >> I = 0.00190760209 A
+[10-21-25 15:25:47] [     test_0x0A04_Sleep.py: 76]     INFO >> Executing Post Condition test: Perform power restart and wait for 30sec, Verify ManDiag session exited and SET enter ManDiag session
+[10-21-25 15:25:48] [           base_serial.py:138]    DEBUG >> Data : 1.054
+[10-21-25 15:25:48] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 1 Secs - 1.054 A
+[10-21-25 15:25:50] [           base_serial.py:138]    DEBUG >> Data : 1.791
+[10-21-25 15:25:50] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 2 Secs - 1.791 A
+[10-21-25 15:25:51] [           base_serial.py:138]    DEBUG >> Data : 1.835
+[10-21-25 15:25:51] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 3 Secs - 1.835 A
+[10-21-25 15:25:52] [           base_serial.py:138]    DEBUG >> Data : 2.198
+[10-21-25 15:25:52] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 4 Secs - 2.198 A
+[10-21-25 15:25:53] [           base_serial.py:138]    DEBUG >> Data : 2.339
+[10-21-25 15:25:53] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 5 Secs - 2.339 A
+[10-21-25 15:25:54] [           base_serial.py:138]    DEBUG >> Data : 2.609
+[10-21-25 15:25:54] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 6 Secs - 2.609 A
+[10-21-25 15:25:55] [           base_serial.py:138]    DEBUG >> Data : 3.049
+[10-21-25 15:25:55] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 7 Secs - 3.049 A
+[10-21-25 15:25:56] [           base_serial.py:138]    DEBUG >> Data : 3.180
+[10-21-25 15:25:56] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 8 Secs - 3.18 A
+[10-21-25 15:25:57] [           base_serial.py:138]    DEBUG >> Data : 3.152
+[10-21-25 15:25:57] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 9 Secs - 3.152 A
+[10-21-25 15:25:58] [           base_serial.py:138]    DEBUG >> Data : 3.092
+[10-21-25 15:25:58] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 10 Secs - 3.092 A
+[10-21-25 15:25:59] [           base_serial.py:138]    DEBUG >> Data : 3.166
+[10-21-25 15:25:59] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 11 Secs - 3.166 A
+[10-21-25 15:26:00] [           base_serial.py:138]    DEBUG >> Data : 3.169
+[10-21-25 15:26:00] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 12 Secs - 3.169 A
+[10-21-25 15:26:01] [           base_serial.py:138]    DEBUG >> Data : 3.195
+[10-21-25 15:26:01] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 13 Secs - 3.195 A
+[10-21-25 15:26:02] [           base_serial.py:138]    DEBUG >> Data : 3.220
+[10-21-25 15:26:02] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 14 Secs - 3.22 A
+[10-21-25 15:26:03] [           base_serial.py:138]    DEBUG >> Data : 3.230
+[10-21-25 15:26:03] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 15 Secs - 3.23 A
+[10-21-25 15:26:04] [           base_serial.py:138]    DEBUG >> Data : 3.221
+[10-21-25 15:26:04] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 16 Secs - 3.221 A
+[10-21-25 15:26:05] [           base_serial.py:138]    DEBUG >> Data : 3.186
+[10-21-25 15:26:05] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 17 Secs - 3.186 A
+[10-21-25 15:26:06] [           base_serial.py:138]    DEBUG >> Data : 3.152
+[10-21-25 15:26:06] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 18 Secs - 3.152 A
+[10-21-25 15:26:07] [           base_serial.py:138]    DEBUG >> Data : 3.166
+[10-21-25 15:26:07] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 19 Secs - 3.166 A
+[10-21-25 15:26:08] [           base_serial.py:138]    DEBUG >> Data : 3.126
+[10-21-25 15:26:08] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 20 Secs - 3.126 A
+[10-21-25 15:26:09] [           base_serial.py:138]    DEBUG >> Data : 3.167
+[10-21-25 15:26:09] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 21 Secs - 3.167 A
+[10-21-25 15:26:10] [           base_serial.py:138]    DEBUG >> Data : 3.153
+[10-21-25 15:26:10] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 22 Secs - 3.153 A
+[10-21-25 15:26:11] [           base_serial.py:138]    DEBUG >> Data : 3.231
+[10-21-25 15:26:11] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 23 Secs - 3.231 A
+[10-21-25 15:26:12] [           base_serial.py:138]    DEBUG >> Data : 3.107
+[10-21-25 15:26:12] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 24 Secs - 3.107 A
+[10-21-25 15:26:13] [           base_serial.py:138]    DEBUG >> Data : 3.172
+[10-21-25 15:26:13] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 25 Secs - 3.172 A
+[10-21-25 15:26:14] [           base_serial.py:138]    DEBUG >> Data : 3.163
+[10-21-25 15:26:14] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 26 Secs - 3.163 A
+[10-21-25 15:26:15] [           base_serial.py:138]    DEBUG >> Data : 3.015
+[10-21-25 15:26:15] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 27 Secs - 3.015 A
+[10-21-25 15:26:16] [           base_serial.py:138]    DEBUG >> Data : 3.033
+[10-21-25 15:26:16] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 28 Secs - 3.033 A
+[10-21-25 15:26:17] [           base_serial.py:138]    DEBUG >> Data : 3.311
+[10-21-25 15:26:17] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 29 Secs - 3.311 A
+[10-21-25 15:26:18] [           base_serial.py:138]    DEBUG >> Data : 3.174
+[10-21-25 15:26:18] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 30 Secs - 3.174 A
+[10-21-25 15:26:19] [           base_serial.py:138]    DEBUG >> Data : 3.104
+[10-21-25 15:26:19] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 31 Secs - 3.104 A
+[10-21-25 15:26:20] [           base_serial.py:138]    DEBUG >> Data : 3.416
+[10-21-25 15:26:20] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 32 Secs - 3.416 A
+[10-21-25 15:26:21] [           base_serial.py:138]    DEBUG >> Data : 3.483
+[10-21-25 15:26:21] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 33 Secs - 3.483 A
+[10-21-25 15:26:22] [           base_serial.py:138]    DEBUG >> Data : 3.263
+[10-21-25 15:26:22] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 34 Secs - 3.263 A
+[10-21-25 15:26:23] [           base_serial.py:138]    DEBUG >> Data : 3.489
+[10-21-25 15:26:23] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 35 Secs - 3.489 A
+[10-21-25 15:26:24] [           base_serial.py:138]    DEBUG >> Data : 3.471
+[10-21-25 15:26:24] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 36 Secs - 3.471 A
+[10-21-25 15:26:25] [           base_serial.py:138]    DEBUG >> Data : 3.372
+[10-21-25 15:26:25] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 37 Secs - 3.372 A
+[10-21-25 15:26:26] [           base_serial.py:138]    DEBUG >> Data : 3.356
+[10-21-25 15:26:26] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 38 Secs - 3.356 A
+[10-21-25 15:26:27] [           base_serial.py:138]    DEBUG >> Data : 3.156
+[10-21-25 15:26:27] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 39 Secs - 3.156 A
+[10-21-25 15:26:28] [           base_serial.py:138]    DEBUG >> Data : 3.144
+[10-21-25 15:26:28] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 40 Secs - 3.144 A
+[10-21-25 15:26:29] [           base_serial.py:138]    DEBUG >> Data : 3.152
+[10-21-25 15:26:29] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 41 Secs - 3.152 A
+[10-21-25 15:26:30] [           base_serial.py:138]    DEBUG >> Data : 3.154
+[10-21-25 15:26:30] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 42 Secs - 3.154 A
+[10-21-25 15:26:31] [           base_serial.py:138]    DEBUG >> Data : 3.512
+[10-21-25 15:26:31] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 43 Secs - 3.512 A
+[10-21-25 15:26:32] [           base_serial.py:138]    DEBUG >> Data : 3.554
+[10-21-25 15:26:32] [     test_0x0A04_Sleep.py:100]     INFO >> Current consumption during wakeup at 44 Secs - 3.554 A
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60751]-H-man_diag_cmd_handler.c:203 Processing the Power Moding resp on Shell
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60752]-H-sys_target_def.c:221 TDef_Evt: SYS_EV_TD_IMMEDIATELY_SHUTDOWN
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60752]-N-sys_target_def_callouts.c:4991 NoReturnPossible!!!
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60752]-H-sys_target_def_callouts.c:3765 SYS_TD_MMI_ON_DIAG exit (SYS_EV_TD_IMMEDIATELY_SHUTDOWN)
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60752]-H-sys_target_def_callouts.c:3621 Td_MMI_OFF_Main_Entry: ev:SYS_EV_TD_IMMEDIATELY_SHUTDOWN
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60752]-H-sys_target_def_callouts.c:3232 MMI_IOC_MAIN_Entry: ev:SYS_EV_TD_IMMEDIATELY_SHUTDOWN
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60752]-H-sys_shd_mgr.c:472 ==> SYS_EV_SHD_FAST_SHUTDOWN
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60752]-H-sys_target_def_callouts.c:3116 Sys_Td_MMI_IOC_Entry: ev:SYS_EV_TD_IMMEDIATELY_SHUTDOWN
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60752]-H-sys_target_def_callouts.c:3131 ==> EV_SYS_MAN_PROPERTY_CHANGED
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60752]-H-sys_shd_mgr.c:472 ==> SYS_EV_SHD_FAST_SHUTDOWN
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60752]-H-sys_target_def_callouts.c:6311 New target runlevel: Awake
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60752]-H-sys_target_def_callouts.c:6314 New state: SYS_TD_MMI_IOC (triggered by: SYS_EV_TD_IMMEDIATELY_SHUTDOWN, from: SYS_TD_MMI_ON_DIAG)
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60753]-H-sys_hw_ctrl.c:2258 ==> SYS_EV_PWR_MODE_VIP_REPORT
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60753]-N-sys_man_callouts.c:903 Pwr_Mode2_CPSC: td:MMI_IOC rl:Full_On
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60753]-N-sys_man_callouts.c:954 Pwr_Mode4_CPSC: BEM:0 Cl15:0 ClS:0 LON:0x1 RCC_em:0 OnlDly:0 per_prop:0xe0 popup:0x0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60753]-H-sys_man_callouts.c:962 ==> SYS_EV_PWR_MODE_VIP_REPORT
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60753]-N-sys_hw_ctrl_callouts.c:2079 clamp 30 sts 0 (old: 1)
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60753]-H-sys_post_office_pwr.c:2597 ==> SYS_EV_PO_IOC_MMX
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60753]-N-sys_post_office_pwr.c:1548 PWR->MMX:16,0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60753]-H-sys_shd_mgr.c:1175 ShdM_Ev: SYS_EV_SHD_FAST_SHUTDOWN
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60753]-H-sys_shd_mgr.c:550 ShdM_St: SYS_SHD_FAST
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60753]-N-sys_target_def_callouts.c:8819 CrntCond:(Shtdwn,DIAG,MIBCAN,ICAN,DISPL,LO_ON)
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60753]-H-sys_shd_mgr.c:1262 SHD_FAST_TMR guard timer (00:00:20) started
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60753]-H-sys_shd_mgr.c:1438 ==> SYS_EV_PO_SHUTDOWN_REQ
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60753]-N-sys_shd_mgr.c:1443 Shutdown FAST request to CP MMX
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60754]-H-sys_man_callouts.c:604 ==> SYS_EV_RL_CHANGE
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60754]-H-sys_hw_ctrl.c:2127 RL -> HC :9
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60754]-H-sys_hw_ctrl.c:2128 ==> SYS_EV_RL_CHANGE
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60754]-H-sys_man_callouts.c:611 Sys_Run_Level_set: HMI_Stdby  to CP 0x7 HC.
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60754]-H-sys_target_def_callouts.c:5804 Cluster enabled: 0, cluster active: 0, current can mode: 2 req can mode: 2
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60754]-H-sys_target_def_callouts.c:5939 ==> SYS_EV_TD_PWR_MODE_REP_DATA_CHANGED
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60754]-H-sys_hw_ctrl.c:2258 ==> SYS_EV_PWR_MODE_VIP_REPORT
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60754]-N-sys_man_callouts.c:930 Pwr_Mode3_CPSC:  pwrfail:0 boost:0 em_r_ntfy:0 tp_m:0 cp_sh: 0 sc_sh:0 T:0 Amp_OV:0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60754]-N-sys_man_callouts.c:954 Pwr_Mode4_CPSC: BEM:0 Cl15:0 ClS:0 LON:0x1 RCC_em:0 OnlDly:0 per_prop:0x80 popup:0x0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60754]-H-sys_man_callouts.c:962 ==> SYS_EV_PWR_MODE_VIP_REPORT
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60754]-N-sys_post_office_pwr.c:1703 IOC evt: 24
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60755]-H-sys_shd_mgr.c:1175 ShdM_Ev: SYS_EV_SHD_FAST_SHUTDOWN
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60755]-H-sys_target_def_callouts.c:5804 Cluster enabled: 0, cluster active: 0, current can mode: 2 req can mode: 2
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60755]-N-sys_post_office_pwr.c:1456 Shd->J6:2
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60755]-N-sys_post_office_pwr.c:1578 Shd->MMX:2
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60756]-N-fan_mgr.c:474 Fan: KL_15:0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60756]-N-antenna_diag.c:254 ANTENNA Enabled
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60756]-N-mic_diag.c:203 Mic Enabled
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60756]-N-CDD_KeyPanel.c:3656 c/n runlvl:9
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60756]-N-CDD_KeyPanel.c:3660 Current_Mmi_State 2
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60756]-N-CDD_KeyPanel.c:3681 ICAN-MIBCAN: 1 - 1
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60756]-N-CDD_KeyPanel.c:3714 KL15= 0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60757]-N-antenna_diag.c:237 ANTENNA Disabled
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60757]-N-usb_diag.c:125 USB actuator Disabled
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60757]-N-mic_diag.c:190 Mic Disabled
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60757]-N-CDD_KeyPanel.c:3656 c/n runlvl:9
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60757]-N-CDD_KeyPanel.c:3660 Current_Mmi_State 2
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60758]-N-CDD_KeyPanel.c:3681 ICAN-MIBCAN: 1 - 0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60758]-N-CDD_KeyPanel.c:3714 KL15= 0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60764]-N-CDD_KeyPanel.c:2948 I105
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60764]-N-CDD_KeyPanel.c:2948 I105
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60764]-N-CDD_KeyPanel.c:2948 I105
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60764]-N-CDD_KeyPanel.c:2948 I105
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60768]-H-sys_shd_mgr.c:1525 ==> SYS_EV_SHD_FAST_ACK
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60768]-N-sys_shd_mgr.c:1527 Shd_Rep CPR:FAST
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60768]-H-sys_post_office_system.c:772 ETH_CAB_Ntfy 0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60772]-H-sys_shd_mgr.c:1500 ==> SYS_EV_SHD_FAST_ACK
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60772]-N-sys_shd_mgr.c:1502 Shd_Rep CPV:FAST
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60775]-H-sys_post_office_pwr.c:2440 Shd req processing 3
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60777]-N-sys_hw_ctrl.c:2494 ICAN_COMM 2: BSWM_NM 3, BSWM_COM 2, SM 2 TRCV 0 CC 0x0 COM_REQ 2
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60820]-H-CDD_KeyPanel_swup_hisip.c:429 CommunicationState_Status(rolName=,sts=0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60820]-H-CDD_KeyPanel_swdl.c:858 Send_CommunicationState_Status_to_Can (CommStat=0)
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60820]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 128
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60820]-N-CDD_KeyPanel_swdl.c:1824 Send CAN_COMM_STS = 0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60820]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 122
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60820]-N-CDD_KeyPanel_swdl.c:1824 Send CAN_COMM_STS = 0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60820]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 124
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60820]-N-CDD_KeyPanel_swdl.c:1824 Send CAN_COMM_STS = 0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60820]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 125
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60820]-N-CDD_KeyPanel_swdl.c:1824 Send CAN_COMM_STS = 0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60820]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 126
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60820]-N-CDD_KeyPanel_swdl.c:1824 Send CAN_COMM_STS = 0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60820]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 133
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60820]-N-CDD_KeyPanel_swdl.c:1824 Send CAN_COMM_STS = 0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60820]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 134
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60821]-N-CDD_KeyPanel_swdl.c:1824 Send CAN_COMM_STS = 0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60821]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 129
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60821]-N-CDD_KeyPanel_swdl.c:1824 Send CAN_COMM_STS = 0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60821]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 127
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60821]-N-CDD_KeyPanel_swdl.c:1824 Send CAN_COMM_STS = 0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60821]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 255
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60821]-N-CDD_KeyPanel_swdl.c:1824 Send CAN_COMM_STS = 0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60821]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 255
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60821]-N-CDD_KeyPanel_swdl.c:1824 Send CAN_COMM_STS = 0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60821]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 255
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60821]-N-CDD_KeyPanel_swdl.c:1824 Send CAN_COMM_STS = 0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60821]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 123
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60821]-N-CDD_KeyPanel_swdl.c:1824 Send CAN_COMM_STS = 0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60848]-H-CDD_KeyPanel_swup_hisip.c:429 CommunicationState_Status(rolName=,sts=0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60848]-H-CDD_KeyPanel_swdl.c:858 Send_CommunicationState_Status_to_Can (CommStat=0)
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60848]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 128
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60848]-N-CDD_KeyPanel_swdl.c:1824 Send CAN_COMM_STS = 0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60848]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 122
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60848]-N-CDD_KeyPanel_swdl.c:1824 Send CAN_COMM_STS = 0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60848]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 124
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60848]-N-CDD_KeyPanel_swdl.c:1824 Send CAN_COMM_STS = 0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60848]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 125
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60848]-N-CDD_KeyPanel_swdl.c:1824 Send CAN_COMM_STS = 0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60848]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 126
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60848]-N-CDD_KeyPanel_swdl.c:1824 Send CAN_COMM_STS = 0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60848]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 133
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60848]-N-CDD_KeyPanel_swdl.c:1824 Send CAN_COMM_STS = 0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60849]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 134
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60849]-N-CDD_KeyPanel_swdl.c:1824 Send CAN_COMM_STS = 0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60849]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 129
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60849]-N-CDD_KeyPanel_swdl.c:1824 Send CAN_COMM_STS = 0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60849]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 127
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60849]-N-CDD_KeyPanel_swdl.c:1824 Send CAN_COMM_STS = 0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60849]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 255
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60849]-N-CDD_KeyPanel_swdl.c:1824 Send CAN_COMM_STS = 0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60849]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 255
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60849]-N-CDD_KeyPanel_swdl.c:1824 Send CAN_COMM_STS = 0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60849]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 255
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60849]-N-CDD_KeyPanel_swdl.c:1824 Send CAN_COMM_STS = 0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60849]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 123
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60849]-N-CDD_KeyPanel_swdl.c:1824 Send CAN_COMM_STS = 0
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [60874]-H-sys_target_def_callouts.c:1125 RL HMI_Stdby Ack: CPA|CPV|CPR
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [608
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: 6D643E 00 01 00 00 00
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [45350]-N-man_diag.c:1015 UART is Unlocked ...
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: 6D643C 00 01 00 01 01 00
+[10-21-25 15:26:33] [           base_serial.py:177]    DEBUG >> Found substring '6D643C' in line: 6D643C 00 01 00 01 01 00
+[10-21-25 15:26:33] [         util_man_diag.py: 36]    DEBUG >> Response Dictionary: {'Prefix': '6D643C', 'GroupId': '00', 'TestId': '01', 'Operation': '00', 'Status': '01', 'DataLength': '01', 'Databytes': '00'}
+[10-21-25 15:26:33] [               mandiag.py: 58]    DEBUG >> Command executed successfully for 6D643E 00 01 00 00 00
+[10-21-25 15:26:33] [               mandiag.py:127]    DEBUG >> Validation Success - response received for command: 6D643E 00 01 00 00 00 in attempt 1
+[10-21-25 15:26:33] [               mandiag.py:168]    DEBUG >> Response validated successfully: {'Prefix': '6D643C', 'GroupId': '00', 'TestId': '01', 'Operation': '00', 'Status': '01', 'DataLength': '01', 'Databytes': '00'}
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [45415]-N-hw_version.c:290 H02 HW Detected = 3
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [45456]-N-tempr_mon.c:603 J6_Tempr:37
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [45515]-N-hw_version.c:290 H02 HW Detected = 3
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [45615]-N-hw_version.c:290 H02 HW Detected = 3
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [45715]-N-hw_version.c:290 H02 HW Detected = 3
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [45815]-N-hw_version.c:290 H02 HW Detected = 3
+[10-21-25 15:26:33] [           base_serial.py:168]    DEBUG >> LogLine: [45916]-N-hw_version.c:290 H02 HW Detected = 3
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: 6D643E 00 01 01 00 01 01
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45950]-H-sys_man_main.c:2010 ==> DIAG_EV_HISIP_MANUF_MSG_CMD
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: 6D643C 00 01 01 01 00
+[10-21-25 15:26:34] [           base_serial.py:177]    DEBUG >> Found substring '6D643C' in line: 6D643C 00 01 01 01 00
+[10-21-25 15:26:34] [         util_man_diag.py: 36]    DEBUG >> Response Dictionary: {'Prefix': '6D643C', 'GroupId': '00', 'TestId': '01', 'Operation': '01', 'Status': '01', 'DataLength': '00', 'Databytes': ''}
+[10-21-25 15:26:34] [               mandiag.py: 58]    DEBUG >> Command executed successfully for 6D643E 00 01 01 00 01 01
+[10-21-25 15:26:34] [               mandiag.py:127]    DEBUG >> Validation Success - response received for command: 6D643E 00 01 01 00 01 01 in attempt 1
+[10-21-25 15:26:34] [               mandiag.py:168]    DEBUG >> Response validated successfully: {'Prefix': '6D643C', 'GroupId': '00', 'TestId': '01', 'Operation': '01', 'Status': '01', 'DataLength': '00', 'Databytes': ''}
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45951]-N-crypto_diag_router.c:324 MDiag session changed to 1
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45951]-N-CDD_CustDiag_cbk.c:446 MDiag session change to: 0x01
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45951]-H-diag_calibration_engine.c:512 Item DIA_MAN_SESSION received from original, crc: 0, dflt: 0
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45952]-H-sys_man_callouts.c:2023 DIAG msg_evId:13  key=100001  data=1
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45952]-H-sys_man_callouts.c:1630 MD ACTIVE: 1
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45952]-H-sys_target_def_imp.c:211 ==> SYS_EV_TD_DIAG_START
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45952]-N-CDD_CanDiag.c:4029 MDiag session change to: 0x01
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45953]-H-sys_target_def.c:221 TDef_Evt: SYS_EV_TD_DIAG_START
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45953]-N-sys_target_def_callouts.c:8819 CrntCond:(CAR_WU,ZRCAN,DIAG,MIBCAN,ICAN,DISPL,LO_ON)
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45953]-H-sys_target_def_callouts.c:1803 ==> SYS_EV_SHD_WAKEUP
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45953]-H-sys_target_def_callouts.c:3786 SYS_TD_MMI_STANDBY exit (SYS_EV_TD_DIAG_START)
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45953]-H-sys_target_def_callouts.c:6311 New target runlevel: Full_On
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45953]-H-sys_target_def_callouts.c:6314 New state: SYS_TD_MMI_ON_DIAG (triggered by: SYS_EV_TD_DIAG_START, from: SYS_TD_MMI_STANDBY)
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45953]-H-sys_hw_ctrl.c:2258 ==> SYS_EV_PWR_MODE_VIP_REPORT
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45953]-N-sys_man_callouts.c:903 Pwr_Mode2_CPSC: td:MMI_ON_DIAG rl:HMI_Stdby
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45954]-N-sys_man_callouts.c:954 Pwr_Mode4_CPSC: BEM:0 Cl15:0 ClS:0 LON:0x1 RCC_em:0 OnlDly:0 per_prop:0x60 popup:0x0
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45954]-H-sys_man_callouts.c:962 ==> SYS_EV_PWR_MODE_VIP_REPORT
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45954]-N-sys_hw_ctrl_callouts.c:2079 clamp 30 sts 1 (old: 0)
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45954]-H-sys_post_office_pwr.c:2597 ==> SYS_EV_PO_IOC_MMX
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45954]-N-sys_post_office_pwr.c:1548 PWR->MMX:8,16
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45954]-H-sys_shd_mgr.c:1175 ShdM_Ev: SYS_EV_SHD_WAKEUP
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45954]-H-sys_man_callouts.c:604 ==> SYS_EV_RL_CHANGE
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45954]-H-sys_hw_ctrl.c:2127 RL -> HC :10
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45954]-H-sys_hw_ctrl.c:2128 ==> SYS_EV_RL_CHANGE
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45954]-H-sys_man_callouts.c:611 Sys_Run_Level_set: Full_On  to CP 0x7 HC.
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45954]-H-sys_target_def_callouts.c:5804 Cluster enabled: 1, cluster active: 0, current can mode: 2 req can mode: 0
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45955]-H-sys_target_def_callouts.c:5831 IntCAN FULL_COMM
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45955]-H-sys_target_def_callouts.c:5939 ==> SYS_EV_TD_PWR_MODE_REP_DATA_CHANGED
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45955]-H-sys_hw_ctrl.c:2258 ==> SYS_EV_PWR_MODE_VIP_REPORT
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45955]-N-sys_man_callouts.c:954 Pwr_Mode4_CPSC: BEM:0 Cl15:0 ClS:0 LON:0x1 RCC_em:0 OnlDly:0 per_prop:0xe0 popup:0x0
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45955]-H-sys_man_callouts.c:962 ==> SYS_EV_PWR_MODE_VIP_REPORT
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45955]-N-sys_hw_ctrl.c:2494 ICAN_COMM 3: BSWM_NM 4, BSWM_COM 2, SM 2 TRCV 0 CC 0x0 COM_REQ 2
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45955]-N-sys_post_office_pwr.c:1703 IOC evt: 25
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45955]-H-sys_target_def_callouts.c:5804 Cluster enabled: 1, cluster active: 0, current can mode: 2 req can mode: 2
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45956]-N-fan_mgr.c:474 Fan: KL_15:0
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45956]-N-antenna_diag.c:254 ANTENNA Enabled
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45956]-N-mic_diag.c:203 Mic Enabled
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45956]-N-antenna_diag.c:254 ANTENNA Enabled
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45956]-N-mic_diag.c:203 Mic Enabled
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45957]-N-CDD_KeyPanel.c:3656 c/n runlvl:10
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45957]-N-CDD_KeyPanel.c:3660 Current_Mmi_State 8
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45958]-N-CDD_KeyPanel.c:3681 ICAN-MIBCAN: 1 - 1
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45958]-N-CDD_KeyPanel.c:3714 KL15= 0
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45962]-N-CDD_KeyPanel.c:2948 I105
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45962]-N-CDD_KeyPanel.c:2948 I105
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45967]-N-sys_hw_ctrl.c:2494 ICAN_COMM 2: BSWM_NM 4, BSWM_COM 2, SM 2 TRCV 0 CC 0x0 COM_REQ 2
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45982]-H-sys_target_def_callouts.c:1125 RL Full_On Ack: CPA|CPV|CPR
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45983]-H-sys_hw_ctrl.c:2258 ==> SYS_EV_PWR_MODE_VIP_REPORT
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45983]-N-sys_man_callouts.c:903 Pwr_Mode2_CPSC: td:MMI_ON_DIAG rl:Full_On
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45983]-N-sys_man_callouts.c:954 Pwr_Mode4_CPSC: BEM:0 Cl15:0 ClS:0 LON:0x1 RCC_em:0 OnlDly:0 per_prop:0xe0 popup:0x0
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [45983]-H-sys_man_callouts.c:962 ==> SYS_EV_PWR_MODE_VIP_REPORT
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [46000]-H-diag_calibration_remote.c:700 sync to CPV started!
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [46016]-N-hw_version.c:290 H02 HW Detected = 3
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [46066]-H-diag_calibration_remote.c:305 Sync to CPV finished!
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [46116]-N-most_hisip_handlers.c:152  RX_HISIP: SNID:0x01, AID :0x15 FID:0x29
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [46116]-N-most_hisip_handlers.c:236 state : 0
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [46116]-N-hw_version.c:290 H02 HW Detected = 3
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [46217]-N-hw_version.c:290 H02 HW Detected = 3
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [46285]-H-CDD_KeyPanel_swdl.c:1380 CommunicationStateGet (COMMUNICATION_STATE_GET,RxdCanId=37, DestCanId=128)
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [46285]-N-CDD_KeyPanel_swdl.c:912 sent comm sts 0 to CanId_2 = 128
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [46290]-N-CDD_kp_tp.c:888 KP->CAN:DL=2,HR:=3800555555555555,CS=0,PG=FEBE94CC,CH=5
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [46290]-N-CDD_kp_tp.c:918 Irrmsg 0 1
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [46317]-N-hw_version.c:290 H02 HW Detected = 3
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [46418]-N-hw_version.c:290 H02 HW Detected = 3
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [46462]-N-tempr_mon.c:603 J6_Tempr:38
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [46488]-W-CDD_KeyPanel_swup_hisip.c:262 E302
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [46488]-H-CDD_KeyPanel_swup_hisip.c:429 CommunicationState_Status(rolName=,sts=0
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [46488]-H-CDD_KeyPanel_swdl.c:858 Send_Co
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: [46819]-N-hw_version.c:290 H02 HW Detected = 3
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: 6D643E 00 01 00 00 00
+[10-21-25 15:26:34] [           base_serial.py:168]    DEBUG >> LogLine: 6D643C 00 01 00 01 01 01
+[10-21-25 15:26:34] [           base_serial.py:177]    DEBUG >> Found substring '6D643C' in line: 6D643C 00 01 00 01 01 01
+[10-21-25 15:26:34] [         util_man_diag.py: 36]    DEBUG >> Response Dictionary: {'Prefix': '6D643C', 'GroupId': '00', 'TestId': '01', 'Operation': '00', 'Status': '01', 'DataLength': '01', 'Databytes': '01'}
+[10-21-25 15:26:34] [               mandiag.py: 58]    DEBUG >> Command executed successfully for 6D643E 00 01 00 00 00
+[10-21-25 15:26:34] [               mandiag.py:127]    DEBUG >> Validation Success - response received for command: 6D643E 00 01 00 00 00 in attempt 1
+[10-21-25 15:26:34] [               mandiag.py:168]    DEBUG >> Response validated successfully: {'Prefix': '6D643C', 'GroupId': '00', 'TestId': '01', 'Operation': '00', 'Status': '01', 'DataLength': '01', 'Databytes': '01'}
+[10-21-25 15:26:34] [     test_0x0A04_Sleep.py:110]     INFO >> Test case passed successfully!
+[10-21-25 15:26:34] [           base_serial.py:193]     INFO >> Closed connection to COM112
+[10-21-25 15:26:34] [           base_serial.py:193]     INFO >> Closed connection to COM38

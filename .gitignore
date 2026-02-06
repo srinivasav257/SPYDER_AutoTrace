@@ -9,6 +9,7 @@ install_manifest.txt
 *.cmake
 !cmake/*.cmake
 compile_commands.json
+__pycache__
 
 # Qt
 *.user

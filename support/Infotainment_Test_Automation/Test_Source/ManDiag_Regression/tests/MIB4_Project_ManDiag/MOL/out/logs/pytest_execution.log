@@ -1,0 +1,13 @@
+[2025-12-10 16:04:06] INFO :: Initializing vector CAN on channel:1
+[2025-12-10 16:04:06] INFO :: xlCanFdSetConfiguration.: ABaudr.=500000, DBaudr.=2000000
+[2025-12-10 16:04:06] INFO :: xlCanFdSetConfiguration.: sjwAbr=2, tseg1Abr=6, tseg2Abr=3
+[2025-12-10 16:04:06] INFO :: xlCanFdSetConfiguration.: sjwDbr=2, tseg1Dbr=6, tseg2Dbr=3
+[2025-12-10 16:04:06] INFO :: Opened CAN interface 'vector' on channel 1 @ 500000 bps
+[2025-12-10 16:04:06] INFO :: Initialized Vector CAN_Interface successfully.
+[2025-12-10 16:04:06] INFO :: Starting test: CAN MOL password unlock feature Validation
+[2025-12-10 16:04:06] INFO :: Executing actual test: Send unlock CAN MOL password protection and verify the response
+[2025-12-10 16:04:06] INFO :: Sending diagnostic request to ID 0x1735a107 with data [0xFF 0x01 0x00 0x01 0x00 0x00 0x00 0x00]
+[2025-12-10 16:04:06] INFO :: Sending diagnostic request to ID 0x1735a507 with data [0xFF 0x01 0x01 0x01 0x00 0x00 0x00 0x00]
+[2025-12-10 16:04:06] INFO :: Test case passed successfully!
+[2025-12-10 16:04:06] INFO :: Closed CAN channel 1
+[2025-12-10 16:04:06] INFO :: Closed CAN channel 1

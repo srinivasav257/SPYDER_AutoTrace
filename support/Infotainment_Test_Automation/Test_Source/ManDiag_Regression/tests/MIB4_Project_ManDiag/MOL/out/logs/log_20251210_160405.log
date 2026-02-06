@@ -1,0 +1,26 @@
+[12-10-25 16:04:06] [    MIB4_project_setup.py:169]     INFO >> Initializing vector CAN on channel:1
+[12-10-25 16:04:06] [              can_base.py: 71]     INFO >> Opened CAN interface 'vector' on channel 1 @ 500000 bps
+[12-10-25 16:04:06] [           mandiag_MOL.py: 44]     INFO >> Initialized Vector CAN_Interface successfully.
+[12-10-25 16:04:06] [  MOL_Password_protect.py: 67]    DEBUG >> 
+                Test Case: Unit Sleep Normal mode
+                Steps:
+                1. Pre-condition: The Unit should be powered ON and VIP must be fully BootUp and Running.
+                2. Actual Test: Send SET unlock CAN MOL password protection.          
+                3. Post-condition: Read and verify response.
+
+                Expected Result:
+                - 
+                
+[12-10-25 16:04:06] [  MOL_Password_protect.py: 68]     INFO >> Starting test: CAN MOL password unlock feature Validation
+[12-10-25 16:04:06] [  MOL_Password_protect.py: 73]     INFO >> Executing actual test: Send unlock CAN MOL password protection and verify the response
+[12-10-25 16:04:06] [           mandiag_MOL.py: 60]     INFO >> Sending diagnostic request to ID 0x1735a107 with data [0xFF 0x01 0x00 0x01 0x00 0x00 0x00 0x00]
+[12-10-25 16:04:06] [              can_base.py: 92]    DEBUG >> TX >> ID=0x1735a107 Data=[255, 1, 0, 1, 0, 0, 0, 0]
+[12-10-25 16:04:06] [           mandiag_MOL.py: 73]    DEBUG >> Waiting for response from ID 0x1735a507 (timeout=2.0s)
+[12-10-25 16:04:06] [              can_base.py:115]    DEBUG >> RX << {'timestamp': 1765362846.3526382, 'can_id': '0x1b000073', 'data': [115, 64, 1, 4, 0, 0, 0, 0], 'dlc': 8, 'is_extended_id': True}
+[12-10-25 16:04:06] [              can_base.py:115]    DEBUG >> RX << {'timestamp': 1765362846.3529658, 'can_id': '0x1735a507', 'data': [255, 1, 1, 1, 0, 0, 0, 0], 'dlc': 8, 'is_extended_id': True}
+[12-10-25 16:04:06] [              can_base.py:133]    DEBUG >> Matched CAN ID 0x1735a507
+[12-10-25 16:04:06] [           mandiag_MOL.py:127]    DEBUG >> Response from ECU 0x1735a507: {'timestamp': 1765362846.3529658, 'can_id': '0x1735a507', 'data': [255, 1, 1, 1, 0, 0, 0, 0], 'dlc': 8, 'is_extended_id': True}
+[12-10-25 16:04:06] [           mandiag_MOL.py:133]     INFO >> Sending diagnostic request to ID 0x1735a507 with data [0xFF 0x01 0x01 0x01 0x00 0x00 0x00 0x00]
+[12-10-25 16:04:06] [  MOL_Password_protect.py: 78]     INFO >> Test case passed successfully!
+[12-10-25 16:04:06] [              can_base.py:147]     INFO >> Closed CAN channel 1
+[12-10-25 16:04:06] [              can_base.py:147]     INFO >> Closed CAN channel 1
