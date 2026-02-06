@@ -1,6 +1,9 @@
 # DockManager library
 add_subdirectory(DockManager)
 
+# TestExecutor library - professional test automation framework
+add_subdirectory(TestExecutor)
+
 # Application source files - panels only, DockManager provides the framework
 set(PROJECT_SOURCES
     main.cpp
@@ -23,6 +26,7 @@ target_include_directories(SPYDER_AutoTrace PRIVATE
 # Link DockManager - it brings in qtads and Qt dependencies automatically
 target_link_libraries(SPYDER_AutoTrace PRIVATE
     DockManager::DockManager
+    TestExecutor::TestExecutor
     Qt6::Widgets
 )
 

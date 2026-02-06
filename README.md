@@ -319,6 +319,196 @@ Enabled by default for faster compilation. Disable with:
 cmake -S . -B build -DENABLE_PCH=OFF
 ```
 
+---
+
+## TestExecutor Module - Professional No-Code Test Automation
+
+The **TestExecutor** module provides a complete, professional-grade test automation framework for Automotive Infotainment ECU testing. It enables **no-code test creation** where users select predefined commands and configure parameters without writing code.
+
+### Key Features
+
+- **No-Code Test Design**: Create tests by selecting commands and filling parameters
+- **JSON-Based Storage**: Tests stored in structured JSON with mandatory fields
+- **Multi-Protocol Support**: Serial/UART, CAN (Vector interfaces), Power Supply control
+- **Real-Time Monitoring**: Live execution progress with detailed logging
+- **Professional Reports**: HTML reports similar to pytest-html, plus JSON/CSV/XML exports
+
+### Architecture
+
+```
+src/TestExecutor/
+├── include/
+│   ├── TestDataModels.h         # TestCase, TestStep, TestResult structs
+│   ├── TestRepository.h         # Tree model and JSON persistence
+│   ├── CommandRegistry.h        # Predefined command definitions
+│   ├── TestExecutorEngine.h     # Execution engine with threading
+│   ├── TestExplorerPanel.h      # Test browsing/management UI
+│   ├── TestEditorPanel.h        # Test editing UI with step config
+│   ├── TestProgressPanel.h      # Execution monitoring UI
+│   ├── TestReportGenerator.h    # Multi-format report generation
+│   └── TestExecutorPanels.h     # Panel registration
+└── src/
+    └── [implementations]
+```
+
+### UI Panels
+
+| Panel | Purpose |
+|-------|---------|
+| **Test Explorer** | Browse, import/export, search, and manage test cases |
+| **Test Editor** | Edit test metadata and configure step parameters |
+| **Test Progress** | Real-time execution monitoring with results table and log |
+
+### Predefined Commands
+
+#### Serial/UART Commands
+| Command | Description |
+|---------|-------------|
+| `serial_enter_md_session` | Enter Manufacturing Diagnostics mode |
+| `serial_exit_md_session` | Exit Manufacturing Diagnostics mode |
+| `serial_send_mandiag` | Send ManDiag hex command |
+| `serial_read_did` | Read Data Identifier (DID) |
+| `serial_write_did` | Write Data Identifier (DID) |
+| `serial_send_raw` | Send raw serial data |
+| `serial_read_response` | Read serial response with timeout |
+
+#### CAN Commands
+| Command | Description |
+|---------|-------------|
+| `can_send_message` | Send CAN message (Vector interface) |
+| `can_read_message` | Read CAN message with filter |
+| `can_check_signal` | Check CAN signal value |
+
+#### Power Supply Commands
+| Command | Description |
+|---------|-------------|
+| `power_turn_on` / `power_turn_off` | Control power output |
+| `power_set_voltage` | Set output voltage |
+| `power_set_current_limit` | Set current limit |
+| `power_read_measurements` | Read voltage/current measurements |
+
+#### Flow Control Commands
+| Command | Description |
+|---------|-------------|
+| `wait` | Wait for specified duration |
+| `repeat` | Repeat steps N times |
+| `log_message` | Log custom message |
+| `set_variable` | Set runtime variable |
+
+#### Validation Commands
+| Command | Description |
+|---------|-------------|
+| `assert_equals` | Assert exact value match |
+| `assert_contains` | Assert substring presence |
+| `assert_regex` | Assert regex pattern match |
+| `assert_range` | Assert value within range |
+
+### Test Case JSON Format
+
+Tests are stored in JSON with mandatory metadata fields:
+
+```json
+{
+    "testCases": [
+        {
+            "id": "tc_001_enter_md_session",
+            "name": "Enter Manufacturing Diagnostics Session",
+            "description": "Verify system can enter MD mode via UART",
+            "requirementId": "REQ-DIAG-001",
+            "requirementLink": "https://confluence.company.com/REQ-DIAG-001",
+            "jiraTicket": "INFO-1234",
+            "priority": "High",
+            "tags": ["md_session", "uart"],
+            "steps": [
+                {
+                    "id": "step_1",
+                    "order": 1,
+                    "category": "Serial",
+                    "command": "serial_enter_md_session",
+                    "description": "Connect and enter MD session",
+                    "parameters": {
+                        "port": "COM3",
+                        "baud_rate": "115200",
+                        "timeout": "5000"
+                    }
+                },
+                {
+                    "id": "step_2",
+                    "order": 2,
+                    "category": "Validation",
+                    "command": "assert_contains",
+                    "description": "Verify MD session prompt",
+                    "parameters": {
+                        "expected": "MD>",
+                        "case_sensitive": "false"
+                    }
+                }
+            ]
+        }
+    ]
+}
+```
+
+### Report Generation
+
+Export test results in multiple formats:
+
+| Format | Description |
+|--------|-------------|
+| **HTML** | Professional styled report with summary cards, progress bar, and results table |
+| **JSON** | Machine-readable with full session/step data |
+| **CSV** | Spreadsheet-compatible for Excel/Sheets |
+| **XML** | JUnit-compatible for CI/CD integration |
+
+### Usage
+
+**1. Register panels at application startup:**
+```cpp
+#include "TestExecutorPanels.h"
+
+int main(int argc, char* argv[]) {
+    QApplication app(argc, argv);
+    
+    // Register TestExecutor panels before creating MainWindow
+    TestExecutor::registerTestExecutorPanels();
+    
+    DockManager::DockMainWindow mainWindow;
+    mainWindow.show();
+    return app.exec();
+}
+```
+
+**2. Import tests from JSON:**
+- Open Test Explorer panel
+- Click "Import" button
+- Select JSON test file (see `resources/sample_tests.json`)
+
+**3. Edit tests:**
+- Double-click a test in Explorer to open in Editor
+- Configure mandatory fields (Name, Description, Requirement, JIRA)
+- Add/edit steps by selecting category → command → parameters
+
+**4. Execute tests:**
+- Select tests in Explorer
+- Click "Run" in Progress panel
+- Monitor real-time execution and view results
+
+**5. Export reports:**
+- After execution, click "Export Report" in Progress panel
+- Choose format (HTML recommended)
+
+### Sample Tests
+
+A sample test file is provided at `resources/sample_tests.json` with 5 example test cases:
+
+1. **Enter MD Session** - Basic UART connectivity test
+2. **Read ECU Part Number** - DID read operation
+3. **CAN Bus Communication** - CAN message exchange
+4. **Power Cycle Test** - Power supply control sequence
+5. **Write and Verify VIN** - DID write with verification (uses variables)
+
+---
+
 ## Requirements
 
 - **CMake**: 3.21+ (for presets) or 3.20+ (without presets)

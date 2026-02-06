@@ -1,0 +1,355 @@
+{
+    "version": "1.0",
+    "suite": {
+        "id": "infotainment_regression_suite",
+        "name": "Infotainment Manufacturing Regression Tests",
+        "description": "Core manufacturing diagnostics regression tests for Infotainment ECU"
+    },
+    "testCases": [
+        {
+            "id": "tc_001_enter_md_session",
+            "name": "Enter Manufacturing Diagnostics Session",
+            "description": "Verify the system can enter Manufacturing Diagnostics mode via UART",
+            "requirementId": "REQ-DIAG-001",
+            "requirementLink": "https://confluence.company.com/display/SPEC/REQ-DIAG-001",
+            "jiraTicket": "INFO-1234",
+            "priority": "High",
+            "tags": ["md_session", "uart", "diagnostics"],
+            "steps": [
+                {
+                    "id": "step_1",
+                    "order": 1,
+                    "category": "Serial",
+                    "command": "serial_enter_md_session",
+                    "description": "Connect and enter MD session",
+                    "parameters": {
+                        "port": "COM3",
+                        "baud_rate": "115200",
+                        "timeout": "5000"
+                    }
+                },
+                {
+                    "id": "step_2",
+                    "order": 2,
+                    "category": "Validation",
+                    "command": "assert_contains",
+                    "description": "Verify MD session prompt appears",
+                    "parameters": {
+                        "expected": "MD>",
+                        "case_sensitive": "false"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "tc_002_read_ecu_part_number",
+            "name": "Read ECU Part Number via DID",
+            "description": "Read the ECU Part Number using ReadDataByIdentifier service",
+            "requirementId": "REQ-DID-010",
+            "requirementLink": "https://confluence.company.com/display/SPEC/REQ-DID-010",
+            "jiraTicket": "INFO-1456",
+            "priority": "High",
+            "tags": ["did_read", "part_number", "diagnostics"],
+            "steps": [
+                {
+                    "id": "step_1",
+                    "order": 1,
+                    "category": "Serial",
+                    "command": "serial_enter_md_session",
+                    "description": "Enter Manufacturing Diagnostics session",
+                    "parameters": {
+                        "port": "COM3",
+                        "baud_rate": "115200"
+                    }
+                },
+                {
+                    "id": "step_2",
+                    "order": 2,
+                    "category": "Serial",
+                    "command": "serial_read_did",
+                    "description": "Read Part Number DID",
+                    "parameters": {
+                        "did": "F187",
+                        "timeout": "3000"
+                    }
+                },
+                {
+                    "id": "step_3",
+                    "order": 3,
+                    "category": "Validation",
+                    "command": "assert_regex",
+                    "description": "Validate Part Number format",
+                    "parameters": {
+                        "pattern": "^[A-Z0-9]{10,15}$"
+                    }
+                },
+                {
+                    "id": "step_4",
+                    "order": 4,
+                    "category": "Serial",
+                    "command": "serial_exit_md_session",
+                    "description": "Exit Manufacturing Diagnostics session",
+                    "parameters": {}
+                }
+            ]
+        },
+        {
+            "id": "tc_003_can_bus_communication",
+            "name": "CAN Bus Basic Communication Test",
+            "description": "Verify CAN communication with the Infotainment ECU",
+            "requirementId": "REQ-CAN-001",
+            "requirementLink": "https://confluence.company.com/display/SPEC/REQ-CAN-001",
+            "jiraTicket": "INFO-2001",
+            "priority": "Medium",
+            "tags": ["can", "communication", "vector"],
+            "steps": [
+                {
+                    "id": "step_1",
+                    "order": 1,
+                    "category": "CAN",
+                    "command": "can_send_message",
+                    "description": "Send diagnostic request on CAN",
+                    "parameters": {
+                        "can_id": "0x7DF",
+                        "data": "02 10 01 00 00 00 00 00",
+                        "interface": "vector",
+                        "channel": "0",
+                        "bitrate": "500000"
+                    }
+                },
+                {
+                    "id": "step_2",
+                    "order": 2,
+                    "category": "Flow",
+                    "command": "wait",
+                    "description": "Wait for ECU response",
+                    "parameters": {
+                        "duration": "100"
+                    }
+                },
+                {
+                    "id": "step_3",
+                    "order": 3,
+                    "category": "CAN",
+                    "command": "can_read_message",
+                    "description": "Read diagnostic response",
+                    "parameters": {
+                        "can_id": "0x7E0",
+                        "timeout": "2000"
+                    }
+                },
+                {
+                    "id": "step_4",
+                    "order": 4,
+                    "category": "Validation",
+                    "command": "assert_contains",
+                    "description": "Verify positive response",
+                    "parameters": {
+                        "expected": "50 01"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "tc_004_power_cycle_test",
+            "name": "ECU Power Cycle Test",
+            "description": "Verify ECU behavior during power cycle sequence",
+            "requirementId": "REQ-PWR-001",
+            "requirementLink": "https://confluence.company.com/display/SPEC/REQ-PWR-001",
+            "jiraTicket": "INFO-3010",
+            "priority": "High",
+            "tags": ["power", "voltage", "stability"],
+            "steps": [
+                {
+                    "id": "step_1",
+                    "order": 1,
+                    "category": "Power",
+                    "command": "power_set_voltage",
+                    "description": "Set nominal voltage 12V",
+                    "parameters": {
+                        "voltage": "12.0",
+                        "channel": "1"
+                    }
+                },
+                {
+                    "id": "step_2",
+                    "order": 2,
+                    "category": "Power",
+                    "command": "power_turn_on",
+                    "description": "Turn power ON",
+                    "parameters": {
+                        "channel": "1"
+                    }
+                },
+                {
+                    "id": "step_3",
+                    "order": 3,
+                    "category": "Flow",
+                    "command": "wait",
+                    "description": "Wait for ECU boot",
+                    "parameters": {
+                        "duration": "5000"
+                    }
+                },
+                {
+                    "id": "step_4",
+                    "order": 4,
+                    "category": "Serial",
+                    "command": "serial_enter_md_session",
+                    "description": "Verify ECU is responsive",
+                    "parameters": {
+                        "port": "COM3",
+                        "baud_rate": "115200"
+                    }
+                },
+                {
+                    "id": "step_5",
+                    "order": 5,
+                    "category": "Power",
+                    "command": "power_turn_off",
+                    "description": "Turn power OFF",
+                    "parameters": {
+                        "channel": "1"
+                    }
+                },
+                {
+                    "id": "step_6",
+                    "order": 6,
+                    "category": "Flow",
+                    "command": "wait",
+                    "description": "Wait for complete power down",
+                    "parameters": {
+                        "duration": "2000"
+                    }
+                },
+                {
+                    "id": "step_7",
+                    "order": 7,
+                    "category": "Power",
+                    "command": "power_turn_on",
+                    "description": "Power back ON",
+                    "parameters": {
+                        "channel": "1"
+                    }
+                },
+                {
+                    "id": "step_8",
+                    "order": 8,
+                    "category": "Flow",
+                    "command": "wait",
+                    "description": "Wait for ECU reboot",
+                    "parameters": {
+                        "duration": "5000"
+                    }
+                },
+                {
+                    "id": "step_9",
+                    "order": 9,
+                    "category": "Serial",
+                    "command": "serial_enter_md_session",
+                    "description": "Verify ECU is responsive after power cycle",
+                    "parameters": {
+                        "port": "COM3",
+                        "baud_rate": "115200"
+                    }
+                },
+                {
+                    "id": "step_10",
+                    "order": 10,
+                    "category": "Validation",
+                    "command": "assert_contains",
+                    "description": "Confirm MD session active",
+                    "parameters": {
+                        "expected": "MD>"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "tc_005_write_and_verify_did",
+            "name": "Write and Verify VIN DID",
+            "description": "Write VIN number to ECU and read back to verify",
+            "requirementId": "REQ-DID-020",
+            "requirementLink": "https://confluence.company.com/display/SPEC/REQ-DID-020",
+            "jiraTicket": "INFO-1789",
+            "priority": "Critical",
+            "tags": ["did_write", "vin", "eol"],
+            "steps": [
+                {
+                    "id": "step_1",
+                    "order": 1,
+                    "category": "Serial",
+                    "command": "serial_enter_md_session",
+                    "description": "Enter MD session",
+                    "parameters": {
+                        "port": "COM3",
+                        "baud_rate": "115200"
+                    }
+                },
+                {
+                    "id": "step_2",
+                    "order": 2,
+                    "category": "Flow",
+                    "command": "set_variable",
+                    "description": "Set test VIN value",
+                    "parameters": {
+                        "name": "TEST_VIN",
+                        "value": "1HGBH41JXMN109186"
+                    }
+                },
+                {
+                    "id": "step_3",
+                    "order": 3,
+                    "category": "Serial",
+                    "command": "serial_write_did",
+                    "description": "Write VIN DID",
+                    "parameters": {
+                        "did": "F190",
+                        "value": "${TEST_VIN}",
+                        "timeout": "5000"
+                    }
+                },
+                {
+                    "id": "step_4",
+                    "order": 4,
+                    "category": "Flow",
+                    "command": "wait",
+                    "description": "Wait for EEPROM write",
+                    "parameters": {
+                        "duration": "500"
+                    }
+                },
+                {
+                    "id": "step_5",
+                    "order": 5,
+                    "category": "Serial",
+                    "command": "serial_read_did",
+                    "description": "Read back VIN DID",
+                    "parameters": {
+                        "did": "F190",
+                        "timeout": "3000"
+                    }
+                },
+                {
+                    "id": "step_6",
+                    "order": 6,
+                    "category": "Validation",
+                    "command": "assert_equals",
+                    "description": "Verify VIN matches written value",
+                    "parameters": {
+                        "expected": "${TEST_VIN}",
+                        "case_sensitive": "true"
+                    }
+                },
+                {
+                    "id": "step_7",
+                    "order": 7,
+                    "category": "Serial",
+                    "command": "serial_exit_md_session",
+                    "description": "Exit MD session",
+                    "parameters": {}
+                }
+            ]
+        }
+    ]
+}
