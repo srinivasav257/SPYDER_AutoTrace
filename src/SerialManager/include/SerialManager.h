@@ -15,6 +15,7 @@
 #include <QSerialPortInfo>
 #include <QMutex>
 #include <QMap>
+#include <map>
 #include <memory>
 
 namespace SerialManager {
@@ -299,7 +300,7 @@ private:
     bool applyConfig(QSerialPort* port, const SerialPortConfig& config);
 
     mutable QMutex m_mutex;
-    QMap<QString, std::unique_ptr<QSerialPort>> m_openPorts;
+    std::map<QString, std::unique_ptr<QSerialPort>> m_openPorts;
     QMap<QString, SerialPortConfig> m_portConfigs;
     QMap<QString, QString> m_lastErrors;
 };

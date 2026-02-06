@@ -19,9 +19,9 @@
  * - MOL (Mid of Line): CAN interface commands (placeholder)
  *
  * Command Types:
- * - MD_Tx: Send command only (fire and forget)
- * - MD_TxRx: Send and match entire response
- * - MD_Type1: Send, parse, and validate individual fields
+ * - MDU_Tx: Send command only via UART (fire and forget)
+ * - MDU_TxRx: Send via UART and match entire response
+ * - MDU_Type1: Send via UART, parse, and validate individual fields
  */
 
 #include "ManDiagProtocol.h"

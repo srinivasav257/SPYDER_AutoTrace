@@ -174,7 +174,7 @@ void SerialPortManager::closePort(const QString& portName)
             port->close();
             qDebug() << "Port closed:" << portName;
         }
-        m_openPorts.remove(portName);
+        m_openPorts.erase(portName);
         
         locker.unlock();
         emit portClosed(portName);
@@ -185,11 +185,12 @@ void SerialPortManager::closeAllPorts()
 {
     QMutexLocker locker(&m_mutex);
     
-    QStringList ports = m_openPorts.keys();
-    for (const QString& portName : ports) {
-        if (m_openPorts[portName] && m_openPorts[portName]->isOpen()) {
-            m_openPorts[portName]->close();
-            qDebug() << "Port closed:" << portName;
+    QStringList ports;
+    for (const auto& [name, port] : m_openPorts) {
+        ports.append(name);
+        if (port && port->isOpen()) {
+            port->close();
+            qDebug() << "Port closed:" << name;
         }
     }
     m_openPorts.clear();
@@ -204,9 +205,8 @@ void SerialPortManager::closeAllPorts()
 bool SerialPortManager::isPortOpen(const QString& portName) const
 {
     QMutexLocker locker(&m_mutex);
-    return m_openPorts.contains(portName) && 
-           m_openPorts[portName] && 
-           m_openPorts[portName]->isOpen();
+    auto it = m_openPorts.find(portName);
+    return it != m_openPorts.end() && it->second && it->second->isOpen();
 }
 
 QStringList SerialPortManager::openPorts() const
@@ -214,8 +214,8 @@ QStringList SerialPortManager::openPorts() const
     QMutexLocker locker(&m_mutex);
     QStringList result;
     for (auto it = m_openPorts.begin(); it != m_openPorts.end(); ++it) {
-        if (it.value() && it.value()->isOpen()) {
-            result.append(it.key());
+        if (it->second && it->second->isOpen()) {
+            result.append(it->first);
         }
     }
     return result;
@@ -347,7 +347,7 @@ SerialResult SerialPortManager::readUntil(const QString& portName, const QByteAr
         return SerialResult::Success(receivedData);
     }
     
-    return SerialResult::Failure("Pattern not found within timeout", receivedData);
+    return SerialResult::MatchFailure("Pattern not found within timeout", receivedData);
 }
 
 SerialResult SerialPortManager::sendAndMatchResponse(const QString& portName,

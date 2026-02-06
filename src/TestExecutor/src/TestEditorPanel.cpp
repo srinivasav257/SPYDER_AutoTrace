@@ -176,7 +176,7 @@ StepEditorWidget::StepEditorWidget(QWidget* parent)
 
     // Category selector
     m_categoryCombo = new QComboBox(this);
-    m_categoryCombo->addItems({"Serial", "CAN", "Power", "Flow", "Validation", "System"});
+    m_categoryCombo->addItems({"Serial", "CAN", "Power", "Flow", "Validation", "System", "mdEOL"});
     formLayout->addRow("Category:", m_categoryCombo);
 
     // Command selector

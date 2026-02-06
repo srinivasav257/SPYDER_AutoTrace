@@ -46,7 +46,8 @@ enum class CommandCategory {
     Power,      ///< Power supply control
     Flow,       ///< Flow control (wait, loop, condition)
     Validation, ///< Response validation/assertion
-    System      ///< System commands (file, log, etc.)
+    System,     ///< System commands (file, log, etc.)
+    mdEOL       ///< Manufacturing Diagnostics via UART (End-of-Line)
 };
 
 //=============================================================================

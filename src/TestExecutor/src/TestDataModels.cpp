@@ -21,6 +21,7 @@ QString TestStep::categoryToString(CommandCategory cat)
         case CommandCategory::Flow: return "Flow";
         case CommandCategory::Validation: return "Validation";
         case CommandCategory::System: return "System";
+        case CommandCategory::mdEOL: return "mdEOL";
     }
     return "Unknown";
 }
@@ -33,6 +34,7 @@ CommandCategory TestStep::categoryFromString(const QString& str)
     if (str == "Flow") return CommandCategory::Flow;
     if (str == "Validation") return CommandCategory::Validation;
     if (str == "System") return CommandCategory::System;
+    if (str == "mdEOL") return CommandCategory::mdEOL;
     return CommandCategory::Serial; // Default
 }
 

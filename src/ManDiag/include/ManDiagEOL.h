@@ -3,12 +3,12 @@
  * @file ManDiagEOL.h
  * @brief Manufacturing Diagnostics End-of-Line (EOL) Command Types.
  *
- * EOL commands work with the serial interface. This module provides three
- * types of ManDiag commands with increasing levels of validation:
+ * EOL commands work with the UART serial interface. This module provides three
+ * types of Manufacturing Diagnostics via UART (MDU) commands with increasing levels of validation:
  *
- * 1. MD_Tx: Send command, don't care about response (fire and forget)
- * 2. MD_TxRx: Send command, match entire response string with expected
- * 3. MD_Type1: Send command, parse response, validate individual fields
+ * 1. MDU_Tx: Send command, don't care about response (fire and forget)
+ * 2. MDU_TxRx: Send command, match entire response string with expected
+ * 3. MDU_Type1: Send command, parse response, validate individual fields
  *              (status, data length, data bytes) with user-selectable validation
  *
  * All commands use the ManDiag protocol format:
@@ -96,11 +96,11 @@ struct EOLResult {
 };
 
 //=============================================================================
-// MD_Tx Command (Transmit Only)
+// MDU_Tx Command (Transmit Only via UART)
 //=============================================================================
 
 /**
- * @brief MD_Tx: Send command without waiting for or validating response.
+ * @brief MDU_Tx: Send command via UART without waiting for or validating response.
  *
  * Use this command type when you just want to send a command and don't
  * care about the response. Useful for:
@@ -115,7 +115,7 @@ struct EOLResult {
 EOLResult MD_Tx(const QString& command, const EOLConfig& config);
 
 /**
- * @brief MD_Tx with individual parameters (builds command internally)
+ * @brief MDU_Tx with individual parameters (builds command internally)
  *
  * @param groupId Group ID (hex byte)
  * @param testId Test ID (hex byte)
@@ -133,11 +133,11 @@ EOLResult MD_Tx(const QString& groupId,
                 const EOLConfig& config);
 
 //=============================================================================
-// MD_TxRx Command (Transmit and Match Response)
+// MDU_TxRx Command (Transmit and Match Response via UART)
 //=============================================================================
 
 /**
- * @brief MD_TxRx: Send command and match entire response with expected string.
+ * @brief MDU_TxRx: Send command via UART and match entire response with expected string.
  *
  * Use this command type when you want to verify the exact response string.
  * The response is matched as a whole (after normalizing whitespace).
@@ -152,7 +152,7 @@ EOLResult MD_TxRx(const QString& command,
                   const EOLConfig& config);
 
 /**
- * @brief MD_TxRx with partial match option
+ * @brief MDU_TxRx with partial match option
  *
  * @param command The hex command string to send
  * @param expectedPattern Pattern to search for in response (contains match)
@@ -166,11 +166,11 @@ EOLResult MD_TxRx(const QString& command,
                   const EOLConfig& config);
 
 //=============================================================================
-// MD_Type1 Command (Transmit, Parse, and Validate)
+// MDU_Type1 Command (Transmit, Parse, and Validate via UART)
 //=============================================================================
 
 /**
- * @brief MD_Type1: Send command, parse response, and validate individual fields.
+ * @brief MDU_Type1: Send command via UART, parse response, and validate individual fields.
  *
  * This is the most flexible command type. It:
  * 1. Sends the command
@@ -193,7 +193,7 @@ EOLResult MD_Type1(const QString& command,
                    const EOLConfig& config);
 
 /**
- * @brief MD_Type1 with individual command parameters
+ * @brief MDU_Type1 with individual command parameters
  *
  * @param groupId Group ID (hex byte)
  * @param testId Test ID (hex byte)
@@ -213,7 +213,7 @@ EOLResult MD_Type1(const QString& groupId,
                    const EOLConfig& config);
 
 /**
- * @brief MD_Type1 with simple status validation only
+ * @brief MDU_Type1 with simple status validation only
  *
  * Convenience overload that validates only the status byte.
  *
@@ -227,7 +227,7 @@ EOLResult MD_Type1_StatusOnly(const QString& command,
                                const EOLConfig& config);
 
 /**
- * @brief MD_Type1 with status and data length validation
+ * @brief MDU_Type1 with status and data length validation
  *
  * @param command The hex command string to send
  * @param expectedStatus Expected status byte

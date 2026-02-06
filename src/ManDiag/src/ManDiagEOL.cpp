@@ -147,7 +147,7 @@ EOLResult MD_Tx(const QString& command, const EOLConfig& config)
         return EOLResult::Failure("Send failed: " + sendResult.errorMessage);
     }
     
-    qDebug() << "ManDiag MD_Tx: Sent command:" << command;
+    qDebug() << "ManDiag MDU_Tx: Sent command:" << command;
     
     EOLResult result;
     result.success = true;
@@ -276,14 +276,14 @@ void registerEOLCommands()
     auto& registry = CommandRegistry::instance();
     
     // =========================================================================
-    // MD_Tx - Transmit Only (Fire and Forget)
+    // MDU_Tx - Transmit Only (Fire and Forget) via UART
     // =========================================================================
     registry.registerCommand({
         .id = "mandiag_eol_tx",
-        .name = "MD_Tx (Send Only)",
-        .description = "Send ManDiag command without waiting for response. "
+        .name = "MDU_Tx (Send Only)",
+        .description = "Send ManDiag command via UART without waiting for response. "
                        "Use for initialization or configuration commands where response doesn't matter.",
-        .category = CommandCategory::Serial,
+        .category = CommandCategory::mdEOL,
         .parameters = {
             {
                 .name = "hex_command",
@@ -327,13 +327,13 @@ void registerEOLCommands()
     });
     
     // =========================================================================
-    // MD_TxRx - Transmit and Match Response
+    // MDU_TxRx - Transmit and Match Response via UART
     // =========================================================================
     registry.registerCommand({
         .id = "mandiag_eol_txrx",
-        .name = "MD_TxRx (Send & Match)",
-        .description = "Send ManDiag command and match entire response string with expected value.",
-        .category = CommandCategory::Serial,
+        .name = "MDU_TxRx (Send & Match)",
+        .description = "Send ManDiag command via UART and match entire response string with expected value.",
+        .category = CommandCategory::mdEOL,
         .parameters = {
             {
                 .name = "hex_command",
@@ -419,14 +419,14 @@ void registerEOLCommands()
     });
     
     // =========================================================================
-    // MD_Type1 - Parse and Validate Individual Fields
+    // MDU_Type1 - Parse and Validate Individual Fields via UART
     // =========================================================================
     registry.registerCommand({
         .id = "mandiag_eol_type1",
-        .name = "MD_Type1 (Parse & Validate)",
-        .description = "Send ManDiag command, parse response, and validate individual fields "
+        .name = "MDU_Type1 (Parse & Validate)",
+        .description = "Send ManDiag command via UART, parse response, and validate individual fields "
                        "(status, data length, data bytes). Select which fields to validate.",
-        .category = CommandCategory::Serial,
+        .category = CommandCategory::mdEOL,
         .parameters = {
             {
                 .name = "hex_command",
