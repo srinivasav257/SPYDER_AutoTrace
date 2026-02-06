@@ -15,6 +15,10 @@ set(PROJECT_SOURCES
     main.cpp
     panels/SamplePanels.cpp
     panels/SamplePanels.h
+    panels/HWConfigManager.h
+    panels/HWConfigManager.cpp
+    panels/HWConfigDialog.h
+    panels/HWConfigDialog.cpp
     "${CMAKE_SOURCE_DIR}/resources/resources.qrc"
 )
 
@@ -32,7 +36,9 @@ target_link_libraries(SPYDER_AutoTrace PRIVATE
     DockManager::DockManager
     TestExecutor::TestExecutor
     ManDiag::ManDiag
+    SerialManager::SerialManager
     Qt6::Widgets
+    Qt6::SerialPort
 )
 
 # Apply settings via Interface Targets

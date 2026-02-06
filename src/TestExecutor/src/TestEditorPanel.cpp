@@ -6,6 +6,7 @@
 #include "TestEditorPanel.h"
 #include "TestRepository.h"
 #include "CommandRegistry.h"
+#include "HWConfigManager.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QSplitter>
@@ -101,6 +102,27 @@ void ParameterEditorWidget::createEditor()
             auto* combo = new QComboBox(this);
             combo->addItems(m_paramDef.enumValues);
             combo->setCurrentText(m_paramDef.defaultValue.toString());
+            connect(combo, &QComboBox::currentTextChanged, this, &ParameterEditorWidget::valueChanged);
+            m_editor = combo;
+            break;
+        }
+
+        case ParameterType::ComPort:
+        {
+            auto* combo = new QComboBox(this);
+            combo->setEditable(true);
+            // Populate with configured port aliases from HW Config
+            const auto aliases = HWConfigManager::instance().allPortAliases();
+            combo->addItems(aliases);
+            // Set current value
+            QString defaultVal = m_paramDef.defaultValue.toString();
+            if (!defaultVal.isEmpty()) {
+                int idx = combo->findText(defaultVal, Qt::MatchContains);
+                if (idx >= 0)
+                    combo->setCurrentIndex(idx);
+                else
+                    combo->setEditText(defaultVal);
+            }
             connect(combo, &QComboBox::currentTextChanged, this, &ParameterEditorWidget::valueChanged);
             m_editor = combo;
             break;

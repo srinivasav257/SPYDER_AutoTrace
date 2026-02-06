@@ -55,6 +55,11 @@ target_link_libraries(TestExecutor
         SerialManager::SerialManager
 )
 
+# Allow TestExecutor to access HWConfigManager for port alias resolution
+target_include_directories(TestExecutor PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/../panels"
+)
+
 # Enable automoc for Q_OBJECT macros
 set_target_properties(TestExecutor PROPERTIES
     AUTOMOC ON
