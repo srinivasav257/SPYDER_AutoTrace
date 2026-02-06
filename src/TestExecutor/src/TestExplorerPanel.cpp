@@ -4,6 +4,7 @@
  */
 
 #include "TestExplorerPanel.h"
+#include "TestEditorPanel.h"
 #include "TestRepository.h"
 #include "TestExecutorEngine.h"
 #include <QVBoxLayout>
@@ -152,6 +153,7 @@ void TestExplorerPanel::setupUi()
     m_proxyModel = new QSortFilterProxyModel(this);
     m_proxyModel->setRecursiveFilteringEnabled(true);
     m_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    m_proxyModel->setFilterKeyColumn(-1);  // Search across all columns
     m_proxyModel->setSourceModel(TestRepository::instance().treeModel());
     
     m_treeView->setModel(m_proxyModel);
@@ -196,6 +198,11 @@ void TestExplorerPanel::createContextMenu()
     connect(editAction, &QAction::triggered, this, [this]() {
         QStringList ids = selectedTestCaseIds();
         if (!ids.isEmpty()) {
+            auto* dialog = new TestEditorDialog(this);
+            dialog->setAttribute(Qt::WA_DeleteOnClose);
+            dialog->loadTestCase(ids.first());
+            dialog->show();
+
             emit testCaseDoubleClicked(ids.first());
         }
     });
@@ -277,8 +284,15 @@ void TestExplorerPanel::onAddTestClicked()
 {
     TestCase newTest = TestRepository::instance().createNewTestCase();
     TestRepository::instance().addTestCase(newTest);
-    
+
     selectTestCase(newTest.id);
+
+    // Open the Test Editor dialog for the new test
+    auto* dialog = new TestEditorDialog(this);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->loadTestCase(newTest.id);
+    dialog->show();
+
     emit testCaseDoubleClicked(newTest.id);
     emit newTestRequested();
 }
@@ -315,9 +329,17 @@ void TestExplorerPanel::onTreeDoubleClicked(const QModelIndex& index)
 {
     QModelIndex sourceIndex = m_proxyModel->mapToSource(index);
     auto* model = TestRepository::instance().treeModel();
-    
+
     if (model->itemType(sourceIndex) == TreeItemType::TestCase) {
-        emit testCaseDoubleClicked(model->itemId(sourceIndex));
+        QString testCaseId = model->itemId(sourceIndex);
+
+        // Open the Test Editor dialog
+        auto* dialog = new TestEditorDialog(this);
+        dialog->setAttribute(Qt::WA_DeleteOnClose);
+        dialog->loadTestCase(testCaseId);
+        dialog->show();
+
+        emit testCaseDoubleClicked(testCaseId);
     }
 }
 

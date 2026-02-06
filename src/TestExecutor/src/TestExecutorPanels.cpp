@@ -5,7 +5,6 @@
 
 #include "TestExecutorPanels.h"
 #include "TestExplorerPanel.h"
-#include "TestEditorPanel.h"
 #include "TestProgressPanel.h"
 #include <DockWidget.h>
 
@@ -24,17 +23,6 @@ bool registerTestExecutorPanels()
         .defaultArea = ads::LeftDockWidgetArea,
         .factory = [](QWidget* parent) -> QWidget* {
             return new TestExplorerPanel(parent);
-        }
-    });
-    
-    // Test Editor Panel - for editing test cases and steps
-    success &= registry.registerPanel({
-        .id = "test_editor",
-        .title = "Test Editor",
-        .category = "Test Automation",
-        .defaultArea = ads::CenterDockWidgetArea,
-        .factory = [](QWidget* parent) -> QWidget* {
-            return new TestEditorPanel(parent);
         }
     });
     

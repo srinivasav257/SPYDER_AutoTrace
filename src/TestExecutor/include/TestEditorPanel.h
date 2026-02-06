@@ -1,19 +1,21 @@
 #pragma once
 /**
  * @file TestEditorPanel.h
- * @brief Test Editor panel for editing test cases and steps.
- * 
+ * @brief Test Editor dialog for editing test cases and steps.
+ *
  * Features:
  * - Edit test case metadata (name, description, requirement, JIRA)
  * - Add/Remove/Reorder test steps
  * - Command selection from predefined commands (no coding!)
  * - Parameter editing with type-specific editors
  * - Validation and preview
+ * - Tabbed layout: Tab 1 = Test Case Info, Tab 2 = Test Steps & Configuration
  */
 
 #include "TestDataModels.h"
 #include "CommandRegistry.h"
 #include <QObject>
+#include <QDialog>
 #include <QWidget>
 #include <QLineEdit>
 #include <QTextEdit>
@@ -25,6 +27,7 @@
 #include <QCheckBox>
 #include <QPushButton>
 #include <QFormLayout>
+#include <QTabWidget>
 
 namespace TestExecutor {
 
@@ -41,17 +44,17 @@ class ParameterEditorWidget : public QWidget
 
 public:
     explicit ParameterEditorWidget(const ParameterDef& paramDef, QWidget* parent = nullptr);
-    
+
     /**
      * @brief Get the current value
      */
     QVariant value() const;
-    
+
     /**
      * @brief Set the value
      */
     void setValue(const QVariant& value);
-    
+
     /**
      * @brief Get the parameter definition
      */
@@ -80,22 +83,22 @@ class StepEditorWidget : public QWidget
 
 public:
     explicit StepEditorWidget(QWidget* parent = nullptr);
-    
+
     /**
      * @brief Load a step for editing
      */
     void loadStep(const TestStep& step);
-    
+
     /**
      * @brief Get the edited step
      */
     TestStep getStep() const;
-    
+
     /**
      * @brief Clear the editor
      */
     void clear();
-    
+
     /**
      * @brief Set command by ID (updates parameters UI)
      */
@@ -120,50 +123,54 @@ private:
     QWidget* m_parameterContainer = nullptr;
     QFormLayout* m_parameterLayout = nullptr;
     QVector<ParameterEditorWidget*> m_parameterEditors;
-    
+
     TestStep m_currentStep;
 };
 
 //=============================================================================
-// TestEditorPanel - Main editor panel
+// TestEditorDialog - Main editor dialog (opened on test double-click)
 //=============================================================================
 
 /**
- * @brief Panel for editing test cases and their steps.
+ * @brief Dialog for editing test cases and their steps.
+ *
+ * Opened when user double-clicks a test case in the Test Explorer.
+ * Tab 1: Test Case Information (metadata)
+ * Tab 2: Test Steps and Step Configuration
  */
-class TestEditorPanel : public QWidget
+class TestEditorDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit TestEditorPanel(QWidget* parent = nullptr);
-    ~TestEditorPanel() override;
+    explicit TestEditorDialog(QWidget* parent = nullptr);
+    ~TestEditorDialog() override;
 
     /**
      * @brief Load a test case for editing
      */
     void loadTestCase(const QString& testCaseId);
-    
+
     /**
      * @brief Get the current test case ID
      */
     QString currentTestCaseId() const { return m_currentTestCaseId; }
-    
+
     /**
      * @brief Check if there are unsaved changes
      */
     bool hasUnsavedChanges() const { return m_dirty; }
-    
+
     /**
      * @brief Save changes to repository
      */
     bool save();
-    
+
     /**
      * @brief Discard changes and reload
      */
     void revert();
-    
+
     /**
      * @brief Clear the editor
      */
@@ -174,7 +181,7 @@ signals:
      * @brief Emitted when test case is saved
      */
     void testCaseSaved(const QString& testCaseId);
-    
+
     /**
      * @brief Emitted when dirty state changes
      */
@@ -200,7 +207,10 @@ private:
     void syncStepFromEditor(int row);
     void setDirty(bool dirty);
 
-    // === Metadata Widgets ===
+    // === Tab Widget ===
+    QTabWidget* m_tabWidget = nullptr;
+
+    // === Metadata Widgets (Tab 1) ===
     QLineEdit* m_nameEdit = nullptr;
     QLineEdit* m_descriptionEdit = nullptr;
     QLineEdit* m_requirementIdEdit = nullptr;
@@ -213,17 +223,17 @@ private:
     QSpinBox* m_timeoutSpin = nullptr;
     QCheckBox* m_enabledCheck = nullptr;
 
-    // === Steps Widgets ===
+    // === Steps Widgets (Tab 2) ===
     QTableWidget* m_stepsTable = nullptr;
     QPushButton* m_btnAddStep = nullptr;
     QPushButton* m_btnRemoveStep = nullptr;
     QPushButton* m_btnMoveUp = nullptr;
     QPushButton* m_btnMoveDown = nullptr;
     QPushButton* m_btnDuplicate = nullptr;
-    
-    // === Step Editor ===
+
+    // === Step Editor (Tab 2) ===
     StepEditorWidget* m_stepEditor = nullptr;
-    
+
     // === Actions ===
     QPushButton* m_btnSave = nullptr;
     QPushButton* m_btnRevert = nullptr;
@@ -234,10 +244,5 @@ private:
     bool m_dirty = false;
     int m_selectedStepRow = -1;
 };
-
-/**
- * @brief Factory function to create the panel for PanelRegistry
- */
-QWidget* createTestEditorPanel(QWidget* parent);
 
 } // namespace TestExecutor
