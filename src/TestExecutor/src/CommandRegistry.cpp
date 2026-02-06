@@ -13,10 +13,13 @@
  */
 
 #include "CommandRegistry.h"
+#include <SerialManager.h>
 #include <QDateTime>
 #include <QDebug>
 #include <QThread>
 #include <QRegularExpression>
+
+using namespace SerialManager;
 
 namespace TestExecutor {
 
@@ -435,6 +438,134 @@ void CommandRegistry::registerSerialCommands()
             QVariantMap response;
             response["data"] = "Sample response data";
             return CommandResult::Success("Read response", response);
+        }
+    });
+    
+    // Serial Send - Send data on serial terminal
+    registerCommand({
+        .id = "serial_send",
+        .name = "Serial Send",
+        .description = "Send data string to serial port",
+        .category = CommandCategory::Serial,
+        .parameters = {
+            {
+                .name = "port",
+                .displayName = "Port",
+                .description = "Serial port to send data (e.g., COM1, /dev/ttyUSB0)",
+                .type = ParameterType::ComPort,
+                .defaultValue = "COM1",
+                .required = true
+            },
+            {
+                .name = "data_string",
+                .displayName = "Data String",
+                .description = "Data to send to serial port",
+                .type = ParameterType::String,
+                .defaultValue = "",
+                .required = true
+            }
+        },
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+            QString port = params.value("port").toString();
+            QString dataString = params.value("data_string").toString();
+            
+            qDebug() << "Serial Send - Port:" << port << "Data:" << dataString;
+            
+            // Get SerialManager singleton - uses existing connection if port is open
+            auto& serialMgr = SerialPortManager::instance();
+            
+            // Send data - SerialManager will auto-open port using stored config if not open
+            SerialResult result = serialMgr.send(port, dataString);
+            
+            QVariantMap response;
+            response["port"] = port;
+            response["data_sent"] = dataString;
+            response["bytes_sent"] = result.bytesWritten;
+            
+            if (result.success) {
+                return CommandResult::Success("Data sent to " + port, response);
+            } else {
+                return CommandResult::Failure("Failed to send: " + result.errorMessage);
+            }
+        }
+    });
+    
+    // Serial Send Match Response - Send command and check for specific response
+    registerCommand({
+        .id = "serial_send_match_response",
+        .name = "Serial Send Match Response",
+        .description = "Send command via serial and check for specific string in response within timeout",
+        .category = CommandCategory::Serial,
+        .parameters = {
+            {
+                .name = "port",
+                .displayName = "Port",
+                .description = "Serial port to use (e.g., COM1, /dev/ttyUSB0)",
+                .type = ParameterType::ComPort,
+                .defaultValue = "COM1",
+                .required = true
+            },
+            {
+                .name = "data_string",
+                .displayName = "Data String",
+                .description = "Command/data to send to serial port",
+                .type = ParameterType::String,
+                .defaultValue = "",
+                .required = true
+            },
+            {
+                .name = "response_string",
+                .displayName = "Response String",
+                .description = "Expected string to find in serial response",
+                .type = ParameterType::String,
+                .defaultValue = "",
+                .required = true
+            },
+            {
+                .name = "timeout_ms",
+                .displayName = "Timeout",
+                .description = "Maximum time to wait for expected response",
+                .type = ParameterType::Duration,
+                .defaultValue = 5000,
+                .required = true,
+                .minValue = 100,
+                .maxValue = 300000,
+                .unit = "ms"
+            }
+        },
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+            QString port = params.value("port").toString();
+            QString dataString = params.value("data_string").toString();
+            QString responseString = params.value("response_string").toString();
+            int timeoutMs = params.value("timeout_ms", 5000).toInt();
+            
+            qDebug() << "Serial Send Match Response - Port:" << port 
+                     << "Data:" << dataString 
+                     << "Expected:" << responseString
+                     << "Timeout:" << timeoutMs << "ms";
+            
+            // Get SerialManager singleton - uses existing connection if port is open
+            auto& serialMgr = SerialPortManager::instance();
+            
+            // Send data and wait for matching response
+            SerialResult result = serialMgr.sendAndMatchResponse(
+                port, dataString, responseString, timeoutMs);
+            
+            QVariantMap response;
+            response["port"] = port;
+            response["data_sent"] = dataString;
+            response["expected_response"] = responseString;
+            response["timeout_ms"] = timeoutMs;
+            response["received_data"] = QString::fromUtf8(result.data);
+            response["match_found"] = result.matchFound;
+            
+            if (result.success && result.matchFound) {
+                return CommandResult::Success("Response matched: " + responseString, response);
+            } else {
+                return CommandResult::Failure(result.errorMessage.isEmpty() 
+                    ? "Response not matched within timeout" 
+                    : result.errorMessage);
+            }
         }
     });
 }

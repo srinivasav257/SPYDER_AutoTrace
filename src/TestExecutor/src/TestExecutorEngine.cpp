@@ -6,10 +6,13 @@
 #include "TestExecutorEngine.h"
 #include "TestRepository.h"
 #include "CommandRegistry.h"
+#include <SerialManager.h>
 #include <QFile>
 #include <QJsonDocument>
 #include <QDebug>
 #include <QTimer>
+
+using namespace SerialManager;
 
 namespace TestExecutor {
 
@@ -515,7 +518,26 @@ TestStep TestExecutorEngine::executeStep(const TestStep& step, int stepIndex, co
 
 void TestExecutorEngine::initializeCommunication()
 {
-    // TODO: Initialize serial port
+    // Initialize serial port from configuration
+    auto& serialMgr = SerialPortManager::instance();
+    
+    // Configure serial port from TestConfiguration
+    SerialPortConfig serialConfig;
+    serialConfig.portName = m_config.serialPort;
+    serialConfig.baudRate = m_config.serialBaudRate;
+    serialConfig.dataBits = SerialPortConfig::dataBitsFromInt(m_config.serialDataBits);
+    serialConfig.stopBits = SerialPortConfig::stopBitsFromInt(m_config.serialStopBits);
+    serialConfig.parity = SerialPortConfig::parityFromString(m_config.serialParity);
+    serialConfig.readTimeoutMs = m_config.serialTimeoutMs;
+    serialConfig.writeTimeoutMs = m_config.serialTimeoutMs;
+    
+    // Store the configuration (port will be opened on first use)
+    serialMgr.setPortConfig(m_config.serialPort, serialConfig);
+    
+    emit logMessage("INFO", QString("Serial port configured: %1 @ %2 baud")
+                            .arg(m_config.serialPort)
+                            .arg(m_config.serialBaudRate));
+    
     // TODO: Initialize CAN interface
     // TODO: Initialize power supply
     emit logMessage("INFO", "Communication interfaces initialized");
@@ -523,7 +545,12 @@ void TestExecutorEngine::initializeCommunication()
 
 void TestExecutorEngine::cleanupCommunication()
 {
-    // TODO: Close serial port
+    // Close serial ports
+    auto& serialMgr = SerialPortManager::instance();
+    serialMgr.closeAllPorts();
+    
+    emit logMessage("INFO", "Serial ports closed");
+    
     // TODO: Close CAN interface
     // TODO: Safe shutdown power supply
     emit logMessage("INFO", "Communication interfaces closed");

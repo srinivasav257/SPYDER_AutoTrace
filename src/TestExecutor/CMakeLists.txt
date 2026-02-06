@@ -52,6 +52,7 @@ target_link_libraries(TestExecutor
         Qt6::Core
     PRIVATE
         DockManager::DockManager
+        SerialManager::SerialManager
 )
 
 # Enable automoc for Q_OBJECT macros

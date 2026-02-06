@@ -1,6 +1,7 @@
 #include <DockFramework.h>
 #include "SamplePanels.h"
 #include "TestExecutorPanels.h"
+#include <ManDiag.h>
 #include <QApplication>
 
 int main(int argc, char *argv[])
@@ -15,6 +16,9 @@ int main(int argc, char *argv[])
     // Register all panel types before creating the window
     registerSamplePanels();
     TestExecutor::registerTestExecutorPanels();
+    
+    // Register ManDiag commands (EOL and MOL)
+    ManDiag::registerAllCommands();
 
     // Create and show the dock main window
     DockManager::DockMainWindow window;

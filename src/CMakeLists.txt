@@ -1,8 +1,14 @@
 # DockManager library
 add_subdirectory(DockManager)
 
+# SerialManager library - serial port communication framework
+add_subdirectory(SerialManager)
+
 # TestExecutor library - professional test automation framework
 add_subdirectory(TestExecutor)
+
+# ManDiag library - Manufacturing Diagnostics framework (EOL/MOL commands)
+add_subdirectory(ManDiag)
 
 # Application source files - panels only, DockManager provides the framework
 set(PROJECT_SOURCES
@@ -25,6 +31,7 @@ target_include_directories(SPYDER_AutoTrace PRIVATE
 target_link_libraries(SPYDER_AutoTrace PRIVATE
     DockManager::DockManager
     TestExecutor::TestExecutor
+    ManDiag::ManDiag
     Qt6::Widgets
 )
 
