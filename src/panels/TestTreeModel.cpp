@@ -153,6 +153,7 @@ int TestTreeModel::rowCount(const QModelIndex &parent) const
 
 void TestTreeModel::setupModelData(const QStringList &lines, TestTreeItem *parent)
 {
+    Q_UNUSED(lines);
     // Hardcoded structure generation based on user requirements for now
     // We ignore the input string for this specific layout to match the image exactly
     // In a real app, we would parse the 'lines' or load from file.

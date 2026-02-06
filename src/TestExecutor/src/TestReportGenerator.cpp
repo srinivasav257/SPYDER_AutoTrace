@@ -415,7 +415,7 @@ bool TestReportGenerator::generateJsonReport(const TestSession& session,
             
             QJsonObject paramsObj;
             for (auto it = step.parameters.begin(); it != step.parameters.end(); ++it) {
-                paramsObj[it.key()] = it.value();
+                paramsObj.insert(it.key(), QJsonValue::fromVariant(it.value()));
             }
             stepObj["parameters"] = paramsObj;
             

@@ -13,6 +13,7 @@
 
 #include "TestDataModels.h"
 #include "CommandRegistry.h"
+#include <QObject>
 #include <QWidget>
 #include <QLineEdit>
 #include <QTextEdit>
@@ -22,6 +23,7 @@
 #include <QSpinBox>
 #include <QDoubleSpinBox>
 #include <QCheckBox>
+#include <QPushButton>
 #include <QFormLayout>
 
 namespace TestExecutor {

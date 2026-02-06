@@ -96,10 +96,11 @@ void CommandRegistry::registerBuiltinCommands()
 
 const CommandDef* CommandRegistry::command(const QString& id) const
 {
-    if (m_commands.contains(id)) {
-        return &m_commands[id];
+    auto it = m_commands.constFind(id);
+    if (it == m_commands.constEnd()) {
+        return nullptr;
     }
-    return nullptr;
+    return &it.value();
 }
 
 QList<CommandDef> CommandRegistry::commandsByCategory(CommandCategory category) const

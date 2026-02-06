@@ -200,6 +200,8 @@ struct TestResult
     QString requirementLink;        ///< Requirement link from test case
     QString jiraTicket;             ///< JIRA ticket from test case
     QString jiraLink;               ///< JIRA link from test case
+    QString logOutput;              ///< Combined log output for this test
+    QString screenshotPath;         ///< Optional screenshot path captured on failure
     
     // Serialization
     QJsonObject toJson() const;

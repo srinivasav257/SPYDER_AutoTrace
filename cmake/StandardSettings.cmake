@@ -9,8 +9,8 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 # --- Language Standard ---
-# Easy upgrade path: Just change 17 to 20 or 23/26
-set(CMAKE_CXX_STANDARD 17)
+# Easy upgrade path: Just change 20 to 23/26
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF) # Ensure standard compliance (-pedantic)
 

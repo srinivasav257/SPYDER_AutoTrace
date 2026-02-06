@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QObject>
 #include <QMainWindow>
 #include <QMap>
 #include <QScopedPointer>

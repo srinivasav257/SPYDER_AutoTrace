@@ -13,6 +13,7 @@
  */
 
 #include "TestDataModels.h"
+#include <QObject>
 #include <QWidget>
 #include <QTableWidget>
 #include <QPlainTextEdit>
@@ -20,8 +21,12 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QSplitter>
+#include <QTimer>
+#include <QElapsedTimer>
 
 namespace TestExecutor {
+
+enum class ExecutorState : int;
 
 //=============================================================================
 // TestProgressPanel
@@ -112,6 +117,7 @@ private:
     void updateSummary();
     void setRowStatus(int row, TestStatus status);
     int findRowByTestId(const QString& testCaseId) const;
+    void appendLog(const QString& level, const QString& message);
 
     // === Results Table ===
     QTableWidget* m_resultsTable = nullptr;

@@ -40,6 +40,11 @@ struct ReportOptions
     QString environment;
     QString testerName;
     QString buildVersion;
+
+    // Optional URL templates for hyperlinking IDs in reports.
+    // Use "{id}" placeholder which will be replaced with the ID.
+    QString requirementUrlTemplate;
+    QString jiraUrlTemplate;
     
     bool includePassedTests = true;
     bool includeFailedTests = true;
@@ -75,25 +80,32 @@ public:
                                const ReportOptions& options = ReportOptions());
 
     /**
-     * @brief Generate HTML report
+     * @brief Generate HTML report and write to file
      */
-    static QString generateHtmlReport(const TestSession& session,
-                                      const ReportOptions& options = ReportOptions());
+    static bool generateHtmlReport(const TestSession& session,
+                                   const QString& outputPath,
+                                   const ReportOptions& options = ReportOptions());
     
     /**
-     * @brief Generate JSON report
+     * @brief Generate JSON report and write to file
      */
-    static QJsonObject generateJsonReport(const TestSession& session);
+    static bool generateJsonReport(const TestSession& session,
+                                   const QString& outputPath,
+                                   const ReportOptions& options = ReportOptions());
     
     /**
-     * @brief Generate CSV report
+     * @brief Generate CSV report and write to file
      */
-    static QString generateCsvReport(const TestSession& session);
+    static bool generateCsvReport(const TestSession& session,
+                                  const QString& outputPath,
+                                  const ReportOptions& options = ReportOptions());
     
     /**
-     * @brief Generate JUnit XML report (for CI/CD integration)
+     * @brief Generate JUnit XML report (for CI/CD integration) and write to file
      */
-    static QString generateJunitXmlReport(const TestSession& session);
+    static bool generateXmlReport(const TestSession& session,
+                                  const QString& outputPath,
+                                  const ReportOptions& options = ReportOptions());
 
     /**
      * @brief Get default output filename with timestamp
@@ -113,6 +125,8 @@ private:
     static QString statusToIcon(TestStatus status);
     static QString formatDuration(qint64 ms);
     static QString escapeHtml(const QString& text);
+    static QString escapeCsv(const QString& value);
+    static QString escapeXml(const QString& value);
     static QString embedImage(const QString& imagePath);
 };
 

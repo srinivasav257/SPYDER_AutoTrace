@@ -219,6 +219,8 @@ QJsonObject TestResult::toJson() const
     obj["requirementLink"] = requirementLink;
     obj["jiraTicket"] = jiraTicket;
     obj["jiraLink"] = jiraLink;
+    obj["logOutput"] = logOutput;
+    obj["screenshotPath"] = screenshotPath;
     
     QJsonArray stepsArray;
     for (const auto& step : stepResults) {
@@ -252,6 +254,8 @@ TestResult TestResult::fromJson(const QJsonObject& json)
     result.requirementLink = json["requirementLink"].toString();
     result.jiraTicket = json["jiraTicket"].toString();
     result.jiraLink = json["jiraLink"].toString();
+    result.logOutput = json["logOutput"].toString();
+    result.screenshotPath = json["screenshotPath"].toString();
     
     QJsonArray stepsArray = json["stepResults"].toArray();
     for (const auto& stepValue : stepsArray) {

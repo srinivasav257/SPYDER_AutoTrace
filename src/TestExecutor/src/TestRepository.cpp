@@ -497,10 +497,11 @@ TestCase* TestRepository::testCase(const QString& id)
 
 const TestCase* TestRepository::testCase(const QString& id) const
 {
-    if (m_testCases.contains(id)) {
-        return &m_testCases[id];
+    auto it = m_testCases.constFind(id);
+    if (it == m_testCases.constEnd()) {
+        return nullptr;
     }
-    return nullptr;
+    return &it.value();
 }
 
 bool TestRepository::addTestCase(const TestCase& testCase)

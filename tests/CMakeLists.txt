@@ -20,7 +20,9 @@ target_link_libraries(UnitTests_GTest PRIVATE
 
 # Discover tests specifically for this target
 include(GoogleTest)
-gtest_discover_tests(UnitTests_GTest)
+# Avoid running the test executable at build time (can fail if Qt DLLs
+# aren't on PATH yet). Discover at test time instead.
+gtest_discover_tests(UnitTests_GTest DISCOVERY_MODE PRE_TEST)
 
 # 2. Qt Test Suite
 # ----------------

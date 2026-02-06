@@ -12,6 +12,7 @@
  * - Context menu for actions
  */
 
+#include <QObject>
 #include <QWidget>
 #include <QTreeView>
 #include <QLineEdit>
