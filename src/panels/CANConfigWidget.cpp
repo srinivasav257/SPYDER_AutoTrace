@@ -4,10 +4,13 @@
 #include <VectorCANDriver.h>
 #include <DBCManager.h>
 
+#include <QFileDialog>
 #include <QFormLayout>
 #include <QHBoxLayout>
-#include <QFileDialog>
-#include <QRegularExpression>
+#include <QPointer>
+#include <QTimer>
+
+#include <thread>
 
 // ===========================================================================
 // CANConfigWidget
@@ -138,8 +141,8 @@ CANConfigWidget::CANConfigWidget(QWidget* parent)
     // Set initial visibility based on default interface type
     onInterfaceTypeChanged(m_interfaceTypeCombo->currentText());
 
-    // Auto-detect Vector channels on creation
-    QMetaObject::invokeMethod(this, &CANConfigWidget::refreshVectorChannels, Qt::QueuedConnection);
+    // Avoid auto-detection on dialog open: some vendor drivers can block the UI thread.
+    m_channelMappingCombo->addItem(tr("(Click \"Detect HW\" to scan Vector channels)"));
 }
 
 void CANConfigWidget::onInterfaceTypeChanged(const QString& type)
@@ -152,39 +155,45 @@ void CANConfigWidget::onInterfaceTypeChanged(const QString& type)
 
 void CANConfigWidget::refreshVectorChannels()
 {
+    if (m_detectInProgress)
+        return;
+
+    m_detectInProgress = true;
+    const std::uint64_t requestId = ++m_detectRequestId;
+
+    m_detectHWBtn->setEnabled(false);
     m_channelMappingCombo->clear();
     m_detectedChannels.clear();
+    m_channelMappingCombo->addItem(tr("(Scanning Vector CAN channels...)"));
+    m_channelMappingCombo->setToolTip({});
 
-    auto& canMgr = CANManager::CANBusManager::instance();
-    auto* vectorDrv = canMgr.vectorDriver();
-    if (!vectorDrv)
-        return;
+    // Never keep UI stuck in busy state if vendor API stalls.
+    QTimer::singleShot(10000, this, [this, requestId]() {
+        if (!m_detectInProgress || requestId != m_detectRequestId)
+            return;
 
-    // Initialize driver if needed
-    if (!vectorDrv->initialize()) {
-        m_channelMappingCombo->addItem(tr("(Vector driver not available)"));
-        return;
-    }
+        m_detectInProgress = false;
+        m_detectHWBtn->setEnabled(true);
+        m_channelMappingCombo->clear();
+        m_channelMappingCombo->addItem(tr("(Detection timed out. Click \"Detect HW\" to retry.)"));
+    });
 
-    auto channels = vectorDrv->detectChannels();
-    if (channels.isEmpty()) {
-        m_channelMappingCombo->addItem(tr("(No Vector CAN channels detected)"));
-        return;
-    }
+    QPointer<CANConfigWidget> self(this);
+    std::thread([self, requestId]() {
+        CANConfigWidget::VectorDetectionResult result =
+            CANConfigWidget::detectVectorChannelsInWorker();
+        if (!self)
+            return;
 
-    m_detectedChannels = channels;
-    for (int i = 0; i < channels.size(); ++i) {
-        const auto& ch = channels[i];
-        QString label = QString("%1 — %2 Ch%3%4")
-            .arg(ch.name)
-            .arg(ch.hwTypeName)
-            .arg(ch.hwChannel + 1)
-            .arg(ch.supportsFD ? " [CAN FD]" : "");
-        if (ch.serialNumber > 0)
-            label += QString("  S/N:%1").arg(ch.serialNumber);
-
-        m_channelMappingCombo->addItem(label, i);  // userData = index into m_detectedChannels
-    }
+        QMetaObject::invokeMethod(
+            self,
+            [self, requestId, result = std::move(result)]() mutable {
+                if (!self)
+                    return;
+                self->handleVectorDetectionFinished(requestId, std::move(result));
+            },
+            Qt::QueuedConnection);
+    }).detach();
 }
 
 void CANConfigWidget::setChannelIndex(int index)
@@ -207,6 +216,71 @@ void CANConfigWidget::setChannelIndex(int index)
         m_dbcStatusLabel->setText(tr("Loading..."));
         m_dbcStatusLabel->setStyleSheet("color: orange;");
     }
+}
+
+void CANConfigWidget::handleVectorDetectionFinished(std::uint64_t requestId,
+                                                    VectorDetectionResult&& result)
+{
+    // Ignore stale/late completions (e.g., after timeout or a newer request).
+    if (!m_detectInProgress || requestId != m_detectRequestId)
+        return;
+
+    m_detectInProgress = false;
+    m_detectHWBtn->setEnabled(true);
+    m_channelMappingCombo->clear();
+    m_detectedChannels.clear();
+
+    if (!result.errorMessage.isEmpty()) {
+        m_channelMappingCombo->addItem(tr("(Vector detection failed)"));
+        m_channelMappingCombo->setToolTip(result.errorMessage);
+        return;
+    }
+
+    if (result.channels.isEmpty()) {
+        m_channelMappingCombo->addItem(tr("(No Vector CAN channels detected)"));
+        m_channelMappingCombo->setToolTip({});
+        return;
+    }
+
+    m_channelMappingCombo->setToolTip({});
+    m_detectedChannels = std::move(result.channels);
+    for (int i = 0; i < m_detectedChannels.size(); ++i) {
+        const auto& ch = m_detectedChannels[i];
+        QString label = QString("%1 - %2 Ch%3%4")
+                            .arg(ch.name)
+                            .arg(ch.hwTypeName)
+                            .arg(ch.hwChannel + 1)
+                            .arg(ch.supportsFD ? " [CAN FD]" : "");
+        if (ch.serialNumber > 0)
+            label += QString("  S/N:%1").arg(ch.serialNumber);
+
+        m_channelMappingCombo->addItem(label, i);  // userData = index into m_detectedChannels
+    }
+}
+
+CANConfigWidget::VectorDetectionResult CANConfigWidget::detectVectorChannelsInWorker()
+{
+    VectorDetectionResult result;
+
+    // Use a temporary driver instance so stalled vendor APIs do not block
+    // the main CAN manager driver used for active communication.
+    CANManager::VectorCANDriver driver;
+    if (!driver.initialize()) {
+        result.errorMessage = driver.lastError();
+        if (result.errorMessage.isEmpty())
+            result.errorMessage = QStringLiteral("Vector driver not available");
+        return result;
+    }
+
+    result.channels = driver.detectChannels();
+    if (result.channels.isEmpty()) {
+        const QString err = driver.lastError();
+        if (!err.isEmpty())
+            result.errorMessage = err;
+    }
+
+    driver.shutdown();
+    return result;
 }
 
 void CANConfigWidget::onLoadDBCClicked()

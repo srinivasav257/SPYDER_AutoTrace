@@ -155,7 +155,7 @@ if exist build_vs rmdir /s /q build_vs
 mkdir build_vs
 cd build_vs
 echo [INFO] Generating Visual Studio Solution...
-cmake .. %CMAKE_GEN%
+call :RUNCMD cmake .. %CMAKE_GEN%
 if %errorlevel% neq 0 pause && cd .. && goto EOF
 echo [INFO] Opening Solution...
 start SPYDER_AutoTrace.sln
@@ -183,7 +183,7 @@ if exist "build\src\Release\SPYDER_AutoTrace.exe" (
 
 echo [INFO] Packaging (CPack)...
 cd build
-cpack -C Release
+call :RUNCMD cpack -C Release
 if %errorlevel% neq 0 pause && goto EOF
 
 :: Sign the Installer (The setup.exe wrapper)
@@ -212,16 +212,28 @@ echo  Date: %date% %time% >> "%LOG_FILE%"
 echo =========================================================== >> "%LOG_FILE%"
 echo. >> "%LOG_FILE%"
 echo [INFO] Build log will be saved to: %LOG_FILE%
+echo [INFO] Live command output is mirrored to console + log file.
 exit /b
 
 :RUNCMD
-:: Run a command, display output on screen, and append to log file
+:: Run a command, stream output to console in real-time, and append to log file
 :: Usage: call :RUNCMD <command and args>
-echo ^>^> %* >> "%LOG_FILE%"
-%* > "%TEMP%\_spyder_build.tmp" 2>&1
+set "SPYDER_CMD=%*"
+set "SPYDER_LOG=%LOG_FILE%"
+echo ^>^> %SPYDER_CMD%
+echo ^>^> %SPYDER_CMD% >> "%LOG_FILE%"
+
+powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+  "$cmd = $env:SPYDER_CMD;" ^
+  "$log = $env:SPYDER_LOG;" ^
+  "$sw = [System.Diagnostics.Stopwatch]::StartNew();" ^
+  "Invoke-Expression $cmd 2>&1 | Tee-Object -FilePath $log -Append;" ^
+  "$exitCode = $LASTEXITCODE;" ^
+  "$sw.Stop();" ^
+  "$summary = ('[INFO] Command exit code: {0} | Duration: {1:N2}s' -f $exitCode, $sw.Elapsed.TotalSeconds);" ^
+  "$summary | Tee-Object -FilePath $log -Append;" ^
+  "exit $exitCode"
+
 set _RUNCMD_ERR=%errorlevel%
-type "%TEMP%\_spyder_build.tmp"
-type "%TEMP%\_spyder_build.tmp" >> "%LOG_FILE%"
 echo. >> "%LOG_FILE%"
-del "%TEMP%\_spyder_build.tmp" >nul 2>&1
 exit /b %_RUNCMD_ERR%

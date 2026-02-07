@@ -11,6 +11,7 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QList>
+#include <cstdint>
 
 /**
  * @brief CAN port configuration widget.
@@ -70,4 +71,15 @@ private:
     QLabel*      m_dbcStatusLabel = nullptr;                   ///< DBC load status
 
     QList<CANManager::CANChannelInfo> m_detectedChannels;      ///< Cached detection results
+
+    struct VectorDetectionResult {
+        QList<CANManager::CANChannelInfo> channels;
+        QString errorMessage;
+    };
+
+    void handleVectorDetectionFinished(std::uint64_t requestId, VectorDetectionResult&& result);
+    static VectorDetectionResult detectVectorChannelsInWorker();
+
+    bool m_detectInProgress = false;
+    std::uint64_t m_detectRequestId = 0;
 };

@@ -27,9 +27,24 @@ gtest_discover_tests(UnitTests_GTest DISCOVERY_MODE PRE_TEST)
 # 2. Qt Test Suite
 # ----------------
 add_executable(UnitTests_QtTest tst_qtest_main.cpp)
+target_include_directories(UnitTests_QtTest PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/../src"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../src/panels"
+)
+target_sources(UnitTests_QtTest PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/../src/panels/HWConfigManager.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../src/panels/SerialConfigWidget.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../src/panels/CANConfigWidget.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../src/panels/HWConfigDialog.cpp"
+)
 target_link_libraries(UnitTests_QtTest PRIVATE
     Qt6::Core
     Qt6::Test
+    Qt6::Widgets
+    Qt6::SerialPort
+    SerialManager::SerialManager
+    CANManager::CANManager
+    DBCManager::DBCManager
 )
 
 # Register with CTest

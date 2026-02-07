@@ -137,6 +137,13 @@ void HWConfigDialog::setupCANTab(QTabWidget* parent)
             auto& canMgr = CANManager::CANBusManager::instance();
 
             if (cfg.interfaceType == "Vector") {
+                if (cfg.vectorChannelIdx < 0 || cfg.vectorChannelMask == 0) {
+                    m_canTabs[i]->setConnectionStatus(
+                        false,
+                        tr("No Vector channel selected. Click \"Detect HW\" first."));
+                    return;
+                }
+
                 auto* vectorDrv = canMgr.vectorDriver();
                 if (!vectorDrv || !vectorDrv->initialize()) {
                     m_canTabs[i]->setConnectionStatus(false, tr("Vector driver not available"));
