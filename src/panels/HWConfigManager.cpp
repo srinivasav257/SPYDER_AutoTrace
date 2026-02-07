@@ -228,6 +228,9 @@ void HWConfigManager::save()
     QSettings s;
     s.beginGroup("HWConfig");
 
+    // Write schema version first
+    s.setValue("schemaVersion", CONFIG_SCHEMA_VERSION);
+
     // Serial Debug Ports
     for (int i = 0; i < SERIAL_PORT_COUNT; ++i) {
         QString key = QString("SerialDebug/%1").arg(i);
@@ -271,6 +274,18 @@ void HWConfigManager::load()
     QMutexLocker locker(&m_mutex);
     QSettings s;
     s.beginGroup("HWConfig");
+
+    // Read and validate schema version.
+    // If the stored version is newer than what we understand, skip loading
+    // to avoid corrupting state with misinterpreted keys.
+    const int storedVersion = s.value("schemaVersion", 0).toInt();
+    if (storedVersion > CONFIG_SCHEMA_VERSION) {
+        qWarning() << "HWConfigManager: stored schema version" << storedVersion
+                   << "is newer than supported" << CONFIG_SCHEMA_VERSION
+                   << "— skipping load";
+        s.endGroup();
+        return;
+    }
 
     // Serial Debug Ports
     for (int i = 0; i < SERIAL_PORT_COUNT; ++i) {

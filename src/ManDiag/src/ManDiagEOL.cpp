@@ -9,7 +9,8 @@
 #include <SerialManager.h>
 #include <QDebug>
 #include <QElapsedTimer>
-#include <QThread>
+#include <QEventLoop>
+#include <QTimer>
 
 using namespace SerialManager;
 
@@ -93,13 +94,14 @@ EOLResult sendAndReceive(const QString& command, const EOLConfig& config)
                 return result;
             }
             
-            // Wait ~500ms using non-blocking sleep (worker-thread safe)
-            QElapsedTimer pendingDelay;
-            pendingDelay.start();
-            while (pendingDelay.elapsed() < 500) {
-                if (pendingTimer.elapsed() >= config.pendingWaitMs)
-                    break;
-                QThread::msleep(50);
+            // Wait up to 500 ms (or remaining pending budget) using a local
+            // event loop so the thread can process events instead of busy-spinning.
+            int remainingMs = static_cast<int>(config.pendingWaitMs - pendingTimer.elapsed());
+            int waitMs = qMin(500, qMax(0, remainingMs));
+            if (waitMs > 0) {
+                QEventLoop loop;
+                QTimer::singleShot(waitMs, &loop, &QEventLoop::quit);
+                loop.exec();
             }
             
             // Reset retry counter to allow continued retries on pending

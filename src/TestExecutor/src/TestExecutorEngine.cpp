@@ -510,22 +510,36 @@ TestStep TestExecutorEngine::executeStep(const TestStep& step, int stepIndex, co
     
     try {
         // Run command with cancellation token
+        // Provide a combined cancellation check: command should stop if either
+        // the user requested stop OR the step hard-timeout fired.
+        auto shouldCancel = [this]() -> bool {
+            return m_stopRequested.load() || m_timeoutCancelled.load();
+        };
+        // We expose a local atomic that executeStep polls; the lambda bridges both flags.
+        std::atomic<bool> cancelToken{false};
         auto future = QtConcurrent::run([&]() -> CommandResult {
-            return registry.execute(step.command, step.parameters, configMap, &m_stopRequested);
+            // The registry handler reads *cancel periodically; we keep it in sync.
+            return registry.execute(step.command, step.parameters, configMap, &cancelToken);
         });
         
         // Wait with hard timeout
         QElapsedTimer stepDeadline;
         stepDeadline.start();
+        m_timeoutCancelled = false;
         
         while (!future.isFinished()) {
+            // Propagate user-stop or timeout into the token the handler reads
+            if (m_stopRequested.load() || m_timeoutCancelled.load())
+                cancelToken.store(true);
+
             if (stepDeadline.elapsed() > hardTimeoutMs) {
-                m_stopRequested = true;   // force-cancel the handler
+                m_timeoutCancelled = true; // force-cancel the handler via separate flag
+                cancelToken.store(true);
                 future.waitForFinished();  // let it notice cancellation
+                m_timeoutCancelled = false;
                 result.status = TestStatus::Error;
                 result.resultMessage = QString("Step timed out after %1 ms").arg(hardTimeoutMs);
                 result.durationMs = m_stepTimer.elapsed();
-                m_stopRequested = false;   // reset for remaining steps
                 return result;
             }
             QThread::msleep(10);

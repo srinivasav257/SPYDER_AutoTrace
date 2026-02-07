@@ -23,6 +23,10 @@ set(PROJECT_SOURCES
     panels/SamplePanels.h
     panels/HWConfigManager.h
     panels/HWConfigManager.cpp
+    panels/SerialConfigWidget.h
+    panels/SerialConfigWidget.cpp
+    panels/CANConfigWidget.h
+    panels/CANConfigWidget.cpp
     panels/HWConfigDialog.h
     panels/HWConfigDialog.cpp
     "${CMAKE_SOURCE_DIR}/resources/resources.qrc"

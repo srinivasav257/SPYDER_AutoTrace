@@ -285,6 +285,7 @@ private:
     QWaitCondition m_pauseCondition;
     std::atomic<bool> m_stopRequested{false};
     std::atomic<bool> m_pauseRequested{false};
+    std::atomic<bool> m_timeoutCancelled{false};  ///< Set by executeStep() on hard-timeout; distinct from m_stopRequested
     
     QElapsedTimer m_sessionTimer;
     QElapsedTimer m_testTimer;

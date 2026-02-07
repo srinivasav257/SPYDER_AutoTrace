@@ -2,6 +2,7 @@
 #include "DockManager.h"
 #include "DockWidget.h"
 
+#include <QHash>
 #include <QSettings>
 #include <QDebug>
 
@@ -17,6 +18,8 @@ struct WorkspaceManager::Private
     ads::CDockManager* dockManager = nullptr;
     QString currentPerspective;
     bool locked = false;
+    /// Per-widget features saved before locking so we can restore them exactly.
+    QHash<ads::CDockWidget*, ads::CDockWidget::DockWidgetFeatures> savedFeatures;
 };
 
 WorkspaceManager::WorkspaceManager(ads::CDockManager* dockManager, QObject* parent)
@@ -176,12 +179,22 @@ void WorkspaceManager::setLocked(bool locked)
         return;
     }
 
-    // Lock/unlock all dock widget features
-    auto features = locked
-        ? ads::CDockWidget::NoDockWidgetFeatures
-        : ads::CDockWidget::DefaultDockWidgetFeatures;
-
-    d->dockManager->lockDockWidgetFeaturesGlobally(features);
+    if (locked) {
+        // Save each widget's current features before locking
+        d->savedFeatures.clear();
+        for (auto* dw : d->dockManager->dockWidgetsMap()) {
+            d->savedFeatures.insert(dw, dw->features());
+        }
+        d->dockManager->lockDockWidgetFeaturesGlobally(
+            ads::CDockWidget::NoDockWidgetFeatures);
+    } else {
+        // Restore each widget's original features
+        for (auto it = d->savedFeatures.cbegin(); it != d->savedFeatures.cend(); ++it) {
+            if (it.key())
+                it.key()->setFeatures(it.value());
+        }
+        d->savedFeatures.clear();
+    }
 
     emit lockedChanged(locked);
 }

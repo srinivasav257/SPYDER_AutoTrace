@@ -74,6 +74,9 @@ public:
     static constexpr int SERIAL_PORT_COUNT = 4;
     static constexpr int CAN_PORT_COUNT = 2;
 
+    /// Schema version — bump when the settings layout changes.
+    static constexpr int CONFIG_SCHEMA_VERSION = 1;
+
     static HWConfigManager& instance();
 
     // --- Serial Debug Ports ---

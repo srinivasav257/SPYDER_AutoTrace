@@ -1,0 +1,103 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CMAKE_VERSION: "3.21"
+  QT_VERSION: "6.5.3"
+
+jobs:
+  # ===========================================================================
+  # Windows — MSVC Release
+  # ===========================================================================
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: ${{ env.QT_VERSION }}
+          arch: win64_msvc2019_64
+          cache: true
+
+      - name: Configure (CMake preset)
+        run: cmake --preset ci-windows
+
+      - name: Build
+        run: cmake --build --preset ci-windows
+
+      - name: Test
+        run: ctest --preset ci --test-dir build/ci-windows
+
+  # ===========================================================================
+  # Linux — GCC Release + Sanitizer job
+  # ===========================================================================
+  linux:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        preset: [ci-linux, sanitizers]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            ninja-build \
+            libgl1-mesa-dev \
+            libxkbcommon-dev \
+            libxkbcommon-x11-0
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: ${{ env.QT_VERSION }}
+          cache: true
+
+      - name: Configure (CMake preset)
+        run: cmake --preset ${{ matrix.preset }}
+
+      - name: Build
+        run: cmake --build --preset ${{ matrix.preset }}
+
+      - name: Test
+        env:
+          # Make ASan+LSan abort on first error so CI fails fast
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          LSAN_OPTIONS: suppressions=${{ github.workspace }}/sanitizer_suppressions.txt
+        run: ctest --preset ci --test-dir build/${{ matrix.preset }}
+
+  # ===========================================================================
+  # macOS — AppleClang Release
+  # ===========================================================================
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: ${{ env.QT_VERSION }}
+          cache: true
+
+      - name: Configure (CMake preset)
+        run: cmake --preset ci-macos
+
+      - name: Build
+        run: cmake --build --preset ci-macos
+
+      - name: Test
+        run: ctest --preset ci --test-dir build/ci-macos

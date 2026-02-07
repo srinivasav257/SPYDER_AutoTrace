@@ -21,6 +21,8 @@
 #include <QVariantMap>
 #include <QVector>
 
+#include "HexUtils.h"
+
 namespace ManDiag {
 
 //=============================================================================
@@ -227,8 +229,6 @@ QPair<bool, QString> validateResponse(const ManDiagResponse& response,
 //=============================================================================
 // Utility Functions (hexToBytes/bytesToHex delegate to shared HexUtils)
 //=============================================================================
-
-#include "HexUtils.h"
 
 /**
  * @brief Convert hex string to byte array

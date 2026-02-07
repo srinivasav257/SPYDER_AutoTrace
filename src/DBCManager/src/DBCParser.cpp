@@ -155,12 +155,61 @@ int64_t DBCSignal::physicalToRaw(double physical) const
 
 double DBCSignal::decode(const uint8_t* data, int dataLength) const
 {
+    // Float32 / Float64 signals: extract raw bits and reinterpret as IEEE754
+    if (valueType == ValueType::Float32 && bitLength == 32) {
+        uint64_t raw;
+        if (byteOrder == ByteOrder::LittleEndian)
+            raw = extractBitsLE(data, dataLength, startBit, 32);
+        else
+            raw = extractBitsBE(data, dataLength, startBit, 32);
+        uint32_t u32 = static_cast<uint32_t>(raw);
+        float f;
+        std::memcpy(&f, &u32, sizeof(f));
+        return static_cast<double>(f) * factor + offset;
+    }
+    if (valueType == ValueType::Float64 && bitLength == 64) {
+        uint64_t raw;
+        if (byteOrder == ByteOrder::LittleEndian)
+            raw = extractBitsLE(data, dataLength, startBit, 64);
+        else
+            raw = extractBitsBE(data, dataLength, startBit, 64);
+        double d;
+        std::memcpy(&d, &raw, sizeof(d));
+        return d * factor + offset;
+    }
+
+    // Integer-based signals
     int64_t raw = rawValue(data, dataLength);
     return rawToPhysical(raw);
 }
 
 void DBCSignal::encode(double physicalValue, uint8_t* data, int dataLength) const
 {
+    // Float32 / Float64 signals: convert physical back through factor/offset, then
+    // reinterpret as the raw IEEE754 bit pattern.
+    if (valueType == ValueType::Float32 && bitLength == 32) {
+        float f = static_cast<float>((physicalValue - offset) / factor);
+        uint32_t u32;
+        std::memcpy(&u32, &f, sizeof(u32));
+        uint64_t raw64 = u32;
+        if (byteOrder == ByteOrder::LittleEndian)
+            placeBitsLE(data, dataLength, startBit, 32, raw64);
+        else
+            placeBitsBE(data, dataLength, startBit, 32, raw64);
+        return;
+    }
+    if (valueType == ValueType::Float64 && bitLength == 64) {
+        double d = (physicalValue - offset) / factor;
+        uint64_t raw64;
+        std::memcpy(&raw64, &d, sizeof(raw64));
+        if (byteOrder == ByteOrder::LittleEndian)
+            placeBitsLE(data, dataLength, startBit, 64, raw64);
+        else
+            placeBitsBE(data, dataLength, startBit, 64, raw64);
+        return;
+    }
+
+    // Integer-based signals
     int64_t raw = physicalToRaw(physicalValue);
     setRawValue(raw, data, dataLength);
 }
@@ -238,9 +287,13 @@ void DBCDatabase::buildIndex()
 {
     m_idIndex.clear();
     m_idIndex.reserve(messages.size());
+    m_nameIndex.clear();
+    m_nameIndex.reserve(messages.size());
     for (int i = 0; i < messages.size(); ++i) {
         uint32_t key = messages[i].id & 0x7FFFFFFF;
         m_idIndex.insert(key, i);
+        if (!messages[i].name.isEmpty())
+            m_nameIndex.insert(messages[i].name, i);
     }
 }
 
@@ -251,6 +304,8 @@ void DBCDatabase::indexLastMessage()
     int idx = messages.size() - 1;
     uint32_t key = messages[idx].id & 0x7FFFFFFF;
     m_idIndex.insert(key, idx);
+    if (!messages[idx].name.isEmpty())
+        m_nameIndex.insert(messages[idx].name, idx);
 }
 
 const DBCMessage* DBCDatabase::messageById(uint32_t id) const
@@ -279,18 +334,22 @@ DBCMessage* DBCDatabase::messageById(uint32_t id)
 
 const DBCMessage* DBCDatabase::messageByName(const QString& name) const
 {
-    for (const auto& msg : messages) {
-        if (msg.name == name)
-            return &msg;
+    auto it = m_nameIndex.find(name);
+    if (it != m_nameIndex.end()) {
+        int idx = it.value();
+        if (idx >= 0 && idx < messages.size())
+            return &messages[idx];
     }
     return nullptr;
 }
 
 DBCMessage* DBCDatabase::messageByName(const QString& name)
 {
-    for (auto& msg : messages) {
-        if (msg.name == name)
-            return &msg;
+    auto it = m_nameIndex.find(name);
+    if (it != m_nameIndex.end()) {
+        int idx = it.value();
+        if (idx >= 0 && idx < messages.size())
+            return &messages[idx];
     }
     return nullptr;
 }

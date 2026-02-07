@@ -235,6 +235,8 @@ struct DBCDatabase
 private:
     /// Hash of (id & 0x7FFFFFFF) → index into messages vector
     QHash<uint32_t, int> m_idIndex;
+    /// Hash of message name → index into messages vector
+    QHash<QString, int> m_nameIndex;
 };
 
 //=============================================================================
