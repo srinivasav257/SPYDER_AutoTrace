@@ -75,7 +75,7 @@ TEST(DBCParser, ParseMinimalDBC_Messages)
     EXPECT_EQ(eng->name, "EngineData");
     EXPECT_EQ(eng->dlc, 8u);
     EXPECT_EQ(eng->sender, "ECU1");
-    EXPECT_EQ(eng->signals.size(), 2);
+    EXPECT_EQ(eng->signalList.size(), 2);
 }
 
 TEST(DBCParser, ParseMinimalDBC_Signals)

@@ -43,11 +43,13 @@ SerialDebugPortConfig HWConfigManager::serialDebugPort(int index) const
 
 void HWConfigManager::setSerialDebugPort(int index, const SerialDebugPortConfig& config)
 {
-    QMutexLocker locker(&m_mutex);
-    if (index >= 0 && index < SERIAL_PORT_COUNT) {
+    {
+        QMutexLocker locker(&m_mutex);
+        if (index < 0 || index >= SERIAL_PORT_COUNT)
+            return;
         m_serialDebugPorts[index] = config;
-        emit configChanged();
     }
+    emit configChanged();
 }
 
 // ---------------------------------------------------------------------------
@@ -64,11 +66,13 @@ CANPortConfig HWConfigManager::canPort(int index) const
 
 void HWConfigManager::setCanPort(int index, const CANPortConfig& config)
 {
-    QMutexLocker locker(&m_mutex);
-    if (index >= 0 && index < CAN_PORT_COUNT) {
+    {
+        QMutexLocker locker(&m_mutex);
+        if (index < 0 || index >= CAN_PORT_COUNT)
+            return;
         m_canPorts[index] = config;
-        emit configChanged();
     }
+    emit configChanged();
 }
 
 // ---------------------------------------------------------------------------
@@ -76,10 +80,16 @@ void HWConfigManager::setCanPort(int index, const CANPortConfig& config)
 // ---------------------------------------------------------------------------
 
 PowerSupplyConfig HWConfigManager::powerSupply() const { QMutexLocker locker(&m_mutex); return m_powerSupply; }
-void HWConfigManager::setPowerSupply(const PowerSupplyConfig& config) { QMutexLocker locker(&m_mutex); m_powerSupply = config; emit configChanged(); }
+void HWConfigManager::setPowerSupply(const PowerSupplyConfig& config) {
+    { QMutexLocker locker(&m_mutex); m_powerSupply = config; }
+    emit configChanged();
+}
 
 ModbusRelayConfig HWConfigManager::modbusRelay() const { QMutexLocker locker(&m_mutex); return m_modbusRelay; }
-void HWConfigManager::setModbusRelay(const ModbusRelayConfig& config) { QMutexLocker locker(&m_mutex); m_modbusRelay = config; emit configChanged(); }
+void HWConfigManager::setModbusRelay(const ModbusRelayConfig& config) {
+    { QMutexLocker locker(&m_mutex); m_modbusRelay = config; }
+    emit configChanged();
+}
 
 // ---------------------------------------------------------------------------
 // Alias Resolution

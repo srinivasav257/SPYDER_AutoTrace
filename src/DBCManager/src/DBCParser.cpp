@@ -230,7 +230,7 @@ QString DBCSignal::valueToString(double physicalValue) const
 
 const DBCSignal* DBCMessage::signal(const QString& name) const
 {
-    for (const auto& sig : signals) {
+    for (const auto& sig : signalList) {
         if (sig.name == name)
             return &sig;
     }
@@ -239,7 +239,7 @@ const DBCSignal* DBCMessage::signal(const QString& name) const
 
 DBCSignal* DBCMessage::signal(const QString& name)
 {
-    for (auto& sig : signals) {
+    for (auto& sig : signalList) {
         if (sig.name == name)
             return &sig;
     }
@@ -249,8 +249,8 @@ DBCSignal* DBCMessage::signal(const QString& name)
 QStringList DBCMessage::signalNames() const
 {
     QStringList names;
-    names.reserve(signals.size());
-    for (const auto& sig : signals)
+    names.reserve(signalList.size());
+    for (const auto& sig : signalList)
         names.append(sig.name);
     return names;
 }
@@ -258,7 +258,7 @@ QStringList DBCMessage::signalNames() const
 QMap<QString, double> DBCMessage::decodeAll(const uint8_t* data, int dataLength) const
 {
     QMap<QString, double> result;
-    for (const auto& sig : signals) {
+    for (const auto& sig : signalList) {
         result[sig.name] = sig.decode(data, dataLength);
     }
     return result;
@@ -266,7 +266,7 @@ QMap<QString, double> DBCMessage::decodeAll(const uint8_t* data, int dataLength)
 
 void DBCMessage::encodeAll(const QMap<QString, double>& signalValues, uint8_t* data, int dataLength) const
 {
-    for (const auto& sig : signals) {
+    for (const auto& sig : signalList) {
         if (signalValues.contains(sig.name)) {
             sig.encode(signalValues[sig.name], data, dataLength);
         }
@@ -389,7 +389,7 @@ int DBCDatabase::totalSignalCount() const
 {
     int count = 0;
     for (const auto& msg : messages)
-        count += msg.signals.size();
+        count += msg.signalList.size();
     return count;
 }
 
@@ -504,7 +504,7 @@ void DBCParser::parse(const QString& content, DBCDatabase& db)
 void DBCParser::parseVersion(const QString& line, DBCDatabase& db)
 {
     // VERSION "1.0"
-    static QRegularExpression re(R"(VERSION\s+"([^"]*)")");
+    static QRegularExpression re(R"re(VERSION\s+"([^"]*)")re");
     auto match = re.match(line);
     if (match.hasMatch()) {
         db.version = match.captured(1);
@@ -586,7 +586,7 @@ void DBCParser::parseSignal(const QString& line, DBCMessage& msg)
         R"(:\s*(\d+)\|(\d+)@([01])([+-]))"             // start|len@byteorder±
         R"(\s*\(\s*([^,]+)\s*,\s*([^)]+)\s*\))"        // (factor,offset)
         R"(\s*\[\s*([^|]+)\|([^\]]+)\s*\])"            // [min|max]
-        R"(\s*"([^"]*)")"                               // "unit"
+        R"re(\s*"([^"]*)")re"                             // "unit"
         R"(\s*(.*))"                                     // receivers
     );
 
@@ -629,7 +629,7 @@ void DBCParser::parseSignal(const QString& line, DBCMessage& msg)
         sig.receivers = receiversStr.split(QRegularExpression("[,\\s]+"), Qt::SkipEmptyParts);
     }
 
-    msg.signals.append(sig);
+    msg.signalList.append(sig);
 }
 
 void DBCParser::parseComment(const QStringList& lines, int& index, DBCDatabase& db)
@@ -649,9 +649,9 @@ void DBCParser::parseComment(const QStringList& lines, int& index, DBCDatabase& 
         fullLine.chop(1);
 
     // CM_ SG_ <msgId> <sigName> "comment"
-    static QRegularExpression reSig(R"(CM_\s+SG_\s+(\d+)\s+(\w+)\s+"(.*)")");
-    auto matchSig = reSig.match(fullLine, 0, QRegularExpression::NormalMatch,
-                                 QRegularExpression::DotMatchesEverythingOption);
+    static QRegularExpression reSig(R"re(CM_\s+SG_\s+(\d+)\s+(\w+)\s+"(.*)")re",
+                                     QRegularExpression::DotMatchesEverythingOption);
+    auto matchSig = reSig.match(fullLine);
     if (matchSig.hasMatch()) {
         uint32_t msgId = matchSig.captured(1).toUInt();
         QString sigName = matchSig.captured(2);
@@ -672,9 +672,9 @@ void DBCParser::parseComment(const QStringList& lines, int& index, DBCDatabase& 
     }
 
     // CM_ BO_ <msgId> "comment"
-    static QRegularExpression reMsg(R"(CM_\s+BO_\s+(\d+)\s+"(.*)")");
-    auto matchMsg = reMsg.match(fullLine, 0, QRegularExpression::NormalMatch,
-                                 QRegularExpression::DotMatchesEverythingOption);
+    static QRegularExpression reMsg(R"re(CM_\s+BO_\s+(\d+)\s+"(.*)")re",
+                                     QRegularExpression::DotMatchesEverythingOption);
+    auto matchMsg = reMsg.match(fullLine);
     if (matchMsg.hasMatch()) {
         uint32_t msgId = matchMsg.captured(1).toUInt();
         QString comment = matchMsg.captured(2);
@@ -689,9 +689,9 @@ void DBCParser::parseComment(const QStringList& lines, int& index, DBCDatabase& 
     }
 
     // CM_ BU_ <nodeName> "comment"
-    static QRegularExpression reNode(R"(CM_\s+BU_\s+(\w+)\s+"(.*)")");
-    auto matchNode = reNode.match(fullLine, 0, QRegularExpression::NormalMatch,
-                                   QRegularExpression::DotMatchesEverythingOption);
+    static QRegularExpression reNode(R"re(CM_\s+BU_\s+(\w+)\s+"(.*)")re",
+                                      QRegularExpression::DotMatchesEverythingOption);
+    auto matchNode = reNode.match(fullLine);
     if (matchNode.hasMatch()) {
         QString nodeName = matchNode.captured(1);
         QString comment = matchNode.captured(2);
@@ -736,7 +736,7 @@ void DBCParser::parseValueDescriptions(const QStringList& lines, int& index, DBC
         return;
 
     // Parse value-description pairs: <integer> "string" ...
-    static QRegularExpression rePair(R"((-?\d+)\s+"([^"]*)")");
+    static QRegularExpression rePair(R"re((-?\d+)\s+"([^"]*)")re");
     auto it = rePair.globalMatch(rest);
     while (it.hasNext()) {
         auto m = it.next();
@@ -766,7 +766,7 @@ void DBCParser::parseValueTable(const QStringList& lines, int& index, DBCDatabas
     QString rest = match.captured(2).trimmed();
 
     QMap<int64_t, QString> table;
-    static QRegularExpression rePair(R"((-?\d+)\s+"([^"]*)")");
+    static QRegularExpression rePair(R"re((-?\d+)\s+"([^"]*)")re");
     auto it = rePair.globalMatch(rest);
     while (it.hasNext()) {
         auto m = it.next();

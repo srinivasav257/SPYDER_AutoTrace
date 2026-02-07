@@ -21,8 +21,8 @@ target_include_directories(CANManager
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
-    PRIVATE
-        # Vector XL Library headers (vxlapi.h)
+        # Vector XL Library headers (vxlapi.h) — PUBLIC because
+        # CANManager.h includes VectorCANDriver.h which includes vxlapi.h
         "${CMAKE_SOURCE_DIR}/third_party/vector_xl/include"
 )
 

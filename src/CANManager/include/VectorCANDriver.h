@@ -20,6 +20,9 @@
 #include <QThread>
 #include <atomic>
 
+// vxlapi.h uses the Windows HANDLE type
+#include <windows.h>
+
 // Use dynamic loading mode — gives us typedefs for function pointers
 #define DYNAMIC_XLDRIVER_DLL
 #define DO_NOT_DEFINE_EXTERN_DECLARATION

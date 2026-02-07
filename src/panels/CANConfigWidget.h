@@ -46,21 +46,21 @@ private slots:
     void onDBCLoadFinished(int channelIndex, bool success, const QString& errorMsg);
 
 private:
-    QLineEdit*   m_aliasEdit;
-    QComboBox*   m_interfaceTypeCombo;
-    QComboBox*   m_channelMappingCombo;       ///< Vector HW channel selection
-    QPushButton* m_detectHWBtn;               ///< Refresh Vector hardware detection
-    QWidget*     m_channelMappingRow;         ///< Container for channel mapping (shown for Vector)
-    QLineEdit*   m_deviceEdit;
-    QWidget*     m_deviceRow;                 ///< Container for manual device field (hidden for Vector)
-    QSpinBox*    m_channelSpin;
-    QWidget*     m_channelRow;                ///< Container for manual channel field (hidden for Vector)
-    QComboBox*   m_bitrateCombo;
-    QCheckBox*   m_fdEnabledCheck;
-    QComboBox*   m_fdBitrateCombo;
-    QPushButton* m_connectBtn;
-    QPushButton* m_disconnectBtn;
-    QLabel*      m_statusLabel;
+    QLineEdit*   m_aliasEdit              = nullptr;
+    QComboBox*   m_interfaceTypeCombo     = nullptr;
+    QComboBox*   m_channelMappingCombo    = nullptr;  ///< Vector HW channel selection
+    QPushButton* m_detectHWBtn            = nullptr;  ///< Refresh Vector hardware detection
+    QWidget*     m_channelMappingRow      = nullptr;  ///< Container for channel mapping (shown for Vector)
+    QLineEdit*   m_deviceEdit             = nullptr;
+    QWidget*     m_deviceRow              = nullptr;  ///< Container for manual device field (hidden for Vector)
+    QSpinBox*    m_channelSpin            = nullptr;
+    QWidget*     m_channelRow             = nullptr;  ///< Container for manual channel field (hidden for Vector)
+    QComboBox*   m_bitrateCombo           = nullptr;
+    QCheckBox*   m_fdEnabledCheck         = nullptr;
+    QComboBox*   m_fdBitrateCombo         = nullptr;
+    QPushButton* m_connectBtn             = nullptr;
+    QPushButton* m_disconnectBtn          = nullptr;
+    QLabel*      m_statusLabel            = nullptr;
 
     // DBC file association
     int          m_channelIndex = -1;                          ///< CAN channel index (0 or 1)

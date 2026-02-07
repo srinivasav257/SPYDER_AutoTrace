@@ -35,8 +35,9 @@ target_include_directories(ManDiag
     PRIVATE
         # Access to TestExecutor for CommandRegistry integration
         ${CMAKE_CURRENT_SOURCE_DIR}/../TestExecutor/include
-        # Shared utilities (HexUtils.h)
-        ${CMAKE_CURRENT_SOURCE_DIR}/../common
+    PUBLIC
+        # Shared utilities (HexUtils.h) - PUBLIC because ManDiagProtocol.h includes it
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../common>
 )
 
 target_link_libraries(ManDiag

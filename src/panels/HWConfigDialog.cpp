@@ -376,7 +376,6 @@ void HWConfigDialog::saveToManager()
 
     mgr.save();
     mgr.applyToSerialManager();
-    emit mgr.configChanged();
 }
 
 void HWConfigDialog::onApply()

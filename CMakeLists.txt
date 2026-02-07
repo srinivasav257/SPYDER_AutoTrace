@@ -45,7 +45,7 @@ add_config_var(ENABLE_DEBUG_MENU BOOL ON "Enable debug menu")
 
 # --- Dependencies ---
 # Qt 6.2+ required for modern features (Qt Quick Compiler, better CMake support)
-find_package(Qt6 6.2 COMPONENTS Core Gui Widgets Test SerialPort REQUIRED)
+find_package(Qt6 6.2 COMPONENTS Core Gui Widgets Test SerialPort Concurrent REQUIRED)
 message(STATUS "Found Qt ${Qt6_VERSION}")
 
 # Global Qt Integration

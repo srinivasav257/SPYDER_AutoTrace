@@ -23,6 +23,14 @@
 
 #include "HexUtils.h"
 
+// Windows headers define STATUS_SUCCESS and STATUS_PENDING as macros — undefine them
+#ifdef STATUS_SUCCESS
+#undef STATUS_SUCCESS
+#endif
+#ifdef STATUS_PENDING
+#undef STATUS_PENDING
+#endif
+
 namespace ManDiag {
 
 //=============================================================================

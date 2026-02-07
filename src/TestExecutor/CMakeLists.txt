@@ -44,9 +44,9 @@ target_include_directories(TestExecutor
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
-    PRIVATE
-        # Shared utilities (HexUtils.h)
-        ${CMAKE_CURRENT_SOURCE_DIR}/../common
+    PUBLIC
+        # Shared utilities (HexUtils.h) - PUBLIC because CommandRegistry.h includes it
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../common>
 )
 
 target_link_libraries(TestExecutor

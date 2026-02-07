@@ -124,7 +124,7 @@ struct DBCMessage
     bool      isExtended = false;   ///< 29-bit extended ID
 
     /// Signals in this message (ordered by start bit)
-    QVector<DBCSignal> signals;
+    QVector<DBCSignal> signalList;
 
     /**
      * @brief Find a signal by name

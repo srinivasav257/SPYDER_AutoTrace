@@ -51,6 +51,9 @@ gtest_discover_tests(UnitTests_TestDataModels DISCOVERY_MODE PRE_TEST)
 # 4. CommandRegistry tests (stub execution, validation, lookup)
 # ==============================================================================
 add_executable(UnitTests_CommandRegistry tst_CommandRegistry.cpp)
+target_include_directories(UnitTests_CommandRegistry PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/../src/panels"
+)
 target_link_libraries(UnitTests_CommandRegistry PRIVATE
     GTest::gtest_main
     TestExecutor::TestExecutor
@@ -60,6 +63,11 @@ target_link_libraries(UnitTests_CommandRegistry PRIVATE
     DBCManager::DBCManager
     Qt6::Core
     Qt6::Widgets
+    Qt6::SerialPort
+)
+# HWConfigManager.cpp is not in a library, so compile it directly
+target_sources(UnitTests_CommandRegistry PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/../src/panels/HWConfigManager.cpp"
 )
 gtest_discover_tests(UnitTests_CommandRegistry DISCOVERY_MODE PRE_TEST)
 

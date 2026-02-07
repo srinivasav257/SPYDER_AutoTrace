@@ -45,7 +45,7 @@ CANBusManager::~CANBusManager()
 
 ICANDriver* CANBusManager::driverByName(const QString& name) const
 {
-    if (name == m_vectorDriver->driverName())
+    if (m_vectorDriver && name == m_vectorDriver->driverName())
         return m_vectorDriver.get();
     // Future: check Kvaser, SocketCAN, etc.
     return nullptr;
