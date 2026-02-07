@@ -2,6 +2,7 @@
 
 #include <CANManager.h>
 #include <VectorCANDriver.h>
+#include <DBCManager.h>
 #include <QDialogButtonBox>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -9,6 +10,8 @@
 #include <QLabel>
 #include <QSerialPortInfo>
 #include <QMessageBox>
+#include <QFileDialog>
+#include <QFileInfo>
 
 // ===========================================================================
 // SerialConfigWidget
@@ -222,12 +225,44 @@ CANConfigWidget::CANConfigWidget(QWidget* parent)
     connLayout->addStretch();
     form->addRow(tr("Connection:"), connLayout);
 
+    // ----- DBC File Association -----
+    auto* dbcRow = new QHBoxLayout;
+    m_dbcPathEdit = new QLineEdit;
+    m_dbcPathEdit->setReadOnly(true);
+    m_dbcPathEdit->setPlaceholderText(tr("No DBC file loaded"));
+    m_dbcLoadBtn = new QPushButton(tr("Load DBC..."));
+    m_dbcLoadBtn->setToolTip(tr("Browse for a DBC file to associate with this CAN channel"));
+    m_dbcClearBtn = new QPushButton(tr("Clear"));
+    m_dbcClearBtn->setToolTip(tr("Remove the DBC file association"));
+    m_dbcClearBtn->setEnabled(false);
+    dbcRow->addWidget(m_dbcPathEdit, 1);
+    dbcRow->addWidget(m_dbcLoadBtn);
+    dbcRow->addWidget(m_dbcClearBtn);
+    form->addRow(tr("DBC File:"), dbcRow);
+
+    m_dbcStatusLabel = new QLabel(tr("No DBC loaded"));
+    m_dbcStatusLabel->setStyleSheet("color: gray; font-style: italic;");
+    form->addRow(tr("DBC Status:"), m_dbcStatusLabel);
+
     // Enable/disable FD bitrate based on FD checkbox
     connect(m_fdEnabledCheck, &QCheckBox::toggled, m_fdBitrateCombo, &QComboBox::setEnabled);
 
     // Connect/Disconnect signals
     connect(m_connectBtn, &QPushButton::clicked, this, &CANConfigWidget::connectRequested);
     connect(m_disconnectBtn, &QPushButton::clicked, this, &CANConfigWidget::disconnectRequested);
+
+    // DBC load/clear
+    connect(m_dbcLoadBtn, &QPushButton::clicked, this, &CANConfigWidget::onLoadDBCClicked);
+    connect(m_dbcClearBtn, &QPushButton::clicked, this, &CANConfigWidget::onClearDBCClicked);
+
+    // Listen for DBC load completion
+    connect(&DBCManager::DBCDatabaseManager::instance(), &DBCManager::DBCDatabaseManager::loadFinished,
+            this, &CANConfigWidget::onDBCLoadFinished);
+    connect(&DBCManager::DBCDatabaseManager::instance(), &DBCManager::DBCDatabaseManager::loadProgress,
+            this, [this](int channelIndex, const QString& status) {
+        if (channelIndex == m_channelIndex)
+            m_dbcStatusLabel->setText(status);
+    });
 
     // Interface type switching: show/hide channel mapping vs manual fields
     connect(m_interfaceTypeCombo, &QComboBox::currentTextChanged,
@@ -288,12 +323,76 @@ void CANConfigWidget::refreshVectorChannels()
     }
 }
 
-    // Enable/disable FD bitrate based on FD checkbox
-    connect(m_fdEnabledCheck, &QCheckBox::toggled, m_fdBitrateCombo, &QComboBox::setEnabled);
+void CANConfigWidget::setChannelIndex(int index)
+{
+    m_channelIndex = index;
 
-    // Connect/Disconnect signals
-    connect(m_connectBtn, &QPushButton::clicked, this, &CANConfigWidget::connectRequested);
-    connect(m_disconnectBtn, &QPushButton::clicked, this, &CANConfigWidget::disconnectRequested);
+    // Update DBC status from current DBCManager state
+    auto& dbcMgr = DBCManager::DBCDatabaseManager::instance();
+    if (dbcMgr.isLoaded(index)) {
+        auto db = dbcMgr.database(index);
+        m_dbcPathEdit->setText(dbcMgr.dbcFilePath(index));
+        m_dbcClearBtn->setEnabled(true);
+        m_dbcStatusLabel->setText(
+            QString("Loaded: %1 messages, %2 signals")
+                .arg(db ? db->messages.size() : 0)
+                .arg(db ? db->totalSignalCount() : 0));
+        m_dbcStatusLabel->setStyleSheet("color: green;");
+    } else if (dbcMgr.isLoading(index)) {
+        m_dbcPathEdit->setText(dbcMgr.dbcFilePath(index));
+        m_dbcStatusLabel->setText(tr("Loading..."));
+        m_dbcStatusLabel->setStyleSheet("color: orange;");
+    }
+}
+
+void CANConfigWidget::onLoadDBCClicked()
+{
+    QString filePath = QFileDialog::getOpenFileName(
+        this, tr("Select DBC File"), QString(),
+        tr("DBC Files (*.dbc);;All Files (*.*)"));
+
+    if (filePath.isEmpty())
+        return;
+
+    m_dbcPathEdit->setText(filePath);
+    m_dbcStatusLabel->setText(tr("Loading..."));
+    m_dbcStatusLabel->setStyleSheet("color: orange;");
+    m_dbcLoadBtn->setEnabled(false);
+    m_dbcClearBtn->setEnabled(false);
+
+    // Trigger background loading
+    DBCManager::DBCDatabaseManager::instance().loadDBCFile(m_channelIndex, filePath);
+}
+
+void CANConfigWidget::onClearDBCClicked()
+{
+    DBCManager::DBCDatabaseManager::instance().unloadDBC(m_channelIndex);
+    m_dbcPathEdit->clear();
+    m_dbcStatusLabel->setText(tr("No DBC loaded"));
+    m_dbcStatusLabel->setStyleSheet("color: gray; font-style: italic;");
+    m_dbcClearBtn->setEnabled(false);
+}
+
+void CANConfigWidget::onDBCLoadFinished(int channelIndex, bool success, const QString& errorMsg)
+{
+    if (channelIndex != m_channelIndex)
+        return;
+
+    m_dbcLoadBtn->setEnabled(true);
+
+    if (success) {
+        auto db = DBCManager::DBCDatabaseManager::instance().database(channelIndex);
+        m_dbcStatusLabel->setText(
+            QString("Loaded: %1 messages, %2 signals")
+                .arg(db ? db->messages.size() : 0)
+                .arg(db ? db->totalSignalCount() : 0));
+        m_dbcStatusLabel->setStyleSheet("color: green; font-weight: bold;");
+        m_dbcClearBtn->setEnabled(true);
+    } else {
+        m_dbcStatusLabel->setText(tr("Error: %1").arg(errorMsg));
+        m_dbcStatusLabel->setStyleSheet("color: red;");
+        m_dbcClearBtn->setEnabled(false);
+    }
 }
 
 void CANConfigWidget::setConfig(const CANPortConfig& cfg)
@@ -322,6 +421,11 @@ void CANConfigWidget::setConfig(const CANPortConfig& cfg)
                 }
             }
         }
+    }
+
+    // Restore DBC file path
+    if (!cfg.dbcFilePath.isEmpty()) {
+        m_dbcPathEdit->setText(cfg.dbcFilePath);
     }
 }
 
@@ -354,6 +458,9 @@ CANPortConfig CANConfigWidget::config() const
             }
         }
     }
+
+    // Store DBC file path from the widget
+    cfg.dbcFilePath = m_dbcPathEdit->text();
 
     return cfg;
 }
@@ -479,6 +586,7 @@ void HWConfigDialog::setupCANTab(QTabWidget* parent)
 
     for (int i = 0; i < HWConfigManager::CAN_PORT_COUNT; ++i) {
         m_canTabs[i] = new CANConfigWidget;
+        m_canTabs[i]->setChannelIndex(i);  // Associate with CAN channel for DBC
         auto* page = new QWidget;
         auto* layout = new QVBoxLayout(page);
         layout->addWidget(m_canTabs[i]);

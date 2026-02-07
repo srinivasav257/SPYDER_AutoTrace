@@ -7,6 +7,9 @@ add_subdirectory(SerialManager)
 # CANManager library - CAN bus communication framework (Vector XL, Kvaser)
 add_subdirectory(CANManager)
 
+# DBCManager library - DBC file parser, CAN database, encode/decode
+add_subdirectory(DBCManager)
+
 # TestExecutor library - professional test automation framework
 add_subdirectory(TestExecutor)
 
@@ -41,6 +44,7 @@ target_link_libraries(SPYDER_AutoTrace PRIVATE
     ManDiag::ManDiag
     SerialManager::SerialManager
     CANManager::CANManager
+    DBCManager::DBCManager
     Qt6::Widgets
     Qt6::SerialPort
 )

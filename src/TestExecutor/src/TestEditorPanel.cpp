@@ -7,6 +7,7 @@
 #include "TestRepository.h"
 #include "CommandRegistry.h"
 #include "HWConfigManager.h"
+#include <DBCManager.h>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QSplitter>
@@ -17,6 +18,7 @@
 #include <QHeaderView>
 #include <QMessageBox>
 #include <QTabWidget>
+#include <QStandardItemModel>
 
 namespace TestExecutor {
 
@@ -51,7 +53,6 @@ void ParameterEditorWidget::createEditor()
 
         case ParameterType::Integer:
         case ParameterType::Duration:
-        case ParameterType::CanId:
         {
             auto* spin = new QSpinBox(this);
             spin->setMinimum(m_paramDef.minValue.toInt());
@@ -60,13 +61,94 @@ void ParameterEditorWidget::createEditor()
             if (!m_paramDef.unit.isEmpty()) {
                 spin->setSuffix(" " + m_paramDef.unit);
             }
-            if (m_paramDef.type == ParameterType::CanId) {
-                spin->setDisplayIntegerBase(16);
-                spin->setPrefix("0x");
-            }
             connect(spin, QOverload<int>::of(&QSpinBox::valueChanged),
                     this, &ParameterEditorWidget::valueChanged);
             m_editor = spin;
+            break;
+        }
+
+        case ParameterType::CanId:
+        {
+            // Editable combo box populated with DBC messages from all channels
+            auto* combo = new QComboBox(this);
+            combo->setEditable(true);
+            combo->setInsertPolicy(QComboBox::NoInsert);
+            combo->setMinimumWidth(200);
+
+            // Populate from all loaded DBC databases (both CAN channels)
+            auto& dbcMgr = DBCManager::DBCDatabaseManager::instance();
+            for (int ch = 0; ch < DBCManager::DBCDatabaseManager::MAX_CHANNELS; ++ch) {
+                if (!dbcMgr.isLoaded(ch))
+                    continue;
+                QStringList msgList = dbcMgr.messageDisplayList(ch);
+                if (!msgList.isEmpty()) {
+                    QString header = QString("--- CAN %1 ---").arg(ch + 1);
+                    combo->addItem(header);
+                    // Make header non-selectable
+                    auto* model = qobject_cast<QStandardItemModel*>(combo->model());
+                    if (model) {
+                        auto* item = model->item(combo->count() - 1);
+                        if (item) {
+                            item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
+                            item->setData(QBrush(Qt::gray), Qt::ForegroundRole);
+                        }
+                    }
+                    for (const QString& msgDisplay : msgList) {
+                        // Store the CAN ID as user data for easy retrieval
+                        uint32_t canId = dbcMgr.resolveMessageId(ch, msgDisplay);
+                        combo->addItem(msgDisplay, canId);
+                    }
+                }
+            }
+
+            // Set default or restore value
+            QString defaultVal = m_paramDef.defaultValue.toString();
+            if (!defaultVal.isEmpty()) {
+                int idx = combo->findText(defaultVal, Qt::MatchContains);
+                if (idx >= 0)
+                    combo->setCurrentIndex(idx);
+                else
+                    combo->setEditText(defaultVal);
+            }
+
+            // Auto-refresh when DBC databases change
+            connect(&dbcMgr, &DBCManager::DBCDatabaseManager::messageListChanged,
+                    this, [combo, this](int /*channelIndex*/) {
+                // Preserve current text
+                QString currentText = combo->currentText();
+                combo->clear();
+                auto& mgr = DBCManager::DBCDatabaseManager::instance();
+                for (int ch = 0; ch < DBCManager::DBCDatabaseManager::MAX_CHANNELS; ++ch) {
+                    if (!mgr.isLoaded(ch))
+                        continue;
+                    QStringList msgList = mgr.messageDisplayList(ch);
+                    if (!msgList.isEmpty()) {
+                        combo->addItem(QString("--- CAN %1 ---").arg(ch + 1));
+                        auto* model = qobject_cast<QStandardItemModel*>(combo->model());
+                        if (model) {
+                            auto* item = model->item(combo->count() - 1);
+                            if (item)
+                                item->setFlags(item->flags() & ~Qt::ItemIsEnabled);
+                        }
+                        for (const QString& msgDisplay : msgList) {
+                            uint32_t canId = mgr.resolveMessageId(ch, msgDisplay);
+                            combo->addItem(msgDisplay, canId);
+                        }
+                    }
+                }
+                // Restore previous selection
+                if (!currentText.isEmpty()) {
+                    int idx = combo->findText(currentText, Qt::MatchContains);
+                    if (idx >= 0)
+                        combo->setCurrentIndex(idx);
+                    else
+                        combo->setEditText(currentText);
+                }
+            });
+
+            connect(combo, &QComboBox::currentTextChanged,
+                    this, &ParameterEditorWidget::valueChanged);
+            m_editor = combo;
             break;
         }
 

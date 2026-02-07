@@ -4,6 +4,7 @@
 #include "HWConfigDialog.h"
 #include "TestExecutorPanels.h"
 #include <ManDiag.h>
+#include <DBCManager.h>
 #include <QApplication>
 #include <QMenuBar>
 
@@ -18,6 +19,9 @@ int main(int argc, char *argv[])
 
     // Initialize HW configuration (loads saved settings)
     HWConfigManager::instance().applyToSerialManager();
+
+    // Auto-load saved DBC files for CAN channels (background parsing)
+    DBCManager::DBCDatabaseManager::instance().loadSavedPaths();
 
     // Register all panel types before creating the window
     registerSamplePanels();

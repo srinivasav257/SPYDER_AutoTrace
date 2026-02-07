@@ -237,6 +237,7 @@ void HWConfigManager::save()
         s.setValue(key + "/vectorHwChannel", m_canPorts[i].vectorHwChannel);
         s.setValue(key + "/vectorChannelIdx", m_canPorts[i].vectorChannelIdx);
         s.setValue(key + "/vectorChannelMask", QVariant::fromValue(m_canPorts[i].vectorChannelMask));
+        s.setValue(key + "/dbcFilePath", m_canPorts[i].dbcFilePath);
     }
 
     // Power Supply
@@ -282,6 +283,7 @@ void HWConfigManager::load()
             m_canPorts[i].vectorHwChannel = s.value(key + "/vectorHwChannel", 0).toInt();
             m_canPorts[i].vectorChannelIdx = s.value(key + "/vectorChannelIdx", -1).toInt();
             m_canPorts[i].vectorChannelMask = s.value(key + "/vectorChannelMask", 0).toULongLong();
+            m_canPorts[i].dbcFilePath = s.value(key + "/dbcFilePath").toString();
         }
     }
 

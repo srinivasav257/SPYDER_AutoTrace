@@ -2,6 +2,7 @@
 
 #include "HWConfigManager.h"
 #include <CANManager.h>
+#include <DBCManager.h>
 #include <QDialog>
 #include <QTabWidget>
 #include <QComboBox>
@@ -56,12 +57,18 @@ public:
     /** @brief Refresh detected Vector hardware channels in the mapping combo. */
     void refreshVectorChannels();
 
+    /** @brief Set the CAN channel index (0 or 1) for DBC association. */
+    void setChannelIndex(int index);
+
 signals:
     void connectRequested();
     void disconnectRequested();
 
 private slots:
     void onInterfaceTypeChanged(const QString& type);
+    void onLoadDBCClicked();
+    void onClearDBCClicked();
+    void onDBCLoadFinished(int channelIndex, bool success, const QString& errorMsg);
 
 private:
     QLineEdit* m_aliasEdit;
@@ -79,6 +86,13 @@ private:
     QPushButton* m_connectBtn;
     QPushButton* m_disconnectBtn;
     QLabel* m_statusLabel;
+
+    // DBC file association
+    int m_channelIndex = -1;                       ///< CAN channel index (0 or 1)
+    QLineEdit* m_dbcPathEdit = nullptr;            ///< DBC file path display
+    QPushButton* m_dbcLoadBtn = nullptr;            ///< Browse for DBC file
+    QPushButton* m_dbcClearBtn = nullptr;           ///< Clear/unload DBC
+    QLabel* m_dbcStatusLabel = nullptr;             ///< DBC load status
 
     QList<CANManager::CANChannelInfo> m_detectedChannels;  ///< Cached detection results
 };

@@ -34,6 +34,9 @@ struct CANPortConfig
     int vectorHwChannel  = 0;                   ///< Channel on the hardware
     int vectorChannelIdx = -1;                  ///< Global channel index (-1 = not set)
     quint64 vectorChannelMask = 0;              ///< XL channel access mask
+
+    // DBC file association
+    QString dbcFilePath;                          ///< Path to DBC file for this channel
 };
 
 /**
