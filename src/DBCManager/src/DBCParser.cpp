@@ -234,22 +234,36 @@ QString DBCMessage::displayString() const
 // DBCDatabase implementation
 //=============================================================================
 
+void DBCDatabase::buildIndex()
+{
+    m_idIndex.clear();
+    m_idIndex.reserve(messages.size());
+    for (int i = 0; i < messages.size(); ++i) {
+        uint32_t key = messages[i].id & 0x7FFFFFFF;
+        m_idIndex.insert(key, i);
+    }
+}
+
 const DBCMessage* DBCDatabase::messageById(uint32_t id) const
 {
-    for (const auto& msg : messages) {
-        uint32_t msgId = msg.id & 0x7FFFFFFF;  // strip extended bit if stored
-        if (msgId == (id & 0x7FFFFFFF))
-            return &msg;
+    uint32_t key = id & 0x7FFFFFFF;
+    auto it = m_idIndex.find(key);
+    if (it != m_idIndex.end()) {
+        int idx = it.value();
+        if (idx >= 0 && idx < messages.size())
+            return &messages[idx];
     }
     return nullptr;
 }
 
 DBCMessage* DBCDatabase::messageById(uint32_t id)
 {
-    for (auto& msg : messages) {
-        uint32_t msgId = msg.id & 0x7FFFFFFF;
-        if (msgId == (id & 0x7FFFFFFF))
-            return &msg;
+    uint32_t key = id & 0x7FFFFFFF;
+    auto it = m_idIndex.find(key);
+    if (it != m_idIndex.end()) {
+        int idx = it.value();
+        if (idx >= 0 && idx < messages.size())
+            return &messages[idx];
     }
     return nullptr;
 }
@@ -414,6 +428,9 @@ void DBCParser::parse(const QString& content, DBCDatabase& db)
             parseAttributeValue(line, db);
         }
     }
+
+    // Build the ID->index hash for O(1) lookups
+    db.buildIndex();
 }
 
 void DBCParser::parseVersion(const QString& line, DBCDatabase& db)

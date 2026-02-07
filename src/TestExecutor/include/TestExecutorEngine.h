@@ -273,6 +273,7 @@ private:
     TestStep executeStep(const TestStep& step, int stepIndex, const QString& testCaseId);
     void initializeCommunication();
     void cleanupCommunication();
+    void syncFromHWConfig();
 
     TestConfiguration m_config;
     ExecutorState m_state = ExecutorState::Idle;

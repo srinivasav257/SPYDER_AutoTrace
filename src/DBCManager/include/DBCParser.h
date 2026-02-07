@@ -13,6 +13,7 @@
 #include <QString>
 #include <QVector>
 #include <QMap>
+#include <QHash>
 #include <QVariant>
 #include <cstdint>
 
@@ -182,7 +183,13 @@ struct DBCDatabase
     QMap<QString, QMap<int64_t, QString>> valueTables;  ///< Named value tables (VAL_TABLE_)
 
     /**
-     * @brief Find message by ID
+     * @brief Rebuild the internal ID→index hash after messages are modified.
+     * Called automatically by DBCParser after parsing.
+     */
+    void buildIndex();
+
+    /**
+     * @brief Find message by ID (O(1) hash lookup)
      */
     const DBCMessage* messageById(uint32_t id) const;
     DBCMessage* messageById(uint32_t id);
@@ -217,6 +224,10 @@ struct DBCDatabase
      * @brief Check if database is empty
      */
     bool isEmpty() const { return messages.isEmpty(); }
+
+private:
+    /// Hash of (id & 0x7FFFFFFF) → index into messages vector
+    QHash<uint32_t, int> m_idIndex;
 };
 
 //=============================================================================

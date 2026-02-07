@@ -193,35 +193,8 @@ QPair<bool, QString> validateResponse(const ManDiagResponse& response,
 }
 
 //=============================================================================
-// Utility Functions
+// Utility Functions (hexToBytes/bytesToHex are now inline in header via HexUtils)
 //=============================================================================
-
-QByteArray hexToBytes(const QString& hex)
-{
-    QString cleaned = hex;
-    cleaned.remove(' ');
-    cleaned.remove('-');
-    cleaned.remove(':');
-    
-    QByteArray bytes;
-    for (int i = 0; i + 1 < cleaned.length(); i += 2) {
-        bool ok;
-        uint8_t byte = cleaned.mid(i, 2).toUInt(&ok, 16);
-        if (ok) {
-            bytes.append(static_cast<char>(byte));
-        }
-    }
-    return bytes;
-}
-
-QString bytesToHex(const QByteArray& bytes, const QString& separator)
-{
-    QStringList hexBytes;
-    for (char byte : bytes) {
-        hexBytes.append(QString("%1").arg(static_cast<uint8_t>(byte), 2, 16, QChar('0')).toUpper());
-    }
-    return hexBytes.join(separator);
-}
 
 QString hexToAscii(const QString& hex, int skipBytes)
 {

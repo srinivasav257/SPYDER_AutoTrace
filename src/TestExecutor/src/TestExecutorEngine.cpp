@@ -7,10 +7,13 @@
 #include "TestRepository.h"
 #include "CommandRegistry.h"
 #include <SerialManager.h>
+#include "HWConfigManager.h"
 #include <QFile>
 #include <QJsonDocument>
 #include <QDebug>
 #include <QTimer>
+#include <QtConcurrent/QtConcurrent>
+#include <QFutureWatcher>
 
 using namespace SerialManager;
 
@@ -179,6 +182,9 @@ void TestExecutorEngine::runTests(const QStringList& testCaseIds)
     m_pendingTestIds = testCaseIds;
     m_stopRequested = false;
     m_pauseRequested = false;
+    
+    // Sync serial/CAN settings from HWConfigManager (single source of truth)
+    syncFromHWConfig();
     
     // Create new session
     m_currentSession = std::make_unique<TestSession>();
@@ -488,12 +494,40 @@ TestStep TestExecutorEngine::executeStep(const TestStep& step, int stepIndex, co
                    .arg(TestStep::categoryToString(step.category))
                    .arg(step.command));
     
-    // Execute the command via CommandRegistry
+    // Execute the command via CommandRegistry with cancellation support
     auto& registry = CommandRegistry::instance();
     QVariantMap configMap = m_config.toVariantMap();
     
+    // Determine step timeout: use step-specific timeout, or fall back to global default
+    int stepTimeoutMs = step.parameters.value("timeout_ms", m_config.defaultTimeoutMs).toInt();
+    if (stepTimeoutMs <= 0) stepTimeoutMs = m_config.defaultTimeoutMs;
+    // Add a generous ceiling to allow command's own retry/timeout logic
+    int hardTimeoutMs = stepTimeoutMs * 3 + 5000;
+    
     try {
-        CommandResult cmdResult = registry.execute(step.command, step.parameters, configMap);
+        // Run command with cancellation token
+        auto future = QtConcurrent::run([&]() -> CommandResult {
+            return registry.execute(step.command, step.parameters, configMap, &m_stopRequested);
+        });
+        
+        // Wait with hard timeout
+        QElapsedTimer stepDeadline;
+        stepDeadline.start();
+        
+        while (!future.isFinished()) {
+            if (stepDeadline.elapsed() > hardTimeoutMs) {
+                m_stopRequested = true;   // force-cancel the handler
+                future.waitForFinished();  // let it notice cancellation
+                result.status = TestStatus::Error;
+                result.resultMessage = QString("Step timed out after %1 ms").arg(hardTimeoutMs);
+                result.durationMs = m_stepTimer.elapsed();
+                m_stopRequested = false;   // reset for remaining steps
+                return result;
+            }
+            QThread::msleep(10);
+        }
+        
+        CommandResult cmdResult = future.result();
         
         result.durationMs = m_stepTimer.elapsed();
         result.responseData = cmdResult.responseData;
@@ -541,6 +575,33 @@ void TestExecutorEngine::initializeCommunication()
     // TODO: Initialize CAN interface
     // TODO: Initialize power supply
     emit logMessage("INFO", "Communication interfaces initialized");
+}
+
+void TestExecutorEngine::syncFromHWConfig()
+{
+    auto& hwConfig = HWConfigManager::instance();
+
+    // Sync primary serial port (Debug Port 1) into TestConfiguration
+    auto serialCfg = hwConfig.serialDebugPort(0);
+    if (!serialCfg.serial.portName.isEmpty()) {
+        m_config.serialPort = serialCfg.serial.portName;
+        m_config.serialBaudRate = serialCfg.serial.baudRate;
+        m_config.serialDataBits = static_cast<int>(serialCfg.serial.dataBits);
+        m_config.serialTimeoutMs = serialCfg.serial.readTimeoutMs;
+    }
+
+    // Sync primary CAN port (CAN 1) into TestConfiguration
+    auto canCfg = hwConfig.canPort(0);
+    if (!canCfg.customName.isEmpty()) {
+        m_config.canInterface = canCfg.interfaceType;
+        m_config.canChannel = canCfg.channel;
+        m_config.canBitrate = canCfg.bitrate;
+        m_config.canDataBitrate = canCfg.fdDataBitrate;
+        m_config.canFdEnabled = canCfg.fdEnabled;
+    }
+
+    // Also push to SerialPortManager so connections use latest settings
+    hwConfig.applyToSerialManager();
 }
 
 void TestExecutorEngine::cleanupCommunication()

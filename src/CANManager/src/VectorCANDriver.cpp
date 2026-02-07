@@ -220,6 +220,9 @@ bool VectorCANDriver::initialize()
 
 void VectorCANDriver::shutdown()
 {
+    // Stop async receive before anything else
+    stopAsyncReceive();
+
     QMutexLocker locker(&m_mutex);
 
     if (m_portHandle != XL_INVALID_PORTHANDLE) {
@@ -239,15 +242,20 @@ void VectorCANDriver::shutdown()
 
 bool VectorCANDriver::isAvailable() const
 {
+    if (m_availableCached >= 0)
+        return m_availableCached == 1;
+
     // Quick check: try loading the library without keeping it
     QLibrary testLib;
     for (const auto& name : {QStringLiteral("vxlapi64"), QStringLiteral("vxlapi")}) {
         testLib.setFileName(name);
         if (testLib.load()) {
             testLib.unload();
+            m_availableCached = 1;
             return true;
         }
     }
+    m_availableCached = 0;
     return false;
 }
 
@@ -470,6 +478,9 @@ CANResult VectorCANDriver::openChannel(const CANChannelInfo& channel,
 
 void VectorCANDriver::closeChannel()
 {
+    // Stop async receive first
+    stopAsyncReceive();
+
     QMutexLocker locker(&m_mutex);
 
     if (m_portHandle == XL_INVALID_PORTHANDLE)
@@ -717,6 +728,50 @@ CANResult VectorCANDriver::receiveFD(CANMessage& msg, int timeoutMs)
     default:
         return CANResult::Failure(QString("Unknown FD event tag: 0x%1")
                                       .arg(rxEvent.tag, 4, 16, QChar('0')));
+    }
+}
+
+// ============================================================================
+//  Async Receive Thread
+// ============================================================================
+
+void VectorCANDriver::startAsyncReceive()
+{
+    if (m_asyncRunning.load())
+        return;
+
+    if (!isOpen()) {
+        qWarning() << "[VectorCAN] Cannot start async receive \u2014 channel not open";
+        return;
+    }
+
+    m_asyncRunning = true;
+    m_rxThread = QThread::create([this]() {
+        qDebug() << "[VectorCAN] Async receive thread started";
+        while (m_asyncRunning.load()) {
+            CANMessage msg;
+            CANResult result = receive(msg, 100);  // 100ms poll
+            if (result.success && !msg.isError) {
+                emit messageReceived(msg);
+            }
+            // On timeout or empty queue, just loop
+        }
+        qDebug() << "[VectorCAN] Async receive thread stopped";
+    });
+    m_rxThread->setObjectName(QStringLiteral("VectorCAN_RxThread"));
+    m_rxThread->start();
+}
+
+void VectorCANDriver::stopAsyncReceive()
+{
+    if (!m_asyncRunning.load())
+        return;
+
+    m_asyncRunning = false;
+    if (m_rxThread) {
+        m_rxThread->wait(3000);
+        delete m_rxThread;
+        m_rxThread = nullptr;
     }
 }
 

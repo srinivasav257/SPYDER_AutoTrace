@@ -17,6 +17,8 @@
 
 #include <QLibrary>
 #include <QMutex>
+#include <QThread>
+#include <atomic>
 
 // Use dynamic loading mode — gives us typedefs for function pointers
 #define DYNAMIC_XLDRIVER_DLL
@@ -87,6 +89,17 @@ public:
     void setAppName(const QString& appName) { m_appName = appName; }
     QString appName() const { return m_appName; }
 
+    // === Async receive ===
+
+    /** @brief Start a background thread that continuously receives and emits messageReceived(). */
+    void startAsyncReceive();
+
+    /** @brief Stop the async receive thread. */
+    void stopAsyncReceive();
+
+    /** @brief Check if async receive is running. */
+    bool isAsyncReceiving() const { return m_asyncRunning.load(); }
+
 private:
     // --- DLL loading ---
     bool loadLibrary();
@@ -117,6 +130,13 @@ private:
     QString      m_lastError;
     QString      m_appName      = QStringLiteral("SPYDER_AutoTrace");
     mutable QMutex m_mutex;
+
+    /// Cached result of isAvailable(): -1 = not yet checked, 0 = false, 1 = true
+    mutable int  m_availableCached = -1;
+
+    // --- Async receive thread ---
+    QThread*           m_rxThread   = nullptr;
+    std::atomic<bool>  m_asyncRunning{false};
 
     // --- XL Library function pointers ---
     XLOPENDRIVER                m_xlOpenDriver              = nullptr;

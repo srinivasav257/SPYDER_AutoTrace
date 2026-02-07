@@ -16,6 +16,7 @@
 #include <QVariant>
 #include <functional>
 #include <QMap>
+#include <atomic>
 
 namespace TestExecutor {
 
@@ -92,9 +93,14 @@ struct CommandResult
  * @brief Function signature for command handlers
  * @param params Input parameters
  * @param config Global configuration
+ * @param cancel Optional cancellation flag — handlers should check periodically
  * @return Execution result
  */
-using CommandHandler = std::function<CommandResult(const QVariantMap& params, const QVariantMap& config)>;
+using CommandHandler = std::function<CommandResult(const QVariantMap& params, const QVariantMap& config,
+                                                   const std::atomic<bool>* cancel)>;
+
+/// Legacy handler signature without cancellation (auto-wrapped on registration)
+using LegacyCommandHandler = std::function<CommandResult(const QVariantMap& params, const QVariantMap& config)>;
 
 //=============================================================================
 // Command Definition
@@ -193,11 +199,13 @@ public:
      * @param commandId Command to execute
      * @param params Parameters for the command
      * @param config Global configuration
+     * @param cancel Optional cancellation flag
      * @return Execution result
      */
     CommandResult execute(const QString& commandId, 
                           const QVariantMap& params,
-                          const QVariantMap& config);
+                          const QVariantMap& config,
+                          const std::atomic<bool>* cancel = nullptr);
     
     /**
      * @brief Validate parameters for a command
@@ -221,20 +229,22 @@ private:
 };
 
 //=============================================================================
-// Utility Functions
+// Utility Functions (delegated to shared HexUtils)
 //=============================================================================
+
+#include "HexUtils.h"
 
 /**
  * @brief Convert hex string to byte array
  * @param hex String like "6D 64 3E" or "6D643E"
  */
-QByteArray hexStringToBytes(const QString& hex);
+inline QByteArray hexStringToBytes(const QString& hex) { return HexUtils::hexStringToBytes(hex); }
 
 /**
  * @brief Convert byte array to hex string
  * @param bytes Raw bytes
  * @param separator Separator between bytes (default: space)
  */
-QString bytesToHexString(const QByteArray& bytes, const QString& separator = " ");
+inline QString bytesToHexString(const QByteArray& bytes, const QString& separator = " ") { return HexUtils::bytesToHexString(bytes, separator); }
 
 } // namespace TestExecutor

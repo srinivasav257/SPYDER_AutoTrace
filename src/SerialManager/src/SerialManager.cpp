@@ -6,7 +6,6 @@
 #include "SerialManager.h"
 #include <QDebug>
 #include <QElapsedTimer>
-#include <QCoreApplication>
 #include <QThread>
 
 namespace SerialManager {
@@ -358,10 +357,9 @@ SerialResult SerialPortManager::read(const QString& portName, int timeoutMs)
     timer.start();
     
     while (timer.elapsed() < timeout) {
-        if (port->waitForReadyRead(100)) {
+        if (port->waitForReadyRead(qMin(100, qMax(1, timeout - static_cast<int>(timer.elapsed()))))) {
             receivedData.append(port->readAll());
         }
-        QCoreApplication::processEvents();
     }
     
     // Read any remaining data
@@ -389,7 +387,7 @@ SerialResult SerialPortManager::readUntil(const QString& portName, const QByteAr
     timer.start();
     
     while (timer.elapsed() < timeout) {
-        if (port->waitForReadyRead(50)) {
+        if (port->waitForReadyRead(qMin(50, qMax(1, timeout - static_cast<int>(timer.elapsed()))))) {
             receivedData.append(port->readAll());
             
             // Check if pattern is found
@@ -398,7 +396,6 @@ SerialResult SerialPortManager::readUntil(const QString& portName, const QByteAr
                 return SerialResult::Success(receivedData);
             }
         }
-        QCoreApplication::processEvents();
     }
     
     // Final read
@@ -457,7 +454,7 @@ SerialResult SerialPortManager::sendAndMatchResponse(const QString& portName,
     timer.start();
     
     while (timer.elapsed() < timeoutMs) {
-        if (port->waitForReadyRead(50)) {
+        if (port->waitForReadyRead(qMin(50, qMax(1, timeoutMs - static_cast<int>(timer.elapsed()))))) {
             receivedData.append(port->readAll());
             
             // Check if expected response is found
@@ -468,7 +465,6 @@ SerialResult SerialPortManager::sendAndMatchResponse(const QString& portName,
                 return SerialResult::MatchSuccess(receivedData);
             }
         }
-        QCoreApplication::processEvents();
     }
     
     // Final read after timeout

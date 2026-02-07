@@ -27,35 +27,8 @@ using namespace SerialManager;
 namespace TestExecutor {
 
 //=============================================================================
-// Utility Functions
+// Utility Functions (hexStringToBytes/bytesToHexString are now inline in header via HexUtils)
 //=============================================================================
-
-QByteArray hexStringToBytes(const QString& hex)
-{
-    QString cleaned = hex;
-    cleaned.remove(' ');
-    cleaned.remove('-');
-    cleaned.remove(':');
-    
-    QByteArray bytes;
-    for (int i = 0; i + 1 < cleaned.length(); i += 2) {
-        bool ok;
-        uint8_t byte = cleaned.mid(i, 2).toUInt(&ok, 16);
-        if (ok) {
-            bytes.append(static_cast<char>(byte));
-        }
-    }
-    return bytes;
-}
-
-QString bytesToHexString(const QByteArray& bytes, const QString& separator)
-{
-    QStringList hexBytes;
-    for (char byte : bytes) {
-        hexBytes.append(QString("%1").arg(static_cast<uint8_t>(byte), 2, 16, QChar('0')).toUpper());
-    }
-    return hexBytes.join(separator);
-}
 
 //=============================================================================
 // CommandRegistry Singleton
@@ -143,7 +116,8 @@ QStringList CommandRegistry::commandNamesForCategory(CommandCategory category) c
 
 CommandResult CommandRegistry::execute(const QString& commandId,
                                         const QVariantMap& params,
-                                        const QVariantMap& config)
+                                        const QVariantMap& config,
+                                        const std::atomic<bool>* cancel)
 {
     const CommandDef* cmd = command(commandId);
     if (!cmd) {
@@ -156,9 +130,14 @@ CommandResult CommandRegistry::execute(const QString& commandId,
         return CommandResult::Failure("Parameter validation failed: " + validationError);
     }
     
+    // Check cancellation before executing
+    if (cancel && cancel->load()) {
+        return CommandResult::Failure("Cancelled before execution");
+    }
+    
     // Execute the command
     try {
-        return cmd->handler(params, config);
+        return cmd->handler(params, config, cancel);
     } catch (const std::exception& e) {
         return CommandResult::Failure(QString("Exception: %1").arg(e.what()));
     }
@@ -214,7 +193,7 @@ void CommandRegistry::registerSerialCommands()
                 .unit = "ms"
             }
         },
-        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             // TODO: Implement actual serial communication
             QString sessionType = params.value("session_type", "manufacturing").toString();
             qDebug() << "Entering" << sessionType << "diagnostic session";
@@ -229,7 +208,7 @@ void CommandRegistry::registerSerialCommands()
         .description = "Exit manufacturing diagnostic session",
         .category = CommandCategory::Serial,
         .parameters = {},
-        .handler = [](const QVariantMap& /*params*/, const QVariantMap& /*config*/) -> CommandResult {
+        .handler = [](const QVariantMap& /*params*/, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             qDebug() << "Exiting diagnostic session";
             return CommandResult::Success("Exited diagnostic session");
         }
@@ -270,7 +249,7 @@ void CommandRegistry::registerSerialCommands()
                 .unit = "ms"
             }
         },
-        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             QString hexCmd = params.value("hex_command").toString();
             QByteArray cmdBytes = hexStringToBytes(hexCmd);
             qDebug() << "Sending ManDiag:" << bytesToHexString(cmdBytes);
@@ -316,7 +295,7 @@ void CommandRegistry::registerSerialCommands()
                 .unit = "ms"
             }
         },
-        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             QString did = params.value("did_id").toString();
             qDebug() << "Reading DID:" << did;
             // TODO: Implement actual DID read
@@ -360,7 +339,7 @@ void CommandRegistry::registerSerialCommands()
                 .unit = "ms"
             }
         },
-        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             QString did = params.value("did_id").toString();
             QString data = params.value("data").toString();
             qDebug() << "Writing DID:" << did << "Data:" << data;
@@ -402,7 +381,7 @@ void CommandRegistry::registerSerialCommands()
                 .required = false
             }
         },
-        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             QString data = params.value("data").toString();
             QString format = params.value("data_format", "hex").toString();
             qDebug() << "Sending raw serial:" << data << "format:" << format;
@@ -435,7 +414,7 @@ void CommandRegistry::registerSerialCommands()
                 .required = false
             }
         },
-        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             int timeout = params.value("timeout_ms", 1000).toInt();
             qDebug() << "Reading serial response, timeout:" << timeout;
             QVariantMap response;
@@ -468,7 +447,7 @@ void CommandRegistry::registerSerialCommands()
                 .required = true
             }
         },
-        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             QString port = params.value("port").toString();
             QString dataString = params.value("data_string").toString();
             
@@ -536,7 +515,7 @@ void CommandRegistry::registerSerialCommands()
                 .unit = "ms"
             }
         },
-        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             QString port = params.value("port").toString();
             QString dataString = params.value("data_string").toString();
             QString responseString = params.value("response_string").toString();
@@ -680,7 +659,7 @@ void CommandRegistry::registerCANCommands()
                 .required = false
             }
         },
-        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             QString slot = params.value("slot", "CAN 1").toString();
             auto& can = CANManager::CANBusManager::instance();
 
@@ -744,7 +723,7 @@ void CommandRegistry::registerCANCommands()
                 .required = false
             }
         },
-        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             QString slot = params.value("slot", "CAN 1").toString();
             auto& can = CANManager::CANBusManager::instance();
 
@@ -828,7 +807,7 @@ void CommandRegistry::registerCANCommands()
                 .required = false
             }
         },
-        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             QString slot = params.value("slot", "CAN 1").toString();
             int timeoutMs = params.value("timeout_ms", 5000).toInt();
             auto& can = CANManager::CANBusManager::instance();
@@ -929,7 +908,7 @@ void CommandRegistry::registerCANCommands()
                 .required = false
             }
         },
-        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             QString slot = params.value("slot", "CAN 1").toString();
             int timeoutMs = params.value("timeout_ms", 5000).toInt();
             auto& can = CANManager::CANBusManager::instance();
@@ -1039,7 +1018,7 @@ void CommandRegistry::registerCANCommands()
                 .required = false
             }
         },
-        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             QString slot = params.value("slot", "CAN 1").toString();
             int timeoutMs = params.value("timeout_ms", 5000).toInt();
             auto& can = CANManager::CANBusManager::instance();
@@ -1179,7 +1158,7 @@ void CommandRegistry::registerCANCommands()
                 .required = false
             }
         },
-        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             QString slot = params.value("slot", "CAN 1").toString();
             int timeoutMs = params.value("timeout_ms", 5000).toInt();
             auto& can = CANManager::CANBusManager::instance();
@@ -1273,7 +1252,7 @@ void CommandRegistry::registerPowerCommands()
                 .maxValue = 4
             }
         },
-        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             int channel = params.value("channel", 1).toInt();
             qDebug() << "Turning ON power supply channel:" << channel;
             return CommandResult::Success("Power supply turned ON");
@@ -1298,7 +1277,7 @@ void CommandRegistry::registerPowerCommands()
                 .maxValue = 4
             }
         },
-        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             int channel = params.value("channel", 1).toInt();
             qDebug() << "Turning OFF power supply channel:" << channel;
             return CommandResult::Success("Power supply turned OFF");
@@ -1334,7 +1313,7 @@ void CommandRegistry::registerPowerCommands()
                 .maxValue = 4
             }
         },
-        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             double voltage = params.value("voltage", 12.0).toDouble();
             int channel = params.value("channel", 1).toInt();
             qDebug() << "Setting voltage to" << voltage << "V on channel" << channel;
@@ -1371,7 +1350,7 @@ void CommandRegistry::registerPowerCommands()
                 .maxValue = 4
             }
         },
-        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             double current = params.value("current", 5.0).toDouble();
             qDebug() << "Setting current limit to" << current << "A";
             return CommandResult::Success(QString("Current limit set to %1A").arg(current));
@@ -1396,7 +1375,7 @@ void CommandRegistry::registerPowerCommands()
                 .maxValue = 4
             }
         },
-        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             int channel = params.value("channel", 1).toInt();
             qDebug() << "Reading measurements from channel" << channel;
             QVariantMap response;
@@ -1433,7 +1412,7 @@ void CommandRegistry::registerFlowCommands()
                 .unit = "ms"
             }
         },
-        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             int durationMs = params.value("duration_ms", 1000).toInt();
             qDebug() << "Waiting for" << durationMs << "ms";
             QThread::msleep(durationMs);
@@ -1468,7 +1447,7 @@ void CommandRegistry::registerFlowCommands()
                 .unit = "ms"
             }
         },
-        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             int count = params.value("count", 1).toInt();
             qDebug() << "Repeat flag set:" << count << "times";
             return CommandResult::Success(QString("Will repeat %1 times").arg(count));
@@ -1500,7 +1479,7 @@ void CommandRegistry::registerFlowCommands()
                 .enumValues = {"DEBUG", "INFO", "WARNING", "ERROR"}
             }
         },
-        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             QString message = params.value("message").toString();
             QString level = params.value("level", "INFO").toString();
             qDebug() << "[" << level << "]" << message;
@@ -1532,7 +1511,7 @@ void CommandRegistry::registerFlowCommands()
                 .required = true
             }
         },
-        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             QString name = params.value("variable_name").toString();
             QString value = params.value("value").toString();
             qDebug() << "Set variable" << name << "=" << value;
@@ -1581,7 +1560,7 @@ void CommandRegistry::registerValidationCommands()
                 .required = false
             }
         },
-        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             QString actual = params.value("actual").toString();
             QString expected = params.value("expected").toString();
             QString message = params.value("message", "Values do not match").toString();
@@ -1618,7 +1597,7 @@ void CommandRegistry::registerValidationCommands()
                 .required = true
             }
         },
-        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             QString haystack = params.value("haystack").toString();
             QString needle = params.value("needle").toString();
             
@@ -1654,7 +1633,7 @@ void CommandRegistry::registerValidationCommands()
                 .required = true
             }
         },
-        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             QString text = params.value("text").toString();
             QString pattern = params.value("pattern").toString();
             
@@ -1702,7 +1681,7 @@ void CommandRegistry::registerValidationCommands()
                 .required = true
             }
         },
-        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             double value = params.value("value").toDouble();
             double min = params.value("min").toDouble();
             double max = params.value("max").toDouble();
@@ -1738,7 +1717,7 @@ void CommandRegistry::registerSystemCommands()
                 .required = false
             }
         },
-        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             QString filename = params.value("filename", "screenshot").toString();
             qDebug() << "Taking screenshot:" << filename;
             // TODO: Implement actual screenshot
@@ -1770,7 +1749,7 @@ void CommandRegistry::registerSystemCommands()
                 .required = false
             }
         },
-        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             QString filepath = params.value("filepath").toString();
             QString data = params.value("data", "${last_response}").toString();
             qDebug() << "Saving data to:" << filepath;
@@ -1795,7 +1774,7 @@ void CommandRegistry::registerSystemCommands()
                 .required = true
             }
         },
-        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             QString comment = params.value("comment").toString();
             qDebug() << "Comment:" << comment;
             return CommandResult::Success("Comment added");

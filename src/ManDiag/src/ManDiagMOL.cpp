@@ -58,7 +58,7 @@ void registerMOLCommands()
                 .required = true
             }
         },
-        .handler = [](const QVariantMap& /*params*/, const QVariantMap& /*config*/) -> CommandResult {
+        .handler = [](const QVariantMap& /*params*/, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             return CommandResult::Failure("MOL commands are not yet implemented. CAN interface support coming soon.");
         }
     });
@@ -125,7 +125,7 @@ void registerMOLCommands()
                 .unit = "ms"
             }
         },
-        .handler = [](const QVariantMap& /*params*/, const QVariantMap& /*config*/) -> CommandResult {
+        .handler = [](const QVariantMap& /*params*/, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             return CommandResult::Failure("MOL commands are not yet implemented. CAN interface support coming soon.");
         }
     });
@@ -200,7 +200,7 @@ void registerMOLCommands()
                 .unit = "ms"
             }
         },
-        .handler = [](const QVariantMap& /*params*/, const QVariantMap& /*config*/) -> CommandResult {
+        .handler = [](const QVariantMap& /*params*/, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             return CommandResult::Failure("MOL commands are not yet implemented. CAN interface support coming soon.");
         }
     });

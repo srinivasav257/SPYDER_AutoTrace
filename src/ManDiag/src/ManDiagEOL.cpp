@@ -10,7 +10,6 @@
 #include <QDebug>
 #include <QElapsedTimer>
 #include <QThread>
-#include <QCoreApplication>
 
 using namespace SerialManager;
 
@@ -94,14 +93,13 @@ EOLResult sendAndReceive(const QString& command, const EOLConfig& config)
                 return result;
             }
             
-            // Wait before retry (500ms intervals)
-            for (int i = 0; i < 10; ++i) {
-                QThread::msleep(500);
-                QCoreApplication::processEvents();
-                
-                if (pendingTimer.elapsed() >= config.pendingWaitMs) {
+            // Wait ~500ms using non-blocking sleep (worker-thread safe)
+            QElapsedTimer pendingDelay;
+            pendingDelay.start();
+            while (pendingDelay.elapsed() < 500) {
+                if (pendingTimer.elapsed() >= config.pendingWaitMs)
                     break;
-                }
+                QThread::msleep(50);
             }
             
             // Reset retry counter to allow continued retries on pending
@@ -303,7 +301,7 @@ void registerEOLCommands()
                 .required = true
             }
         },
-        .handler = [](const QVariantMap& params, const QVariantMap& config) -> CommandResult {
+        .handler = [](const QVariantMap& params, const QVariantMap& config, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             QString hexCmd = params.value("hex_command").toString();
             QString port = params.value("port", config.value("default_serial_port", "COM1")).toString();
             
@@ -389,7 +387,7 @@ void registerEOLCommands()
                 .maxValue = 10
             }
         },
-        .handler = [](const QVariantMap& params, const QVariantMap& config) -> CommandResult {
+        .handler = [](const QVariantMap& params, const QVariantMap& config, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             QString hexCmd = params.value("hex_command").toString();
             QString expected = params.value("expected_response").toString();
             bool exactMatch = params.value("exact_match", false).toBool();
@@ -525,7 +523,7 @@ void registerEOLCommands()
                 .maxValue = 10
             }
         },
-        .handler = [](const QVariantMap& params, const QVariantMap& config) -> CommandResult {
+        .handler = [](const QVariantMap& params, const QVariantMap& config, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             QString hexCmd = params.value("hex_command").toString();
             QString port = params.value("port", config.value("default_serial_port", "COM1")).toString();
             int timeoutMs = params.value("timeout_ms", DEFAULT_TIMEOUT_MS).toInt();

@@ -44,12 +44,16 @@ target_include_directories(TestExecutor
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
+    PRIVATE
+        # Shared utilities (HexUtils.h)
+        ${CMAKE_CURRENT_SOURCE_DIR}/../common
 )
 
 target_link_libraries(TestExecutor
     PUBLIC
         Qt6::Widgets
         Qt6::Core
+        Qt6::Concurrent
     PRIVATE
         DockManager::DockManager
         SerialManager::SerialManager

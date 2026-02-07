@@ -1,5 +1,5 @@
-#ifndef TESTTREEMODEL_H
-#define TESTTREEMODEL_H
+#ifndef SAMPLETESTTREEMODEL_H
+#define SAMPLETESTTREEMODEL_H
 
 #include <QAbstractItemModel>
 #include <QModelIndex>
@@ -9,34 +9,34 @@
 #include <QVariant>
 #include <QVector>
 
-class TestTreeItem
+class SampleTestTreeItem
 {
 public:
-    explicit TestTreeItem(const QVector<QVariant> &data, TestTreeItem *parent = nullptr);
-    ~TestTreeItem();
+    explicit SampleTestTreeItem(const QVector<QVariant> &data, SampleTestTreeItem *parent = nullptr);
+    ~SampleTestTreeItem();
 
-    void appendChild(TestTreeItem *child);
+    void appendChild(SampleTestTreeItem *child);
 
-    TestTreeItem *child(int row);
+    SampleTestTreeItem *child(int row);
     int childCount() const;
     int columnCount() const;
     QVariant data(int column) const;
     int row() const;
-    TestTreeItem *parentItem();
+    SampleTestTreeItem *parentItem();
 
 private:
-    QVector<TestTreeItem*> m_childItems;
+    QVector<SampleTestTreeItem*> m_childItems;
     QVector<QVariant> m_itemData;
-    TestTreeItem *m_parentItem;
+    SampleTestTreeItem *m_parentItem;
 };
 
-class TestTreeModel : public QAbstractItemModel
+class SampleTestTreeModel : public QAbstractItemModel
 {
     Q_OBJECT
 
 public:
-    explicit TestTreeModel(const QString &data, QObject *parent = nullptr);
-    ~TestTreeModel();
+    explicit SampleTestTreeModel(const QString &data, QObject *parent = nullptr);
+    ~SampleTestTreeModel();
 
     QVariant data(const QModelIndex &index, int role) const override;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
@@ -49,8 +49,8 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
 private:
-    void setupModelData(const QStringList &lines, TestTreeItem *parent);
-    TestTreeItem *rootItem;
+    void setupModelData(const QStringList &lines, SampleTestTreeItem *parent);
+    SampleTestTreeItem *rootItem;
 };
 
-#endif // TESTTREEMODEL_H
+#endif // SAMPLETESTTREEMODEL_H

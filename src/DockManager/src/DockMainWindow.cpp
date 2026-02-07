@@ -163,6 +163,7 @@ void DockMainWindow::setupDefaultLayout()
     ads::CDockAreaWidget* leftArea = nullptr;
     ads::CDockAreaWidget* rightArea = nullptr;
     ads::CDockAreaWidget* bottomArea = nullptr;
+    ads::CDockAreaWidget* topArea = nullptr;
     ads::CDockAreaWidget* centerArea = nullptr;
 
     const auto& panels = PanelRegistry::instance().panels();
@@ -185,6 +186,10 @@ void DockMainWindow::setupDefaultLayout()
             if (!bottomArea)
                 bottomArea = d->dockManager->addDockWidget(ads::BottomDockWidgetArea, dw);
             break;
+        case ads::TopDockWidgetArea:
+            if (!topArea)
+                topArea = d->dockManager->addDockWidget(ads::TopDockWidgetArea, dw);
+            break;
         case ads::CenterDockWidgetArea:
         default:
             if (!centerArea)
@@ -205,6 +210,7 @@ void DockMainWindow::setupDefaultLayout()
         case ads::LeftDockWidgetArea:   targetArea = leftArea;   break;
         case ads::RightDockWidgetArea:  targetArea = rightArea;  break;
         case ads::BottomDockWidgetArea: targetArea = bottomArea; break;
+        case ads::TopDockWidgetArea:    targetArea = topArea;    break;
         default:                        targetArea = centerArea; break;
         }
 

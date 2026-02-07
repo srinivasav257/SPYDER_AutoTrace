@@ -41,8 +41,10 @@ SerialDebugPortConfig HWConfigManager::serialDebugPort(int index) const
 
 void HWConfigManager::setSerialDebugPort(int index, const SerialDebugPortConfig& config)
 {
-    if (index >= 0 && index < SERIAL_PORT_COUNT)
+    if (index >= 0 && index < SERIAL_PORT_COUNT) {
         m_serialDebugPorts[index] = config;
+        emit configChanged();
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -58,8 +60,10 @@ CANPortConfig HWConfigManager::canPort(int index) const
 
 void HWConfigManager::setCanPort(int index, const CANPortConfig& config)
 {
-    if (index >= 0 && index < CAN_PORT_COUNT)
+    if (index >= 0 && index < CAN_PORT_COUNT) {
         m_canPorts[index] = config;
+        emit configChanged();
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -67,10 +71,10 @@ void HWConfigManager::setCanPort(int index, const CANPortConfig& config)
 // ---------------------------------------------------------------------------
 
 PowerSupplyConfig HWConfigManager::powerSupply() const { return m_powerSupply; }
-void HWConfigManager::setPowerSupply(const PowerSupplyConfig& config) { m_powerSupply = config; }
+void HWConfigManager::setPowerSupply(const PowerSupplyConfig& config) { m_powerSupply = config; emit configChanged(); }
 
 ModbusRelayConfig HWConfigManager::modbusRelay() const { return m_modbusRelay; }
-void HWConfigManager::setModbusRelay(const ModbusRelayConfig& config) { m_modbusRelay = config; }
+void HWConfigManager::setModbusRelay(const ModbusRelayConfig& config) { m_modbusRelay = config; emit configChanged(); }
 
 // ---------------------------------------------------------------------------
 // Alias Resolution

@@ -225,21 +225,23 @@ QPair<bool, QString> validateResponse(const ManDiagResponse& response,
                                         const ValidationOptions& options);
 
 //=============================================================================
-// Utility Functions
+// Utility Functions (hexToBytes/bytesToHex delegate to shared HexUtils)
 //=============================================================================
+
+#include "HexUtils.h"
 
 /**
  * @brief Convert hex string to byte array
  * @param hex Hex string (with or without spaces/separators)
  */
-QByteArray hexToBytes(const QString& hex);
+inline QByteArray hexToBytes(const QString& hex) { return HexUtils::hexStringToBytes(hex); }
 
 /**
  * @brief Convert byte array to hex string
  * @param bytes Raw bytes
  * @param separator Separator between bytes (default: space)
  */
-QString bytesToHex(const QByteArray& bytes, const QString& separator = " ");
+inline QString bytesToHex(const QByteArray& bytes, const QString& separator = " ") { return HexUtils::bytesToHexString(bytes, separator); }
 
 /**
  * @brief Convert hex string to ASCII, skipping first n bytes
