@@ -9,8 +9,28 @@
 #include <QJsonArray>
 #include <QMimeData>
 #include <QDebug>
+#include <functional>
 
 namespace TestExecutor {
+
+namespace {
+
+const QString kDefaultGroupName = QStringLiteral("Ungrouped");
+const QString kDefaultFeatureName = QStringLiteral("General");
+
+QString normalizedGroupNameInternal(const QString& value)
+{
+    const QString trimmed = value.trimmed();
+    return trimmed.isEmpty() ? kDefaultGroupName : trimmed;
+}
+
+QString normalizedFeatureNameInternal(const QString& value)
+{
+    const QString trimmed = value.trimmed();
+    return trimmed.isEmpty() ? kDefaultFeatureName : trimmed;
+}
+
+} // namespace
 
 //=============================================================================
 // TreeItem - Internal tree structure
@@ -20,16 +40,12 @@ struct TestTreeModel::TreeItem
 {
     QString id;
     QString name;
-    QString description;
     TreeItemType type = TreeItemType::Root;
     TreeItem* parent = nullptr;
     QVector<TreeItem*> children;
     
-    // For test cases
     TestStatus status = TestStatus::NotRun;
-    QString requirementId;
-    QString jiraTicket;
-    QStringList tags;
+    Qt::CheckState checkState = Qt::Unchecked;
     
     ~TreeItem() {
         qDeleteAll(children);
@@ -101,7 +117,7 @@ int TestTreeModel::rowCount(const QModelIndex& parent) const
 
 int TestTreeModel::columnCount(const QModelIndex& /*parent*/) const
 {
-    return 4; // Name, Description, Requirement, JIRA
+    return 1;
 }
 
 QVariant TestTreeModel::data(const QModelIndex& index, int role) const
@@ -114,11 +130,8 @@ QVariant TestTreeModel::data(const QModelIndex& index, int role) const
     
     switch (role) {
         case Qt::DisplayRole:
-            switch (index.column()) {
-                case 0: return item->name;
-                case 1: return item->description;
-                case 2: return item->requirementId;
-                case 3: return item->jiraTicket;
+            if (index.column() == 0) {
+                return item->name;
             }
             break;
             
@@ -130,25 +143,21 @@ QVariant TestTreeModel::data(const QModelIndex& index, int role) const
             
         case StatusRole:
             return static_cast<int>(item->status);
-            
-        case DescriptionRole:
-            return item->description;
-            
-        case RequirementRole:
-            return item->requirementId;
-            
-        case JiraRole:
-            return item->jiraTicket;
-            
-        case TagsRole:
-            return item->tags;
+
+        case Qt::CheckStateRole:
+            if (index.column() == 0 && item->type != TreeItemType::Root) {
+                return item->checkState;
+            }
+            break;
             
         case Qt::DecorationRole:
             if (index.column() == 0) {
-                if (item->type == TreeItemType::Suite) {
-                    // Return folder icon
+                if (item->type == TreeItemType::Group) {
+                    // Reserved for future custom icon
+                } else if (item->type == TreeItemType::Feature) {
+                    // Reserved for future custom icon
                 } else if (item->type == TreeItemType::TestCase) {
-                    // Return test icon based on status
+                    // Reserved for future custom icon
                 }
             }
             break;
@@ -157,14 +166,58 @@ QVariant TestTreeModel::data(const QModelIndex& index, int role) const
     return QVariant();
 }
 
+bool TestTreeModel::setData(const QModelIndex& index, const QVariant& value, int role)
+{
+    if (!index.isValid() || index.column() != 0 || role != Qt::CheckStateRole) {
+        return false;
+    }
+
+    TreeItem* item = static_cast<TreeItem*>(index.internalPointer());
+    if (!item || item->type == TreeItemType::Root) {
+        return false;
+    }
+
+    Qt::CheckState state = static_cast<Qt::CheckState>(value.toInt());
+    if (state != Qt::Checked && state != Qt::Unchecked) {
+        state = Qt::Unchecked;
+    }
+
+    setCheckStateRecursive(item, state);
+    updateParentsCheckState(item->parent);
+
+    QVector<TreeItem*> changedItems;
+    std::function<void(TreeItem*)> collectSubtree = [&](TreeItem* node) {
+        if (!node || node == m_rootItem.get()) {
+            return;
+        }
+        changedItems.append(node);
+        for (TreeItem* child : node->children) {
+            collectSubtree(child);
+        }
+    };
+    collectSubtree(item);
+
+    TreeItem* parentItem = item->parent;
+    while (parentItem && parentItem != m_rootItem.get()) {
+        changedItems.append(parentItem);
+        parentItem = parentItem->parent;
+    }
+
+    for (TreeItem* changed : changedItems) {
+        const QModelIndex changedIndex = indexForItem(changed, 0);
+        if (changedIndex.isValid()) {
+            emit dataChanged(changedIndex, changedIndex, {Qt::CheckStateRole});
+        }
+    }
+
+    return true;
+}
+
 QVariant TestTreeModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
-        switch (section) {
-            case 0: return "Test Name";
-            case 1: return "Description";
-            case 2: return "Requirement";
-            case 3: return "JIRA";
+        if (section == 0) {
+            return "Test Name";
         }
     }
     return QVariant();
@@ -179,10 +232,13 @@ Qt::ItemFlags TestTreeModel::flags(const QModelIndex& index) const
     Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
     
     TreeItem* item = static_cast<TreeItem*>(index.internalPointer());
+    if (index.column() == 0 && item->type != TreeItemType::Root) {
+        flags |= Qt::ItemIsUserCheckable;
+    }
     if (item->type == TreeItemType::TestCase) {
         flags |= Qt::ItemIsDragEnabled;
     }
-    if (item->type == TreeItemType::Suite || item->type == TreeItemType::Root) {
+    if (item->type == TreeItemType::Group || item->type == TreeItemType::Feature) {
         flags |= Qt::ItemIsDropEnabled;
     }
     
@@ -207,6 +263,9 @@ QMimeData* TestTreeModel::mimeData(const QModelIndexList& indexes) const
     for (const QModelIndex& index : indexes) {
         if (index.isValid() && index.column() == 0) {
             TreeItem* item = static_cast<TreeItem*>(index.internalPointer());
+            if (item->type != TreeItemType::TestCase) {
+                continue;
+            }
             encodedData.append(item->id.toUtf8());
             encodedData.append('\n');
         }
@@ -242,6 +301,15 @@ QString TestTreeModel::itemId(const QModelIndex& index) const
     return item->id;
 }
 
+QString TestTreeModel::itemName(const QModelIndex& index) const
+{
+    if (!index.isValid()) {
+        return QString();
+    }
+    TreeItem* item = static_cast<TreeItem*>(index.internalPointer());
+    return item->name;
+}
+
 TreeItemType TestTreeModel::itemType(const QModelIndex& index) const
 {
     if (!index.isValid()) {
@@ -265,14 +333,15 @@ TestCase* TestTreeModel::testCaseAt(const QModelIndex& index)
 
 TestSuite* TestTreeModel::testSuiteAt(const QModelIndex& index)
 {
-    if (!index.isValid()) {
-        return nullptr;
-    }
-    TreeItem* item = static_cast<TreeItem*>(index.internalPointer());
-    if (item->type != TreeItemType::Suite) {
-        return nullptr;
-    }
-    return TestRepository::instance().testSuite(item->id);
+    Q_UNUSED(index)
+    return nullptr;
+}
+
+QStringList TestTreeModel::checkedTestCaseIds() const
+{
+    QStringList ids;
+    collectCheckedTestCaseIds(m_rootItem.get(), ids);
+    return ids;
 }
 
 void TestTreeModel::refresh()
@@ -290,34 +359,130 @@ void TestTreeModel::buildTree()
     
     auto& repo = TestRepository::instance();
     
-    // Group by component or suite
-    QMap<QString, TreeItem*> componentItems;
-    
-    for (const auto& tc : repo.allTestCases()) {
-        QString component = tc.component.isEmpty() ? "Unsorted" : tc.component;
-        
-        // Create component/suite node if needed
-        if (!componentItems.contains(component)) {
-            TreeItem* suiteItem = new TreeItem();
-            suiteItem->type = TreeItemType::Suite;
-            suiteItem->id = "suite_" + component;
-            suiteItem->name = component;
-            suiteItem->parent = m_rootItem.get();
-            m_rootItem->children.append(suiteItem);
-            componentItems[component] = suiteItem;
+    QMap<QString, TreeItem*> groupItems;
+    QMap<QString, QMap<QString, TreeItem*>> featureItems;
+
+    auto ensureGroupItem = [&](const QString& rawGroupName) -> TreeItem* {
+        const QString groupName = normalizedGroupNameInternal(rawGroupName);
+        if (!groupItems.contains(groupName)) {
+            TreeItem* groupItem = new TreeItem();
+            groupItem->type = TreeItemType::Group;
+            groupItem->id = QString("group_%1").arg(groupName);
+            groupItem->name = groupName;
+            groupItem->parent = m_rootItem.get();
+            m_rootItem->children.append(groupItem);
+            groupItems[groupName] = groupItem;
         }
-        
-        // Create test case node
+        return groupItems[groupName];
+    };
+
+    auto ensureFeatureItem = [&](const QString& rawGroupName, const QString& rawFeatureName) -> TreeItem* {
+        const QString groupName = normalizedGroupNameInternal(rawGroupName);
+        const QString featureName = normalizedFeatureNameInternal(rawFeatureName);
+        TreeItem* groupItem = ensureGroupItem(groupName);
+        if (!featureItems[groupName].contains(featureName)) {
+            TreeItem* featureItem = new TreeItem();
+            featureItem->type = TreeItemType::Feature;
+            featureItem->id = QString("feature_%1_%2").arg(groupName, featureName);
+            featureItem->name = featureName;
+            featureItem->parent = groupItem;
+            groupItem->children.append(featureItem);
+            featureItems[groupName][featureName] = featureItem;
+        }
+        return featureItems[groupName][featureName];
+    };
+
+    QStringList groups = repo.allGroups();
+    groups.sort(Qt::CaseInsensitive);
+    for (const QString& group : groups) {
+        ensureGroupItem(group);
+        QStringList features = repo.allFeatures(group);
+        features.sort(Qt::CaseInsensitive);
+        for (const QString& feature : features) {
+            ensureFeatureItem(group, feature);
+        }
+    }
+
+    for (const auto& tc : repo.allTestCases()) {
+        const QString groupName = normalizedGroupNameInternal(tc.component);
+        const QString featureName = normalizedFeatureNameInternal(tc.feature);
+        TreeItem* featureItem = ensureFeatureItem(groupName, featureName);
+
         TreeItem* tcItem = new TreeItem();
         tcItem->type = TreeItemType::TestCase;
         tcItem->id = tc.id;
         tcItem->name = tc.name;
-        tcItem->description = tc.description;
-        tcItem->requirementId = tc.requirementId;
-        tcItem->jiraTicket = tc.jiraTicket;
-        tcItem->tags = tc.tags;
-        tcItem->parent = componentItems[component];
-        componentItems[component]->children.append(tcItem);
+        tcItem->status = tc.enabled ? TestStatus::NotRun : TestStatus::Skipped;
+        tcItem->parent = featureItem;
+        featureItem->children.append(tcItem);
+    }
+}
+
+QModelIndex TestTreeModel::indexForItem(const TreeItem* item, int column) const
+{
+    if (!item || item == m_rootItem.get() || !item->parent) {
+        return QModelIndex();
+    }
+    return createIndex(item->row(), column, const_cast<TreeItem*>(item));
+}
+
+void TestTreeModel::setCheckStateRecursive(TreeItem* item, Qt::CheckState state)
+{
+    if (!item) {
+        return;
+    }
+    if (item->type != TreeItemType::Root) {
+        item->checkState = state;
+    }
+    for (TreeItem* child : item->children) {
+        setCheckStateRecursive(child, state);
+    }
+}
+
+Qt::CheckState TestTreeModel::combinedCheckState(const TreeItem* item) const
+{
+    if (!item || item->children.isEmpty()) {
+        return item ? item->checkState : Qt::Unchecked;
+    }
+
+    bool hasChecked = false;
+    bool hasUnchecked = false;
+    for (const TreeItem* child : item->children) {
+        const Qt::CheckState state = child->checkState;
+        if (state == Qt::PartiallyChecked) {
+            return Qt::PartiallyChecked;
+        }
+        if (state == Qt::Checked) {
+            hasChecked = true;
+        } else {
+            hasUnchecked = true;
+        }
+        if (hasChecked && hasUnchecked) {
+            return Qt::PartiallyChecked;
+        }
+    }
+
+    return hasChecked ? Qt::Checked : Qt::Unchecked;
+}
+
+void TestTreeModel::updateParentsCheckState(TreeItem* item)
+{
+    while (item && item != m_rootItem.get()) {
+        item->checkState = combinedCheckState(item);
+        item = item->parent;
+    }
+}
+
+void TestTreeModel::collectCheckedTestCaseIds(const TreeItem* item, QStringList& ids) const
+{
+    if (!item) {
+        return;
+    }
+    if (item->type == TreeItemType::TestCase && item->checkState == Qt::Checked) {
+        ids.append(item->id);
+    }
+    for (const TreeItem* child : item->children) {
+        collectCheckedTestCaseIds(child, ids);
     }
 }
 
@@ -359,19 +524,40 @@ bool TestRepository::loadFromFile(const QString& filePath)
     
     // Clear existing data
     clear();
+
+    // Load persisted explorer grouping (optional)
+    const QJsonArray groupsArray = root["explorerGroups"].toArray();
+    for (const auto& groupValue : groupsArray) {
+        const QJsonObject groupObject = groupValue.toObject();
+        const QString groupName = normalizedGroupName(groupObject["name"].toString());
+        m_groups.insert(groupName);
+
+        const QJsonArray featuresArray = groupObject["features"].toArray();
+        for (const auto& featureValue : featuresArray) {
+            const QString featureName = normalizedFeatureName(featureValue.toString());
+            m_featuresByGroup[groupName].insert(featureName);
+        }
+    }
     
     // Load suites
-    QJsonArray suitesArray = root["suites"].toArray();
+    const QJsonArray suitesArray = root["suites"].toArray();
     for (const auto& suiteValue : suitesArray) {
         TestSuite suite = TestSuite::fromJson(suiteValue.toObject());
         m_testSuites[suite.id] = suite;
+
+        const QString groupName = normalizedGroupName(suite.component);
+        m_groups.insert(groupName);
+        m_featuresByGroup[groupName].insert(normalizedFeatureName(suite.name));
     }
     
     // Load test cases
-    QJsonArray testCasesArray = root["testCases"].toArray();
+    const QJsonArray testCasesArray = root["testCases"].toArray();
     for (const auto& tcValue : testCasesArray) {
         TestCase tc = TestCase::fromJson(tcValue.toObject());
+        tc.component = normalizedGroupName(tc.component);
+        tc.feature = normalizedFeatureName(tc.feature);
         m_testCases[tc.id] = tc;
+        updateGroupingMetadata(tc);
     }
     
     m_currentFilePath = filePath;
@@ -400,6 +586,25 @@ bool TestRepository::saveToFile(const QString& filePath)
         testCasesArray.append(tc.toJson());
     }
     root["testCases"] = testCasesArray;
+
+    // Save explorer grouping config
+    QJsonArray groupsArray;
+    QStringList groups = allGroups();
+    groups.sort(Qt::CaseInsensitive);
+    for (const QString& groupName : groups) {
+        QJsonObject groupObject;
+        groupObject["name"] = groupName;
+
+        QJsonArray featuresArray;
+        QStringList features = allFeatures(groupName);
+        features.sort(Qt::CaseInsensitive);
+        for (const QString& featureName : features) {
+            featuresArray.append(featureName);
+        }
+        groupObject["features"] = featuresArray;
+        groupsArray.append(groupObject);
+    }
+    root["explorerGroups"] = groupsArray;
 
     // Metadata
     QJsonObject meta;
@@ -438,11 +643,26 @@ int TestRepository::importFromFile(const QString& filePath, bool overwriteExisti
     file.close();
     
     QJsonObject root = doc.object();
-    QJsonArray testCasesArray = root["testCases"].toArray();
+
+    const QJsonArray groupsArray = root["explorerGroups"].toArray();
+    for (const auto& groupValue : groupsArray) {
+        const QJsonObject groupObject = groupValue.toObject();
+        const QString groupName = normalizedGroupName(groupObject["name"].toString());
+        m_groups.insert(groupName);
+
+        const QJsonArray featuresArray = groupObject["features"].toArray();
+        for (const auto& featureValue : featuresArray) {
+            m_featuresByGroup[groupName].insert(normalizedFeatureName(featureValue.toString()));
+        }
+    }
+
+    const QJsonArray testCasesArray = root["testCases"].toArray();
     
     int imported = 0;
     for (const auto& tcValue : testCasesArray) {
         TestCase tc = TestCase::fromJson(tcValue.toObject());
+        tc.component = normalizedGroupName(tc.component);
+        tc.feature = normalizedFeatureName(tc.feature);
         
         if (!m_testCases.contains(tc.id)) {
             addTestCase(tc);
@@ -509,15 +729,20 @@ bool TestRepository::addTestCase(const TestCase& testCase)
     if (m_testCases.contains(testCase.id)) {
         return false;
     }
-    
-    m_testCases[testCase.id] = testCase;
-    m_testCases[testCase.id].createdDate = QDateTime::currentDateTime();
-    m_testCases[testCase.id].modifiedDate = QDateTime::currentDateTime();
+
+    TestCase normalized = testCase;
+    normalized.component = normalizedGroupName(normalized.component);
+    normalized.feature = normalizedFeatureName(normalized.feature);
+
+    m_testCases[normalized.id] = normalized;
+    m_testCases[normalized.id].createdDate = QDateTime::currentDateTime();
+    m_testCases[normalized.id].modifiedDate = QDateTime::currentDateTime();
+    updateGroupingMetadata(normalized);
     
     setDirty(true);
     m_treeModel->refresh();
     
-    emit testCaseAdded(testCase.id);
+    emit testCaseAdded(normalized.id);
     return true;
 }
 
@@ -527,13 +752,18 @@ bool TestRepository::updateTestCase(const TestCase& testCase)
         return false;
     }
     
-    m_testCases[testCase.id] = testCase;
-    m_testCases[testCase.id].modifiedDate = QDateTime::currentDateTime();
+    TestCase normalized = testCase;
+    normalized.component = normalizedGroupName(normalized.component);
+    normalized.feature = normalizedFeatureName(normalized.feature);
+
+    m_testCases[normalized.id] = normalized;
+    m_testCases[normalized.id].modifiedDate = QDateTime::currentDateTime();
+    updateGroupingMetadata(normalized);
     
     setDirty(true);
     m_treeModel->refresh();
     
-    emit testCaseUpdated(testCase.id);
+    emit testCaseUpdated(normalized.id);
     return true;
 }
 
@@ -566,6 +796,8 @@ bool TestRepository::addTestSuite(const TestSuite& suite)
         return false;
     }
     m_testSuites[suite.id] = suite;
+    m_groups.insert(normalizedGroupName(suite.component));
+    m_featuresByGroup[normalizedGroupName(suite.component)].insert(normalizedFeatureName(suite.name));
     setDirty(true);
     m_treeModel->refresh();
     return true;
@@ -577,6 +809,8 @@ bool TestRepository::updateTestSuite(const TestSuite& suite)
         return false;
     }
     m_testSuites[suite.id] = suite;
+    m_groups.insert(normalizedGroupName(suite.component));
+    m_featuresByGroup[normalizedGroupName(suite.component)].insert(normalizedFeatureName(suite.name));
     setDirty(true);
     m_treeModel->refresh();
     return true;
@@ -670,7 +904,56 @@ QStringList TestRepository::allComponents() const
             components.insert(tc.component);
         }
     }
+    components.unite(m_groups);
     return components.values();
+}
+
+QStringList TestRepository::allGroups() const
+{
+    QSet<QString> groups = m_groups;
+    for (const auto& tc : m_testCases) {
+        groups.insert(normalizedGroupName(tc.component));
+    }
+    return groups.values();
+}
+
+QStringList TestRepository::allFeatures(const QString& group) const
+{
+    const QString normalizedGroup = normalizedGroupName(group);
+    QSet<QString> features = m_featuresByGroup.value(normalizedGroup);
+    for (const auto& tc : m_testCases) {
+        if (normalizedGroupName(tc.component).compare(normalizedGroup, Qt::CaseInsensitive) == 0) {
+            features.insert(normalizedFeatureName(tc.feature));
+        }
+    }
+    return features.values();
+}
+
+bool TestRepository::addGroup(const QString& groupName)
+{
+    const QString normalizedGroup = normalizedGroupName(groupName);
+    if (m_groups.contains(normalizedGroup)) {
+        return false;
+    }
+    m_groups.insert(normalizedGroup);
+    setDirty(true);
+    m_treeModel->refresh();
+    return true;
+}
+
+bool TestRepository::addFeature(const QString& groupName, const QString& featureName)
+{
+    const QString normalizedGroup = normalizedGroupName(groupName);
+    const QString normalizedFeature = normalizedFeatureName(featureName);
+
+    m_groups.insert(normalizedGroup);
+    if (m_featuresByGroup[normalizedGroup].contains(normalizedFeature)) {
+        return false;
+    }
+    m_featuresByGroup[normalizedGroup].insert(normalizedFeature);
+    setDirty(true);
+    m_treeModel->refresh();
+    return true;
 }
 
 TestCase TestRepository::createNewTestCase()
@@ -683,6 +966,8 @@ TestCase TestRepository::createNewTestCase()
     tc.jiraTicket = "PROJ-XXX";
     tc.priority = 5;
     tc.enabled = true;
+    tc.component = kDefaultGroupName;
+    tc.feature = kDefaultFeatureName;
     tc.timeoutMs = 60000;
     tc.createdDate = QDateTime::currentDateTime();
     tc.modifiedDate = QDateTime::currentDateTime();
@@ -693,9 +978,29 @@ void TestRepository::clear()
 {
     m_testCases.clear();
     m_testSuites.clear();
+    m_groups.clear();
+    m_featuresByGroup.clear();
     m_currentFilePath.clear();
     setDirty(false);
     m_treeModel->refresh();
+}
+
+QString TestRepository::normalizedGroupName(const QString& value)
+{
+    return normalizedGroupNameInternal(value);
+}
+
+QString TestRepository::normalizedFeatureName(const QString& value)
+{
+    return normalizedFeatureNameInternal(value);
+}
+
+void TestRepository::updateGroupingMetadata(const TestCase& testCase)
+{
+    const QString groupName = normalizedGroupName(testCase.component);
+    const QString featureName = normalizedFeatureName(testCase.feature);
+    m_groups.insert(groupName);
+    m_featuresByGroup[groupName].insert(featureName);
 }
 
 void TestRepository::setDirty(bool dirty)

@@ -150,7 +150,8 @@ struct TestCase
     QString author;                 ///< Test author
     QDateTime createdDate;          ///< Creation date
     QDateTime modifiedDate;         ///< Last modification date
-    QString component;              ///< Component/module being tested
+    QString component;              ///< Group/component being tested
+    QString feature;                ///< Feature within the group/component
     
     // === Test Steps ===
     QVector<TestStep> steps;        ///< Ordered list of test steps

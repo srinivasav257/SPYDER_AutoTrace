@@ -19,6 +19,7 @@
 #include <QPushButton>
 #include <QMenu>
 #include <QSortFilterProxyModel>
+#include <QSet>
 
 namespace TestExecutor {
 
@@ -79,6 +80,8 @@ signals:
 private slots:
     void onImportClicked();
     void onExportClicked();
+    void onAddGroupClicked();
+    void onAddFeatureClicked();
     void onAddTestClicked();
     void onRemoveTestClicked();
     void onSearchTextChanged(const QString& text);
@@ -90,12 +93,16 @@ private:
     void setupUi();
     void setupConnections();
     void createContextMenu();
+    void resolveSelectionContext(QString& groupName, QString& featureName) const;
+    void collectTestCaseIdsFromSourceIndex(const QModelIndex& sourceIndex, QStringList& ids, QSet<QString>& seen) const;
 
     QTreeView* m_treeView = nullptr;
     QLineEdit* m_searchBox = nullptr;
     QPushButton* m_btnImport = nullptr;
     QPushButton* m_btnExport = nullptr;
-    QPushButton* m_btnAdd = nullptr;
+    QPushButton* m_btnAddGroup = nullptr;
+    QPushButton* m_btnAddFeature = nullptr;
+    QPushButton* m_btnAddTest = nullptr;
     QPushButton* m_btnRemove = nullptr;
     QPushButton* m_btnExpand = nullptr;
     QPushButton* m_btnCollapse = nullptr;

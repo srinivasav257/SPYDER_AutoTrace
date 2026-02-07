@@ -15,6 +15,8 @@
 #include <QObject>
 #include <QAbstractItemModel>
 #include <QMap>
+#include <QSet>
+#include <QScopedPointer>
 
 namespace TestExecutor {
 
@@ -23,7 +25,8 @@ namespace TestExecutor {
  */
 enum class TreeItemType {
     Root,
-    Suite,
+    Group,
+    Feature,
     TestCase,
     Step
 };
@@ -49,11 +52,7 @@ public:
     enum Roles {
         IdRole = Qt::UserRole + 1,
         TypeRole,
-        StatusRole,
-        DescriptionRole,
-        RequirementRole,
-        JiraRole,
-        TagsRole
+        StatusRole
     };
 
     explicit TestTreeModel(QObject* parent = nullptr);
@@ -65,6 +64,7 @@ public:
     int rowCount(const QModelIndex& parent = QModelIndex()) const override;
     int columnCount(const QModelIndex& parent = QModelIndex()) const override;
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
+    bool setData(const QModelIndex& index, const QVariant& value, int role) override;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
     Qt::ItemFlags flags(const QModelIndex& index) const override;
     
@@ -76,9 +76,11 @@ public:
 
     // Data access
     QString itemId(const QModelIndex& index) const;
+    QString itemName(const QModelIndex& index) const;
     TreeItemType itemType(const QModelIndex& index) const;
     TestCase* testCaseAt(const QModelIndex& index);
     TestSuite* testSuiteAt(const QModelIndex& index);
+    QStringList checkedTestCaseIds() const;
     
     // Rebuild model from repository
     void refresh();
@@ -87,6 +89,11 @@ private:
     struct TreeItem;
     QScopedPointer<TreeItem> m_rootItem;
     void buildTree();
+    QModelIndex indexForItem(const TreeItem* item, int column = 0) const;
+    void setCheckStateRecursive(TreeItem* item, Qt::CheckState state);
+    Qt::CheckState combinedCheckState(const TreeItem* item) const;
+    void updateParentsCheckState(TreeItem* item);
+    void collectCheckedTestCaseIds(const TreeItem* item, QStringList& ids) const;
 };
 
 //=============================================================================
@@ -232,6 +239,26 @@ public:
      */
     QStringList allComponents() const;
 
+    /**
+     * @brief Get all configured group names used by the explorer
+     */
+    QStringList allGroups() const;
+
+    /**
+     * @brief Get features for a given group name
+     */
+    QStringList allFeatures(const QString& group) const;
+
+    /**
+     * @brief Add a top-level group for test explorer
+     */
+    bool addGroup(const QString& groupName);
+
+    /**
+     * @brief Add a feature under a group for test explorer
+     */
+    bool addFeature(const QString& groupName, const QString& featureName);
+
     // === Tree Model ===
     
     /**
@@ -289,9 +316,14 @@ private:
     TestRepository& operator=(const TestRepository&) = delete;
 
     void setDirty(bool dirty);
+    void updateGroupingMetadata(const TestCase& testCase);
+    static QString normalizedGroupName(const QString& value);
+    static QString normalizedFeatureName(const QString& value);
 
     QMap<QString, TestCase> m_testCases;
     QMap<QString, TestSuite> m_testSuites;
+    QSet<QString> m_groups;
+    QMap<QString, QSet<QString>> m_featuresByGroup;
     QString m_currentFilePath;
     bool m_dirty = false;
     TestTreeModel* m_treeModel = nullptr;

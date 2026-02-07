@@ -578,6 +578,7 @@ void TestEditorDialog::loadTestCase(const QString& testCaseId)
     m_jiraTicketEdit->setText(tc->jiraTicket);
     m_jiraLinkEdit->setText(tc->jiraLink);
     m_componentEdit->setText(tc->component);
+    m_featureEdit->setText(tc->feature);
     m_tagsEdit->setText(tc->tags.join(", "));
     m_prioritySpin->setValue(tc->priority);
     m_timeoutSpin->setValue(tc->timeoutMs);
@@ -603,6 +604,7 @@ bool TestEditorDialog::save()
     m_editingTestCase.jiraTicket = m_jiraTicketEdit->text();
     m_editingTestCase.jiraLink = m_jiraLinkEdit->text();
     m_editingTestCase.component = m_componentEdit->text();
+    m_editingTestCase.feature = m_featureEdit->text();
     m_editingTestCase.tags = m_tagsEdit->text().split(",", Qt::SkipEmptyParts);
     for (QString& tag : m_editingTestCase.tags) {
         tag = tag.trimmed();
@@ -641,6 +643,7 @@ void TestEditorDialog::clear()
     m_jiraTicketEdit->clear();
     m_jiraLinkEdit->clear();
     m_componentEdit->clear();
+    m_featureEdit->clear();
     m_tagsEdit->clear();
     m_prioritySpin->setValue(5);
     m_timeoutSpin->setValue(60000);
@@ -700,7 +703,10 @@ void TestEditorDialog::setupUi()
     metaLayout->addRow("JIRA Link:", m_jiraLinkEdit);
 
     m_componentEdit = new QLineEdit(infoTab);
-    metaLayout->addRow("Component:", m_componentEdit);
+    metaLayout->addRow("Group:", m_componentEdit);
+
+    m_featureEdit = new QLineEdit(infoTab);
+    metaLayout->addRow("Feature:", m_featureEdit);
 
     m_tagsEdit = new QLineEdit(infoTab);
     m_tagsEdit->setPlaceholderText("EOL, ManDiag, Smoke");
@@ -826,6 +832,7 @@ void TestEditorDialog::setupConnections()
     connect(m_jiraTicketEdit, &QLineEdit::textChanged, this, &TestEditorDialog::onMetadataChanged);
     connect(m_jiraLinkEdit, &QLineEdit::textChanged, this, &TestEditorDialog::onMetadataChanged);
     connect(m_componentEdit, &QLineEdit::textChanged, this, &TestEditorDialog::onMetadataChanged);
+    connect(m_featureEdit, &QLineEdit::textChanged, this, &TestEditorDialog::onMetadataChanged);
     connect(m_tagsEdit, &QLineEdit::textChanged, this, &TestEditorDialog::onMetadataChanged);
     connect(m_prioritySpin, QOverload<int>::of(&QSpinBox::valueChanged), this, &TestEditorDialog::onMetadataChanged);
     connect(m_timeoutSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, &TestEditorDialog::onMetadataChanged);

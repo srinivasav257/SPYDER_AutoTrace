@@ -222,6 +222,7 @@ private:
     QLineEdit* m_jiraTicketEdit = nullptr;
     QLineEdit* m_jiraLinkEdit = nullptr;
     QLineEdit* m_componentEdit = nullptr;
+    QLineEdit* m_featureEdit = nullptr;
     QLineEdit* m_tagsEdit = nullptr;
     QSpinBox* m_prioritySpin = nullptr;
     QSpinBox* m_timeoutSpin = nullptr;

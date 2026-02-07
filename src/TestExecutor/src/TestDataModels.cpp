@@ -119,6 +119,7 @@ QJsonObject TestCase::toJson() const
     obj["createdDate"] = createdDate.toString(Qt::ISODate);
     obj["modifiedDate"] = modifiedDate.toString(Qt::ISODate);
     obj["component"] = component;
+    obj["feature"] = feature;
     obj["timeoutMs"] = timeoutMs;
     obj["enabled"] = enabled;
     
@@ -160,6 +161,7 @@ TestCase TestCase::fromJson(const QJsonObject& json)
     tc.createdDate = QDateTime::fromString(json["createdDate"].toString(), Qt::ISODate);
     tc.modifiedDate = QDateTime::fromString(json["modifiedDate"].toString(), Qt::ISODate);
     tc.component = json["component"].toString();
+    tc.feature = json["feature"].toString();
     tc.timeoutMs = json["timeoutMs"].toInt(60000);
     tc.enabled = json["enabled"].toBool(true);
     

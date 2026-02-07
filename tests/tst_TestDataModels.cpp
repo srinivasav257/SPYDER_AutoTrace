@@ -88,6 +88,7 @@ TEST(TestDataModels, TestCase_JsonRoundTrip)
     tc.createdDate = QDateTime::fromString("2025-01-15T10:30:00", Qt::ISODate);
     tc.modifiedDate = QDateTime::fromString("2025-06-20T14:00:00", Qt::ISODate);
     tc.component = "Infotainment";
+    tc.feature = "Boot";
     tc.timeoutMs = 30000;
     tc.enabled = false;
     tc.config = {{"retry_count", 3}};
@@ -129,6 +130,7 @@ TEST(TestDataModels, TestCase_JsonRoundTrip)
     EXPECT_EQ(restored.createdDate, tc.createdDate);
     EXPECT_EQ(restored.modifiedDate, tc.modifiedDate);
     EXPECT_EQ(restored.component, tc.component);
+    EXPECT_EQ(restored.feature, tc.feature);
     EXPECT_EQ(restored.timeoutMs, tc.timeoutMs);
     EXPECT_EQ(restored.enabled, tc.enabled);
     EXPECT_EQ(restored.steps.size(), 2);
