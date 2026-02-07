@@ -296,8 +296,23 @@ private:
     
     /**
      * @brief Apply configuration to a serial port object
+     * @param port Port to configure
+     * @param config Configuration to apply
+     * @param errorOut If non-null, receives error description on failure
+     * @return true if all settings applied successfully
      */
-    bool applyConfig(QSerialPort* port, const SerialPortConfig& config);
+    bool applyConfig(QSerialPort* port, const SerialPortConfig& config, QString* errorOut = nullptr);
+    
+    /**
+     * @brief Normalize port name for consistent map lookups.
+     * On Windows, converts "com3" -> "COM3", etc.
+     */
+    static QString normalizePortName(const QString& portName);
+    
+    /**
+     * @brief Check if a port name exists among system-enumerated serial ports.
+     */
+    static bool isPortAvailableOnSystem(const QString& portName);
 
     mutable QMutex m_mutex;
     std::map<QString, std::unique_ptr<QSerialPort>> m_openPorts;

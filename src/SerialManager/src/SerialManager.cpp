@@ -7,6 +7,7 @@
 #include <QDebug>
 #include <QElapsedTimer>
 #include <QCoreApplication>
+#include <QThread>
 
 namespace SerialManager {
 
@@ -111,73 +112,136 @@ bool SerialPortManager::hasPortConfig(const QString& portName) const
 
 SerialResult SerialPortManager::openPort(const QString& portName)
 {
+    // Normalize port name (e.g., "com3" -> "COM3" on Windows)
+    const QString normalizedName = normalizePortName(portName);
+    
     QMutexLocker locker(&m_mutex);
     
-    // Check if already open
-    if (m_openPorts.contains(portName) && m_openPorts[portName]->isOpen()) {
-        qDebug() << "Port already open:" << portName;
-        return SerialResult::Success();
+    // Check if already open (with null-safety)
+    if (m_openPorts.contains(normalizedName)) {
+        auto& existing = m_openPorts[normalizedName];
+        if (existing && existing->isOpen()) {
+            qDebug() << "Port already open:" << normalizedName;
+            return SerialResult::Success();
+        }
+        // Remove stale entry
+        m_openPorts.erase(normalizedName);
     }
     
-    // Get configuration
+    // Check if port actually exists on the system
+    if (!isPortAvailableOnSystem(normalizedName)) {
+        QStringList available = availablePorts();
+        QString error = QString("Port '%1' not found on system. Available ports: %2")
+                            .arg(normalizedName)
+                            .arg(available.isEmpty() ? "(none)" : available.join(", "));
+        m_lastErrors[normalizedName] = error;
+        qWarning() << error;
+        emit errorOccurred(normalizedName, error);
+        return SerialResult::Failure(error);
+    }
+    
+    // Get configuration (also check under original name for backward compat)
     SerialPortConfig config;
-    if (m_portConfigs.contains(portName)) {
+    if (m_portConfigs.contains(normalizedName)) {
+        config = m_portConfigs[normalizedName];
+    } else if (m_portConfigs.contains(portName)) {
         config = m_portConfigs[portName];
+        // Migrate to normalized name
+        m_portConfigs[normalizedName] = config;
     } else {
-        config.portName = portName;
-        m_portConfigs[portName] = config;
+        config.portName = normalizedName;
+        m_portConfigs[normalizedName] = config;
     }
     
     // Create and configure port
     auto port = std::make_unique<QSerialPort>();
-    port->setPortName(portName);
+    port->setPortName(normalizedName);
     
-    if (!applyConfig(port.get(), config)) {
-        QString error = "Failed to configure port: " + portName;
-        m_lastErrors[portName] = error;
-        return SerialResult::Failure(error);
+    // Open the port first, then apply config (more reliable on some drivers)
+    static constexpr int MAX_RETRIES = 3;
+    static constexpr int RETRY_DELAY_MS = 100;
+    bool opened = false;
+    QString lastOpenError;
+    
+    for (int attempt = 0; attempt < MAX_RETRIES; ++attempt) {
+        if (attempt > 0) {
+            qDebug() << "Retry" << attempt << "opening port" << normalizedName;
+            locker.unlock();
+            QThread::msleep(RETRY_DELAY_MS);
+            locker.relock();
+        }
+        
+        if (port->open(QIODevice::ReadWrite)) {
+            opened = true;
+            break;
+        }
+        lastOpenError = port->errorString();
+        port->close(); // Reset state before retry
     }
     
-    // Open the port
-    if (!port->open(QIODevice::ReadWrite)) {
-        QString error = QString("Failed to open port %1: %2")
-                            .arg(portName)
-                            .arg(port->errorString());
-        m_lastErrors[portName] = error;
+    if (!opened) {
+        QString error = QString("Failed to open port %1 after %2 attempts: %3")
+                            .arg(normalizedName)
+                            .arg(MAX_RETRIES)
+                            .arg(lastOpenError);
+        m_lastErrors[normalizedName] = error;
         qWarning() << error;
-        emit errorOccurred(portName, error);
+        emit errorOccurred(normalizedName, error);
         return SerialResult::Failure(error);
     }
     
-    qDebug() << "Port opened:" << portName << "Baud:" << config.baudRate;
-    m_openPorts[portName] = std::move(port);
+    // Apply configuration after opening (return values checked)
+    QString configError;
+    if (!applyConfig(port.get(), config, &configError)) {
+        port->close();
+        QString error = QString("Port %1 opened but configuration failed: %2")
+                            .arg(normalizedName)
+                            .arg(configError);
+        m_lastErrors[normalizedName] = error;
+        qWarning() << error;
+        emit errorOccurred(normalizedName, error);
+        return SerialResult::Failure(error);
+    }
+    
+    // Set DTR and RTS signals (required by some devices)
+    port->setDataTerminalReady(true);
+    port->setRequestToSend(true);
+    
+    qDebug() << "Port opened:" << normalizedName << "Baud:" << config.baudRate;
+    m_openPorts[normalizedName] = std::move(port);
     
     locker.unlock();
-    emit portOpened(portName);
+    emit portOpened(normalizedName);
     
     return SerialResult::Success();
 }
 
 SerialResult SerialPortManager::openPort(const SerialPortConfig& config)
 {
-    setPortConfig(config.portName, config);
-    return openPort(config.portName);
+    const QString normalizedName = normalizePortName(config.portName);
+    SerialPortConfig normalizedConfig = config;
+    normalizedConfig.portName = normalizedName;
+    setPortConfig(normalizedName, normalizedConfig);
+    return openPort(normalizedName);
 }
 
 void SerialPortManager::closePort(const QString& portName)
 {
+    const QString normalizedName = normalizePortName(portName);
     QMutexLocker locker(&m_mutex);
     
-    if (m_openPorts.contains(portName)) {
-        auto& port = m_openPorts[portName];
+    if (m_openPorts.contains(normalizedName)) {
+        auto& port = m_openPorts[normalizedName];
         if (port && port->isOpen()) {
+            port->setDataTerminalReady(false);
+            port->setRequestToSend(false);
             port->close();
-            qDebug() << "Port closed:" << portName;
+            qDebug() << "Port closed:" << normalizedName;
         }
-        m_openPorts.erase(portName);
+        m_openPorts.erase(normalizedName);
         
         locker.unlock();
-        emit portClosed(portName);
+        emit portClosed(normalizedName);
     }
 }
 
@@ -204,8 +268,9 @@ void SerialPortManager::closeAllPorts()
 
 bool SerialPortManager::isPortOpen(const QString& portName) const
 {
+    const QString normalizedName = normalizePortName(portName);
     QMutexLocker locker(&m_mutex);
-    auto it = m_openPorts.find(portName);
+    auto it = m_openPorts.find(normalizedName);
     return it != m_openPorts.end() && it->second && it->second->isOpen();
 }
 
@@ -441,18 +506,45 @@ SerialResult SerialPortManager::sendAndMatchResponse(const QString& portName,
 
 bool SerialPortManager::clearBuffers(const QString& portName)
 {
+    const QString normalizedName = normalizePortName(portName);
     QMutexLocker locker(&m_mutex);
     
-    if (m_openPorts.contains(portName) && m_openPorts[portName]) {
-        return m_openPorts[portName]->clear();
+    if (m_openPorts.contains(normalizedName) && m_openPorts[normalizedName]) {
+        return m_openPorts[normalizedName]->clear();
     }
     return false;
 }
 
 QString SerialPortManager::lastError(const QString& portName) const
 {
+    const QString normalizedName = normalizePortName(portName);
     QMutexLocker locker(&m_mutex);
-    return m_lastErrors.value(portName);
+    return m_lastErrors.value(normalizedName);
+}
+
+QString SerialPortManager::normalizePortName(const QString& portName)
+{
+#ifdef Q_OS_WIN
+    // Windows: normalize COM port names to uppercase ("com3" -> "COM3")
+    QString name = portName.trimmed();
+    if (name.toLower().startsWith("com")) {
+        return name.toUpper();
+    }
+    return name;
+#else
+    return portName.trimmed();
+#endif
+}
+
+bool SerialPortManager::isPortAvailableOnSystem(const QString& portName)
+{
+    const auto ports = QSerialPortInfo::availablePorts();
+    for (const QSerialPortInfo& info : ports) {
+        if (info.portName().compare(portName, Qt::CaseInsensitive) == 0) {
+            return true;
+        }
+    }
+    return false;
 }
 
 //=============================================================================
@@ -461,38 +553,60 @@ QString SerialPortManager::lastError(const QString& portName) const
 
 QSerialPort* SerialPortManager::getPort(const QString& portName, bool autoOpen)
 {
+    const QString normalizedName = normalizePortName(portName);
     QMutexLocker locker(&m_mutex);
     
-    // Check if port exists and is open
-    if (m_openPorts.contains(portName) && m_openPorts[portName]) {
-        if (m_openPorts[portName]->isOpen()) {
-            return m_openPorts[portName].get();
-        }
+    // Check if port exists and is open (null-safe)
+    auto it = m_openPorts.find(normalizedName);
+    if (it != m_openPorts.end() && it->second && it->second->isOpen()) {
+        return it->second.get();
     }
     
     // Auto-open if requested
     if (autoOpen) {
         locker.unlock();
-        SerialResult result = openPort(portName);
+        SerialResult result = openPort(normalizedName);
         locker.relock();
         
-        if (result.success && m_openPorts.contains(portName)) {
-            return m_openPorts[portName].get();
+        auto it2 = m_openPorts.find(normalizedName);
+        if (result.success && it2 != m_openPorts.end() && it2->second) {
+            return it2->second.get();
         }
     }
     
     return nullptr;
 }
 
-bool SerialPortManager::applyConfig(QSerialPort* port, const SerialPortConfig& config)
+bool SerialPortManager::applyConfig(QSerialPort* port, const SerialPortConfig& config, QString* errorOut)
 {
-    if (!port) return false;
+    if (!port) {
+        if (errorOut) *errorOut = "Null port pointer";
+        return false;
+    }
     
-    port->setBaudRate(config.baudRate);
-    port->setDataBits(config.dataBits);
-    port->setStopBits(config.stopBits);
-    port->setParity(config.parity);
-    port->setFlowControl(config.flowControl);
+    QStringList errors;
+    
+    if (!port->setBaudRate(config.baudRate))
+        errors << QString("setBaudRate(%1) failed: %2").arg(config.baudRate).arg(port->errorString());
+    
+    if (!port->setDataBits(config.dataBits))
+        errors << QString("setDataBits failed: %1").arg(port->errorString());
+    
+    if (!port->setStopBits(config.stopBits))
+        errors << QString("setStopBits failed: %1").arg(port->errorString());
+    
+    if (!port->setParity(config.parity))
+        errors << QString("setParity failed: %1").arg(port->errorString());
+    
+    if (!port->setFlowControl(config.flowControl))
+        errors << QString("setFlowControl failed: %1").arg(port->errorString());
+    
+    if (!errors.isEmpty()) {
+        QString combined = errors.join("; ");
+        qWarning() << "Config errors on" << config.portName << ":" << combined;
+        if (errorOut) *errorOut = combined;
+        return false;
+    }
     
     return true;
 }
