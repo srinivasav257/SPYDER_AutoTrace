@@ -194,10 +194,9 @@ void CommandRegistry::registerSerialCommands()
             }
         },
         .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
-            // TODO: Implement actual serial communication
             QString sessionType = params.value("session_type", "manufacturing").toString();
-            qDebug() << "Entering" << sessionType << "diagnostic session";
-            return CommandResult::Success("Entered " + sessionType + " session");
+            qDebug() << "[NOT IMPLEMENTED] Enter" << sessionType << "diagnostic session";
+            return CommandResult::Failure("Not implemented: serial_enter_md_session (" + sessionType + ")");
         }
     });
     
@@ -209,8 +208,8 @@ void CommandRegistry::registerSerialCommands()
         .category = CommandCategory::Serial,
         .parameters = {},
         .handler = [](const QVariantMap& /*params*/, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
-            qDebug() << "Exiting diagnostic session";
-            return CommandResult::Success("Exited diagnostic session");
+            qDebug() << "[NOT IMPLEMENTED] Exit diagnostic session";
+            return CommandResult::Failure("Not implemented: serial_exit_md_session");
         }
     });
     
@@ -252,9 +251,8 @@ void CommandRegistry::registerSerialCommands()
         .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             QString hexCmd = params.value("hex_command").toString();
             QByteArray cmdBytes = hexStringToBytes(hexCmd);
-            qDebug() << "Sending ManDiag:" << bytesToHexString(cmdBytes);
-            // TODO: Implement actual serial communication
-            return CommandResult::Success("Command sent: " + hexCmd);
+            qDebug() << "[NOT IMPLEMENTED] Sending ManDiag:" << bytesToHexString(cmdBytes);
+            return CommandResult::Failure("Not implemented: serial_send_mandiag (" + hexCmd + ")");
         }
     });
     
@@ -297,12 +295,8 @@ void CommandRegistry::registerSerialCommands()
         },
         .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             QString did = params.value("did_id").toString();
-            qDebug() << "Reading DID:" << did;
-            // TODO: Implement actual DID read
-            QVariantMap response;
-            response["did"] = did;
-            response["data"] = "Sample DID Data";
-            return CommandResult::Success("Read DID " + did, response);
+            qDebug() << "[NOT IMPLEMENTED] Reading DID:" << did;
+            return CommandResult::Failure("Not implemented: serial_read_did (" + did + ")");
         }
     });
     
@@ -342,9 +336,8 @@ void CommandRegistry::registerSerialCommands()
         .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             QString did = params.value("did_id").toString();
             QString data = params.value("data").toString();
-            qDebug() << "Writing DID:" << did << "Data:" << data;
-            // TODO: Implement actual DID write
-            return CommandResult::Success("Wrote DID " + did);
+            qDebug() << "[NOT IMPLEMENTED] Writing DID:" << did << "Data:" << data;
+            return CommandResult::Failure("Not implemented: serial_write_did (" + did + ")");
         }
     });
     
@@ -384,8 +377,8 @@ void CommandRegistry::registerSerialCommands()
         .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             QString data = params.value("data").toString();
             QString format = params.value("data_format", "hex").toString();
-            qDebug() << "Sending raw serial:" << data << "format:" << format;
-            return CommandResult::Success("Sent data");
+            qDebug() << "[NOT IMPLEMENTED] Sending raw serial:" << data << "format:" << format;
+            return CommandResult::Failure("Not implemented: serial_send_raw");
         }
     });
     
@@ -416,10 +409,8 @@ void CommandRegistry::registerSerialCommands()
         },
         .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             int timeout = params.value("timeout_ms", 1000).toInt();
-            qDebug() << "Reading serial response, timeout:" << timeout;
-            QVariantMap response;
-            response["data"] = "Sample response data";
-            return CommandResult::Success("Read response", response);
+            qDebug() << "[NOT IMPLEMENTED] Reading serial response, timeout:" << timeout;
+            return CommandResult::Failure("Not implemented: serial_read_response");
         }
     });
     
@@ -1254,8 +1245,8 @@ void CommandRegistry::registerPowerCommands()
         },
         .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             int channel = params.value("channel", 1).toInt();
-            qDebug() << "Turning ON power supply channel:" << channel;
-            return CommandResult::Success("Power supply turned ON");
+            qDebug() << "[NOT IMPLEMENTED] Turning ON power supply channel:" << channel;
+            return CommandResult::Failure("Not implemented: power_turn_on");
         }
     });
     
@@ -1279,8 +1270,8 @@ void CommandRegistry::registerPowerCommands()
         },
         .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             int channel = params.value("channel", 1).toInt();
-            qDebug() << "Turning OFF power supply channel:" << channel;
-            return CommandResult::Success("Power supply turned OFF");
+            qDebug() << "[NOT IMPLEMENTED] Turning OFF power supply channel:" << channel;
+            return CommandResult::Failure("Not implemented: power_turn_off");
         }
     });
     
@@ -1316,8 +1307,8 @@ void CommandRegistry::registerPowerCommands()
         .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             double voltage = params.value("voltage", 12.0).toDouble();
             int channel = params.value("channel", 1).toInt();
-            qDebug() << "Setting voltage to" << voltage << "V on channel" << channel;
-            return CommandResult::Success(QString("Voltage set to %1V").arg(voltage));
+            qDebug() << "[NOT IMPLEMENTED] Setting voltage to" << voltage << "V on channel" << channel;
+            return CommandResult::Failure("Not implemented: power_set_voltage");
         }
     });
     
@@ -1352,8 +1343,8 @@ void CommandRegistry::registerPowerCommands()
         },
         .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             double current = params.value("current", 5.0).toDouble();
-            qDebug() << "Setting current limit to" << current << "A";
-            return CommandResult::Success(QString("Current limit set to %1A").arg(current));
+            qDebug() << "[NOT IMPLEMENTED] Setting current limit to" << current << "A";
+            return CommandResult::Failure("Not implemented: power_set_current");
         }
     });
     
@@ -1377,12 +1368,8 @@ void CommandRegistry::registerPowerCommands()
         },
         .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             int channel = params.value("channel", 1).toInt();
-            qDebug() << "Reading measurements from channel" << channel;
-            QVariantMap response;
-            response["voltage"] = 12.05;
-            response["current"] = 1.23;
-            response["power"] = 14.82;
-            return CommandResult::Success("Measurements read", response);
+            qDebug() << "[NOT IMPLEMENTED] Reading measurements from channel" << channel;
+            return CommandResult::Failure("Not implemented: power_read_measurements");
         }
     });
 }
@@ -1719,9 +1706,8 @@ void CommandRegistry::registerSystemCommands()
         },
         .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             QString filename = params.value("filename", "screenshot").toString();
-            qDebug() << "Taking screenshot:" << filename;
-            // TODO: Implement actual screenshot
-            return CommandResult::Success("Screenshot saved: " + filename + ".png");
+            qDebug() << "[NOT IMPLEMENTED] Taking screenshot:" << filename;
+            return CommandResult::Failure("Not implemented: system_screenshot");
         }
     });
     
@@ -1752,9 +1738,8 @@ void CommandRegistry::registerSystemCommands()
         .handler = [](const QVariantMap& params, const QVariantMap& /*config*/, const std::atomic<bool>* /*cancel*/) -> CommandResult {
             QString filepath = params.value("filepath").toString();
             QString data = params.value("data", "${last_response}").toString();
-            qDebug() << "Saving data to:" << filepath;
-            // TODO: Implement actual file save
-            return CommandResult::Success("Data saved to: " + filepath);
+            qDebug() << "[NOT IMPLEMENTED] Saving data to:" << filepath;
+            return CommandResult::Failure("Not implemented: system_save_file");
         }
     });
     

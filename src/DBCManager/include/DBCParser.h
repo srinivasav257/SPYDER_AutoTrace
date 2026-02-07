@@ -189,6 +189,13 @@ struct DBCDatabase
     void buildIndex();
 
     /**
+     * @brief Incrementally add the last message to the ID index.
+     * Call after appending a message so that messageById() works
+     * during the rest of the parse (comments, value descriptions, etc.).
+     */
+    void indexLastMessage();
+
+    /**
      * @brief Find message by ID (O(1) hash lookup)
      */
     const DBCMessage* messageById(uint32_t id) const;

@@ -10,7 +10,7 @@ enable_testing()
 # alongside the application binary or get picked up by CPack
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests")
 
-# 1. GoogleTest Suite
+# 1. GoogleTest Suite (trivial placeholder tests)
 # -------------------
 add_executable(UnitTests_GTest tst_gtest_main.cpp)
 target_link_libraries(UnitTests_GTest PRIVATE
@@ -34,3 +34,61 @@ target_link_libraries(UnitTests_QtTest PRIVATE
 
 # Register with CTest
 add_test(NAME QtTestCommand COMMAND UnitTests_QtTest)
+
+# ==============================================================================
+# 3. TestDataModels JSON round-trip tests
+# ==============================================================================
+add_executable(UnitTests_TestDataModels tst_TestDataModels.cpp)
+target_link_libraries(UnitTests_TestDataModels PRIVATE
+    GTest::gtest_main
+    TestExecutor::TestExecutor
+    Qt6::Core
+    Qt6::Widgets
+)
+gtest_discover_tests(UnitTests_TestDataModels DISCOVERY_MODE PRE_TEST)
+
+# ==============================================================================
+# 4. CommandRegistry tests (stub execution, validation, lookup)
+# ==============================================================================
+add_executable(UnitTests_CommandRegistry tst_CommandRegistry.cpp)
+target_link_libraries(UnitTests_CommandRegistry PRIVATE
+    GTest::gtest_main
+    TestExecutor::TestExecutor
+    ManDiag::ManDiag
+    SerialManager::SerialManager
+    CANManager::CANManager
+    DBCManager::DBCManager
+    Qt6::Core
+    Qt6::Widgets
+)
+gtest_discover_tests(UnitTests_CommandRegistry DISCOVERY_MODE PRE_TEST)
+
+# ==============================================================================
+# 5. DBCParser tests (parsing, encoding, decoding, index)
+# ==============================================================================
+add_executable(UnitTests_DBCParser tst_DBCParser.cpp)
+target_link_libraries(UnitTests_DBCParser PRIVATE
+    GTest::gtest_main
+    DBCManager::DBCManager
+    Qt6::Core
+)
+gtest_discover_tests(UnitTests_DBCParser DISCOVERY_MODE PRE_TEST)
+
+# ==============================================================================
+# 6. HWConfigManager save/load round-trip tests
+# ==============================================================================
+add_executable(UnitTests_HWConfigManager tst_HWConfigManager.cpp)
+target_include_directories(UnitTests_HWConfigManager PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/../src/panels"
+)
+target_link_libraries(UnitTests_HWConfigManager PRIVATE
+    GTest::gtest_main
+    SerialManager::SerialManager
+    Qt6::Core
+    Qt6::SerialPort
+)
+# HWConfigManager.cpp is not in a library, so compile it directly
+target_sources(UnitTests_HWConfigManager PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/../src/panels/HWConfigManager.cpp"
+)
+gtest_discover_tests(UnitTests_HWConfigManager DISCOVERY_MODE PRE_TEST)

@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QSettings>
 #include <QStringList>
+#include <QMutex>
+#include <QMutexLocker>
 #include <array>
 
 /**
@@ -124,4 +126,5 @@ private:
     std::array<CANPortConfig, CAN_PORT_COUNT> m_canPorts;
     PowerSupplyConfig m_powerSupply;
     ModbusRelayConfig m_modbusRelay;
+    mutable QMutex m_mutex;  ///< Protects all config data for cross-thread access
 };

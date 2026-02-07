@@ -1,5 +1,6 @@
 #include "HWConfigManager.h"
 #include <SerialManager.h>
+#include <QMutexLocker>
 
 HWConfigManager& HWConfigManager::instance()
 {
@@ -34,6 +35,7 @@ HWConfigManager::HWConfigManager()
 
 SerialDebugPortConfig HWConfigManager::serialDebugPort(int index) const
 {
+    QMutexLocker locker(&m_mutex);
     if (index < 0 || index >= SERIAL_PORT_COUNT)
         return {};
     return m_serialDebugPorts[index];
@@ -41,6 +43,7 @@ SerialDebugPortConfig HWConfigManager::serialDebugPort(int index) const
 
 void HWConfigManager::setSerialDebugPort(int index, const SerialDebugPortConfig& config)
 {
+    QMutexLocker locker(&m_mutex);
     if (index >= 0 && index < SERIAL_PORT_COUNT) {
         m_serialDebugPorts[index] = config;
         emit configChanged();
@@ -53,6 +56,7 @@ void HWConfigManager::setSerialDebugPort(int index, const SerialDebugPortConfig&
 
 CANPortConfig HWConfigManager::canPort(int index) const
 {
+    QMutexLocker locker(&m_mutex);
     if (index < 0 || index >= CAN_PORT_COUNT)
         return {};
     return m_canPorts[index];
@@ -60,6 +64,7 @@ CANPortConfig HWConfigManager::canPort(int index) const
 
 void HWConfigManager::setCanPort(int index, const CANPortConfig& config)
 {
+    QMutexLocker locker(&m_mutex);
     if (index >= 0 && index < CAN_PORT_COUNT) {
         m_canPorts[index] = config;
         emit configChanged();
@@ -70,11 +75,11 @@ void HWConfigManager::setCanPort(int index, const CANPortConfig& config)
 // Power Supply / Modbus
 // ---------------------------------------------------------------------------
 
-PowerSupplyConfig HWConfigManager::powerSupply() const { return m_powerSupply; }
-void HWConfigManager::setPowerSupply(const PowerSupplyConfig& config) { m_powerSupply = config; emit configChanged(); }
+PowerSupplyConfig HWConfigManager::powerSupply() const { QMutexLocker locker(&m_mutex); return m_powerSupply; }
+void HWConfigManager::setPowerSupply(const PowerSupplyConfig& config) { QMutexLocker locker(&m_mutex); m_powerSupply = config; emit configChanged(); }
 
-ModbusRelayConfig HWConfigManager::modbusRelay() const { return m_modbusRelay; }
-void HWConfigManager::setModbusRelay(const ModbusRelayConfig& config) { m_modbusRelay = config; emit configChanged(); }
+ModbusRelayConfig HWConfigManager::modbusRelay() const { QMutexLocker locker(&m_mutex); return m_modbusRelay; }
+void HWConfigManager::setModbusRelay(const ModbusRelayConfig& config) { QMutexLocker locker(&m_mutex); m_modbusRelay = config; emit configChanged(); }
 
 // ---------------------------------------------------------------------------
 // Alias Resolution
@@ -82,6 +87,7 @@ void HWConfigManager::setModbusRelay(const ModbusRelayConfig& config) { m_modbus
 
 QStringList HWConfigManager::allPortAliases() const
 {
+    QMutexLocker locker(&m_mutex);
     QStringList aliases;
     for (int i = 0; i < SERIAL_PORT_COUNT; ++i) {
         const auto& p = m_serialDebugPorts[i];
@@ -100,6 +106,7 @@ QStringList HWConfigManager::allPortAliases() const
 
 QString HWConfigManager::resolvePortAlias(const QString& alias) const
 {
+    QMutexLocker locker(&m_mutex);
     for (int i = 0; i < SERIAL_PORT_COUNT; ++i) {
         const auto& p = m_serialDebugPorts[i];
         if (p.customName == alias)
@@ -124,6 +131,7 @@ QString HWConfigManager::resolvePortAlias(const QString& alias) const
 
 QStringList HWConfigManager::allCANAliases() const
 {
+    QMutexLocker locker(&m_mutex);
     QStringList aliases;
     for (int i = 0; i < CAN_PORT_COUNT; ++i) {
         const auto& c = m_canPorts[i];
@@ -136,6 +144,7 @@ QStringList HWConfigManager::allCANAliases() const
 
 QString HWConfigManager::resolveCANAlias(const QString& alias) const
 {
+    QMutexLocker locker(&m_mutex);
     for (int i = 0; i < CAN_PORT_COUNT; ++i) {
         if (m_canPorts[i].customName == alias) {
             return m_canPorts[i].device;
@@ -215,6 +224,7 @@ SerialManager::SerialPortConfig HWConfigManager::loadSerialConfig(QSettings& s, 
 
 void HWConfigManager::save()
 {
+    QMutexLocker locker(&m_mutex);
     QSettings s;
     s.beginGroup("HWConfig");
 
@@ -258,6 +268,7 @@ void HWConfigManager::save()
 
 void HWConfigManager::load()
 {
+    QMutexLocker locker(&m_mutex);
     QSettings s;
     s.beginGroup("HWConfig");
 
@@ -309,6 +320,7 @@ void HWConfigManager::load()
 
 void HWConfigManager::applyToSerialManager()
 {
+    QMutexLocker locker(&m_mutex);
     auto& serial = SerialManager::SerialPortManager::instance();
     for (int i = 0; i < SERIAL_PORT_COUNT; ++i) {
         const auto& p = m_serialDebugPorts[i];

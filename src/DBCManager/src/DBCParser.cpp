@@ -244,6 +244,15 @@ void DBCDatabase::buildIndex()
     }
 }
 
+void DBCDatabase::indexLastMessage()
+{
+    if (messages.isEmpty())
+        return;
+    int idx = messages.size() - 1;
+    uint32_t key = messages[idx].id & 0x7FFFFFFF;
+    m_idIndex.insert(key, idx);
+}
+
 const DBCMessage* DBCDatabase::messageById(uint32_t id) const
 {
     uint32_t key = id & 0x7FFFFFFF;
@@ -499,6 +508,7 @@ void DBCParser::parseMessage(const QStringList& lines, int& index, DBCDatabase& 
     }
 
     db.messages.append(msg);
+    db.indexLastMessage();
 }
 
 void DBCParser::parseSignal(const QString& line, DBCMessage& msg)

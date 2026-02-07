@@ -279,8 +279,12 @@ void TestExecutorEngine::emergencyStop()
     m_pauseCondition.wakeAll();
     
     if (m_workerThread && m_workerThread->isRunning()) {
-        m_workerThread->terminate();
-        m_workerThread->wait(1000);
+        // Cooperative cancellation: request interruption first, then wait
+        m_workerThread->requestInterruption();
+        if (!m_workerThread->wait(3000)) {
+            // Thread did not finish within timeout — log but do NOT call terminate()
+            emit logMessage("ERROR", "Worker thread did not stop within 3 s after interruption request");
+        }
     }
     
     setState(ExecutorState::Idle);
