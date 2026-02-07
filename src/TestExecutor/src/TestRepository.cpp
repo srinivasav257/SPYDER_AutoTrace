@@ -4,13 +4,12 @@
  */
 
 #include "TestRepository.h"
+#include "IconManager.h"
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QMimeData>
 #include <QDebug>
-#include <QApplication>
-#include <QStyle>
 #include <QFileInfo>
 #include <functional>
 
@@ -157,11 +156,11 @@ QVariant TestTreeModel::data(const QModelIndex& index, int role) const
         case Qt::DecorationRole:
             if (index.column() == 0) {
                 if (item->type == TreeItemType::Group) {
-                    return QApplication::style()->standardIcon(QStyle::SP_DirIcon);
+                    return DockManager::Icons::icon(DockManager::Icons::Id::GroupItem);
                 } else if (item->type == TreeItemType::Feature) {
-                    return QApplication::style()->standardIcon(QStyle::SP_FileDialogContentsView);
+                    return DockManager::Icons::icon(DockManager::Icons::Id::FeatureItem);
                 } else if (item->type == TreeItemType::TestCase) {
-                    return QApplication::style()->standardIcon(QStyle::SP_FileIcon);
+                    return DockManager::Icons::icon(DockManager::Icons::Id::TestItem);
                 }
             }
             break;

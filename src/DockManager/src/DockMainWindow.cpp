@@ -2,6 +2,7 @@
 #include "PanelRegistry.h"
 #include "WorkspaceManager.h"
 #include "DockToolBar.h"
+#include "IconManager.h"
 
 #include "DockManager.h"
 #include "DockWidget.h"
@@ -12,9 +13,11 @@
 #include <QAction>
 #include <QStatusBar>
 #include <QCloseEvent>
+#include <QEvent>
 #include <QMessageBox>
 #include <QApplication>
 #include <QDebug>
+#include <QSignalBlocker>
 
 namespace DockManager {
 
@@ -25,6 +28,7 @@ struct DockMainWindow::Private
     DockToolBar* dockToolBar = nullptr;
 
     QMap<QString, ads::CDockWidget*> dockWidgets;
+    QMap<QString, QAction*> panelToggleActions;
     ads::CDockAreaWidget* centralArea = nullptr;
     QMenu* perspectiveMenu = nullptr;
 };
@@ -289,12 +293,104 @@ void DockMainWindow::createToolBar()
     d->dockToolBar->setSaveRestoreVisible(false);
     d->dockToolBar->setPerspectivesVisible(false);
     d->dockToolBar->setLockVisible(false);
+    d->dockToolBar->setMovable(false);
+    d->dockToolBar->setFloatable(false);
+    d->dockToolBar->setToolButtonStyle(Qt::ToolButtonIconOnly);
+
+    // Hide default separators from hidden actions
+    for (QAction* action : d->dockToolBar->actions()) {
+        if (action && action->isSeparator()) {
+            action->setVisible(false);
+        }
+    }
+
+    // Quick panel toggles
+
+    auto addPanelToggle = [this](const QString& panelId, const QString& tooltip) {
+        auto* dw = d->dockWidgets.value(panelId);
+        if (!dw) {
+            return;
+        }
+
+        QAction* toggleAction = dw->toggleViewAction();
+        toggleAction->setToolTip(tooltip);
+        d->dockToolBar->addAction(toggleAction);
+        d->panelToggleActions.insert(panelId, toggleAction);
+
+        auto updateActionEnabledState = [this, panelId]() {
+            auto* dockWidget = d->dockWidgets.value(panelId);
+            auto* action = d->panelToggleActions.value(panelId);
+            if (!dockWidget || !action) {
+                return;
+            }
+
+            const bool visible = dockWidget->isVisible();
+            QSignalBlocker block(action);
+            action->setChecked(visible);
+            action->setEnabled(!visible);
+        };
+
+        connect(dw, &ads::CDockWidget::viewToggled, this, [updateActionEnabledState](bool) {
+            updateActionEnabledState();
+        });
+        connect(dw, &QObject::destroyed, this, [this, panelId]() {
+            d->panelToggleActions.remove(panelId);
+        });
+
+        updateActionEnabledState();
+    };
+
+    addPanelToggle("test_explorer", tr("Toggle Test Explorer"));
+    addPanelToggle("test_progress", tr("Toggle Test Progress"));
+
+    refreshIcons();
 }
 
 void DockMainWindow::initializeComplete()
 {
     // Default implementation does nothing
     // Override in derived class for custom initialization
+}
+
+void DockMainWindow::refreshIcons()
+{
+    auto updateActionEnabledState = [this](const QString& panelId) {
+        auto* dockWidget = d->dockWidgets.value(panelId);
+        auto* action = d->panelToggleActions.value(panelId);
+        if (!dockWidget || !action) {
+            return;
+        }
+        const bool visible = dockWidget->isVisible();
+        QSignalBlocker block(action);
+        action->setChecked(visible);
+        action->setEnabled(!visible);
+    };
+
+    auto setPanelIcon = [this](const QString& panelId, const QIcon& icon) {
+        auto* dockWidget = d->dockWidgets.value(panelId);
+        if (!dockWidget) {
+            return;
+        }
+
+        dockWidget->setIcon(icon);
+
+        if (QAction* toggleAction = dockWidget->toggleViewAction()) {
+            toggleAction->setIcon(icon);
+        }
+    };
+
+    const QIcon explorerIcon(":/icons/WindowStyle/tests_explorer.png");
+    const QIcon progressIcon(":/icons/WindowStyle/test.png");
+
+    setPanelIcon("test_explorer",
+                 explorerIcon.isNull() ? DockManager::Icons::icon(DockManager::Icons::Id::PanelExplorer, this)
+                                       : explorerIcon);
+    setPanelIcon("test_progress",
+                 progressIcon.isNull() ? DockManager::Icons::icon(DockManager::Icons::Id::PanelProgress, this)
+                                       : progressIcon);
+
+    updateActionEnabledState("test_explorer");
+    updateActionEnabledState("test_progress");
 }
 
 void DockMainWindow::rebuildPerspectiveMenu()
@@ -330,6 +426,16 @@ void DockMainWindow::closeEvent(QCloseEvent* event)
     d->workspaceManager->savePerspectives();
 
     QMainWindow::closeEvent(event);
+}
+
+void DockMainWindow::changeEvent(QEvent* event)
+{
+    QMainWindow::changeEvent(event);
+
+    if (event->type() == QEvent::PaletteChange ||
+        event->type() == QEvent::StyleChange) {
+        refreshIcons();
+    }
 }
 
 } // namespace DockManager

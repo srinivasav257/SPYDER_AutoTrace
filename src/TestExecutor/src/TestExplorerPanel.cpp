@@ -7,19 +7,22 @@
 #include "TestEditorPanel.h"
 #include "TestRepository.h"
 #include "TestExecutorEngine.h"
+#include "IconManager.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QAction>
-#include <QStyle>
+#include <QEvent>
 #include <QRegularExpression>
 #include <functional>
 
 namespace TestExecutor {
 
 namespace {
+
+const QSize kToolbarIconSize(16, 16);
 
 QString nextSequentialName(const QStringList& existingNames, const QString& prefix)
 {
@@ -124,6 +127,16 @@ void TestExplorerPanel::collapseAll()
     m_treeView->collapseAll();
 }
 
+void TestExplorerPanel::changeEvent(QEvent* event)
+{
+    QWidget::changeEvent(event);
+
+    if (event->type() == QEvent::PaletteChange ||
+        event->type() == QEvent::StyleChange) {
+        refreshIcons();
+    }
+}
+
 void TestExplorerPanel::setupUi()
 {
     auto* layout = new QVBoxLayout(this);
@@ -135,48 +148,51 @@ void TestExplorerPanel::setupUi()
     toolbarLayout->setSpacing(2);
 
     m_btnImport = new QPushButton(this);
-    m_btnImport->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
     m_btnImport->setToolTip("Import test cases from JSON file");
     m_btnImport->setFixedSize(28, 28);
+    m_btnImport->setIconSize(kToolbarIconSize);
 
     m_btnExport = new QPushButton(this);
-    m_btnExport->setIcon(style()->standardIcon(QStyle::SP_DialogSaveButton));
     m_btnExport->setToolTip("Save tests");
     m_btnExport->setFixedSize(28, 28);
+    m_btnExport->setIconSize(kToolbarIconSize);
 
     m_btnAddGroup = new QPushButton(this);
-    m_btnAddGroup->setIcon(style()->standardIcon(QStyle::SP_DirIcon));
     m_btnAddGroup->setToolTip("Add Group");
     m_btnAddGroup->setFixedSize(28, 28);
+    m_btnAddGroup->setIconSize(kToolbarIconSize);
 
     m_btnAddFeature = new QPushButton(this);
-    m_btnAddFeature->setIcon(style()->standardIcon(QStyle::SP_FileDialogContentsView));
     m_btnAddFeature->setToolTip("Add Feature");
     m_btnAddFeature->setFixedSize(28, 28);
+    m_btnAddFeature->setIconSize(kToolbarIconSize);
 
     m_btnAddTest = new QPushButton(this);
-    m_btnAddTest->setIcon(style()->standardIcon(QStyle::SP_FileIcon));
     m_btnAddTest->setToolTip("Add Test");
     m_btnAddTest->setFixedSize(28, 28);
+    m_btnAddTest->setIconSize(kToolbarIconSize);
 
     m_btnRemove = new QPushButton(this);
-    m_btnRemove->setIcon(style()->standardIcon(QStyle::SP_TrashIcon));
     m_btnRemove->setToolTip("Remove selected item(s)");
     m_btnRemove->setFixedSize(28, 28);
+    m_btnRemove->setIconSize(kToolbarIconSize);
 
     m_btnExpand = new QPushButton(this);
-    m_btnExpand->setIcon(style()->standardIcon(QStyle::SP_ArrowDown));
     m_btnExpand->setToolTip("Expand all");
     m_btnExpand->setFixedSize(28, 28);
+    m_btnExpand->setIconSize(kToolbarIconSize);
 
     m_btnCollapse = new QPushButton(this);
-    m_btnCollapse->setIcon(style()->standardIcon(QStyle::SP_ArrowUp));
     m_btnCollapse->setToolTip("Collapse all");
     m_btnCollapse->setFixedSize(28, 28);
+    m_btnCollapse->setIconSize(kToolbarIconSize);
 
     m_btnRun = new QPushButton("Run", this);
     m_btnRun->setToolTip("Run checked or selected tests");
-    m_btnRun->setStyleSheet("QPushButton { background-color: #4CAF50; color: white; font-weight: bold; }");
+    m_btnRun->setIconSize(kToolbarIconSize);
+    m_btnRun->setMinimumHeight(30);
+
+    refreshIcons();
 
     toolbarLayout->addWidget(m_btnImport);
     toolbarLayout->addWidget(m_btnExport);
@@ -208,7 +224,6 @@ void TestExplorerPanel::setupUi()
     m_treeView->setAcceptDrops(true);
     m_treeView->setDropIndicatorShown(true);
     m_treeView->setDragDropMode(QAbstractItemView::InternalMove);
-    m_treeView->setStyleSheet("QTreeView::item:selected { background-color: #1F73D2; color: white; }");
 
     // Setup proxy model for filtering
     m_proxyModel = new QSortFilterProxyModel(this);
@@ -223,6 +238,26 @@ void TestExplorerPanel::setupUi()
     m_treeView->header()->setSectionResizeMode(0, QHeaderView::Stretch);
 
     layout->addWidget(m_treeView);
+}
+
+void TestExplorerPanel::refreshIcons()
+{
+    if (!m_btnImport || !m_btnExport || !m_btnAddGroup || !m_btnAddFeature ||
+        !m_btnAddTest || !m_btnRemove || !m_btnExpand || !m_btnCollapse || !m_btnRun) {
+        return;
+    }
+
+    using DockManager::Icons::Id;
+
+    m_btnImport->setIcon(DockManager::Icons::icon(Id::Import, this));
+    m_btnExport->setIcon(DockManager::Icons::icon(Id::Save, this));
+    m_btnAddGroup->setIcon(DockManager::Icons::icon(Id::AddGroup, this));
+    m_btnAddFeature->setIcon(DockManager::Icons::icon(Id::AddFeature, this));
+    m_btnAddTest->setIcon(DockManager::Icons::icon(Id::AddTest, this));
+    m_btnRemove->setIcon(DockManager::Icons::icon(Id::Remove, this));
+    m_btnExpand->setIcon(DockManager::Icons::icon(Id::ExpandAll, this));
+    m_btnCollapse->setIcon(DockManager::Icons::icon(Id::CollapseAll, this));
+    m_btnRun->setIcon(DockManager::Icons::icon(Id::Run, this));
 }
 
 void TestExplorerPanel::setupConnections()

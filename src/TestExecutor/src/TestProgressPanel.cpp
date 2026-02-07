@@ -309,14 +309,12 @@ void TestProgressPanel::setupUi()
     auto* controlBar = new QHBoxLayout();
     
     m_btnRun = new QPushButton("▶ Run All", this);
-    m_btnRun->setStyleSheet("QPushButton { background-color: #4CAF50; color: white; font-weight: bold; }");
     
     m_btnPause = new QPushButton("⏸ Pause", this);
     m_btnPause->setEnabled(false);
     
     m_btnStop = new QPushButton("⏹ Stop", this);
     m_btnStop->setEnabled(false);
-    m_btnStop->setStyleSheet("QPushButton:enabled { background-color: #f44336; color: white; }");
     
     m_btnExport = new QPushButton("📄 Export Report", this);
     m_btnClear = new QPushButton("Clear", this);
@@ -341,7 +339,6 @@ void TestProgressPanel::setupUi()
     m_overallProgress->setTextVisible(true);
     
     m_elapsedLabel = new QLabel("00:00:00", this);
-    m_elapsedLabel->setStyleSheet("font-family: monospace; font-weight: bold;");
     
     progressLayout->addWidget(new QLabel("Progress:", this));
     progressLayout->addWidget(m_overallProgress, 1);
@@ -354,18 +351,14 @@ void TestProgressPanel::setupUi()
     auto* statusLayout = new QHBoxLayout();
     
     m_statusLabel = new QLabel("Ready", this);
-    m_statusLabel->setStyleSheet("font-weight: bold;");
     
     m_currentTestLabel = new QLabel("", this);
     
     m_passedLabel = new QLabel("Passed: 0", this);
-    m_passedLabel->setStyleSheet("color: green; font-weight: bold;");
     
     m_failedLabel = new QLabel("Failed: 0", this);
-    m_failedLabel->setStyleSheet("color: red; font-weight: bold;");
     
     m_skippedLabel = new QLabel("Skipped: 0", this);
-    m_skippedLabel->setStyleSheet("color: orange;");
     
     statusLayout->addWidget(new QLabel("Status:", this));
     statusLayout->addWidget(m_statusLabel);
@@ -492,36 +485,13 @@ void TestProgressPanel::updateSummary()
 
 void TestProgressPanel::setRowStatus(int row, TestStatus status)
 {
-    QColor bgColor;
-    QColor textColor = Qt::black;
-    
-    switch (status) {
-        case TestStatus::Running:
-            bgColor = QColor(255, 235, 59); // Yellow
-            break;
-        case TestStatus::Passed:
-            bgColor = QColor(200, 230, 201); // Light green
-            break;
-        case TestStatus::Failed:
-            bgColor = QColor(255, 205, 210); // Light red
-            break;
-        case TestStatus::Error:
-            bgColor = QColor(255, 152, 0);   // Orange
-            textColor = Qt::white;
-            break;
-        case TestStatus::Skipped:
-            bgColor = QColor(224, 224, 224); // Grey
-            break;
-        default:
-            bgColor = Qt::white;
-            break;
-    }
+    Q_UNUSED(status)
     
     for (int col = 0; col < m_resultsTable->columnCount(); ++col) {
         QTableWidgetItem* item = m_resultsTable->item(row, col);
         if (item) {
-            item->setBackground(bgColor);
-            item->setForeground(textColor);
+            item->setData(Qt::BackgroundRole, QVariant());
+            item->setData(Qt::ForegroundRole, QVariant());
         }
     }
 }
@@ -539,24 +509,10 @@ int TestProgressPanel::findRowByTestId(const QString& testCaseId) const
 
 void TestProgressPanel::appendLog(const QString& level, const QString& message)
 {
+    Q_UNUSED(level)
+
     QString timestamp = QDateTime::currentDateTime().toString("HH:mm:ss.zzz");
-    QString color;
-    
-    if (level == "ERROR") {
-        color = "red";
-    } else if (level == "WARNING") {
-        color = "orange";
-    } else if (level == "DEBUG" || level == "TRACE") {
-        color = "gray";
-    } else {
-        color = "black";
-    }
-    
-    QString html = QString("<span style=\"color: gray;\">[%1]</span> "
-                           "<span style=\"color: %2;\">%3</span>")
-                   .arg(timestamp, color, message.toHtmlEscaped());
-    
-    m_logViewer->appendHtml(html);
+    m_logViewer->appendPlainText(QString("[%1] %2").arg(timestamp, message));
 }
 
 QWidget* createTestProgressPanel(QWidget* parent)

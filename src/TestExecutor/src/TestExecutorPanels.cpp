@@ -6,6 +6,7 @@
 #include "TestExecutorPanels.h"
 #include "TestExplorerPanel.h"
 #include "TestProgressPanel.h"
+#include "IconManager.h"
 #include <DockWidget.h>
 
 namespace TestExecutor {
@@ -23,7 +24,8 @@ bool registerTestExecutorPanels()
         .defaultArea = ads::LeftDockWidgetArea,
         .factory = [](QWidget* parent) -> QWidget* {
             return new TestExplorerPanel(parent);
-        }
+        },
+        .icon = DockManager::Icons::icon(DockManager::Icons::Id::PanelExplorer)
     });
     
     // Test Progress Panel - for monitoring test execution
@@ -34,7 +36,8 @@ bool registerTestExecutorPanels()
         .defaultArea = ads::BottomDockWidgetArea,
         .factory = [](QWidget* parent) -> QWidget* {
             return new TestProgressPanel(parent);
-        }
+        },
+        .icon = DockManager::Icons::icon(DockManager::Icons::Id::PanelProgress)
     });
     
     return success;

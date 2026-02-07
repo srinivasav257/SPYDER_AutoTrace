@@ -1,5 +1,30 @@
 <RCC>
     <qresource prefix="/">
-        <!-- Add resources here e.g. <file>icons/app_icon.png</file> -->
+        <file>sample_tests.json</file>
+        <file>dbc/ICAN.dbc</file>
+        <file>dbc/MIBCAN.dbc</file>
+        <file>jsonTests/MIB4_ManDiag.json</file>
+
+        <file>icons/app_icon.svg</file>
+        <file>icons/app_icon_square.svg</file>
+        <file>icons/app_icon_square.ico</file>
+        <file>icons/message.svg</file>
+        <file>icons/minus_collape.svg</file>
+        <file>icons/plus_expand.svg</file>
+        <file>icons/signal_sine_doted.svg</file>
+        <file>icons/WindowStyle/Cms.png</file>
+        <file>icons/WindowStyle/connected.png</file>
+        <file>icons/WindowStyle/connected_3D.png</file>
+        <file>icons/WindowStyle/Deskstop.png</file>
+        <file>icons/WindowStyle/feature.png</file>
+        <file>icons/WindowStyle/group.png</file>
+        <file>icons/WindowStyle/check_mark.png</file>
+        <file>icons/WindowStyle/folder_yellow.png</file>
+        <file>icons/WindowStyle/penguin.png</file>
+        <file>icons/WindowStyle/settings.png</file>
+        <file>icons/WindowStyle/test.png</file>
+        <file>icons/WindowStyle/tests_explorer.png</file>
+        <file>icons/WindowStyle/usb.png</file>
+        <file>icons/WindowStyle/usb_disconnected.png</file>
     </qresource>
 </RCC>

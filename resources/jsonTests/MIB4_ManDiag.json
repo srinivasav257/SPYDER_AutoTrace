@@ -1,0 +1,81 @@
+{
+    "explorerGroups": [
+        {
+            "features": [
+                "Feature 1",
+                "Feature 2"
+            ],
+            "name": "Group 1"
+        },
+        {
+            "features": [
+                "Feature 1",
+                "Feature 2"
+            ],
+            "name": "Group 2"
+        },
+        {
+            "features": [
+                "Feature 1",
+                "Feature 2"
+            ],
+            "name": "Group 3"
+        }
+    ],
+    "metadata": {
+        "exportDate": "2026-02-07T23:14:13",
+        "suiteCount": 0,
+        "testCount": 2,
+        "version": "1.0"
+    },
+    "suites": [
+    ],
+    "testCases": [
+        {
+            "author": "",
+            "component": "Group 1",
+            "config": {
+            },
+            "createdDate": "2026-02-07T23:13:00",
+            "description": "Enter test description",
+            "enabled": true,
+            "feature": "Feature 1",
+            "id": "TC_20260207_231300",
+            "jiraLink": "",
+            "jiraTicket": "PROJ-XXX",
+            "modifiedDate": "2026-02-07T23:13:03",
+            "name": "Test 1",
+            "priority": 5,
+            "requirementId": "REQ-XXX",
+            "requirementLink": "",
+            "steps": [
+            ],
+            "tags": [
+            ],
+            "timeoutMs": 60000
+        },
+        {
+            "author": "",
+            "component": "Group 1",
+            "config": {
+            },
+            "createdDate": "2026-02-07T23:13:15",
+            "description": "Enter test description",
+            "enabled": true,
+            "feature": "Feature 1",
+            "id": "TC_20260207_231315",
+            "jiraLink": "",
+            "jiraTicket": "PROJ-XXX",
+            "modifiedDate": "2026-02-07T23:13:17",
+            "name": "Test 2",
+            "priority": 5,
+            "requirementId": "REQ-XXX",
+            "requirementLink": "",
+            "steps": [
+            ],
+            "tags": [
+            ],
+            "timeoutMs": 60000
+        }
+    ]
+}

@@ -6,7 +6,6 @@
  * Features:
  * - Real-time execution progress table
  * - Columns: #, Test Name, Description, Duration, Result, Requirement, JIRA
- * - Color-coded results (green=pass, red=fail, yellow=running)
  * - Export results to HTML report
  * - Live log viewer
  * - Execution controls (Run, Pause, Stop)

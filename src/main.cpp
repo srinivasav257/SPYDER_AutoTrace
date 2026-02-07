@@ -12,6 +12,7 @@
 #include <QElapsedTimer>
 #include <QSettings>
 #include <QFileInfo>
+#include <QIcon>
 
 // Helper: create a programmatic splash image (no external resource needed)
 static QPixmap createSplashPixmap()
@@ -55,16 +56,12 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
+    app.setWindowIcon(QIcon(":/icons/app_icon_square.svg"));
+
     // Set application metadata (used by QSettings for state persistence)
     QApplication::setApplicationName("AutoTrace");
     QApplication::setOrganizationName("SPYDER");
     QApplication::setApplicationVersion("1.0.0");
-
-    // Make splitter handles subtle (thin light-gray) across the app
-    app.setStyleSheet(
-        "QSplitter::handle { background-color: #D0D0D0; }"
-        "QSplitter::handle:horizontal { width: 2px; }"
-        "QSplitter::handle:vertical { height: 2px; }");
 
     // --- Splash screen ---
     QSplashScreen splash(createSplashPixmap());
@@ -118,6 +115,7 @@ int main(int argc, char *argv[])
     // Create and show the dock main window
     DockManager::DockMainWindow window;
     window.setWindowTitle("SPYDER AutoTrace");
+    window.setWindowIcon(app.windowIcon());
 
     // Add Tools menu with HW Configuration dialog
     // Insert before the last menu (Help) - find the Perspectives menu position

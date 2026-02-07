@@ -76,7 +76,6 @@ void HWConfigDialog::setupSerialDebugTab(QTabWidget* parent)
         m_serialDebugTabs[i].disconnectBtn = new QPushButton(tr("Disconnect"));
         m_serialDebugTabs[i].disconnectBtn->setEnabled(false);
         m_serialDebugTabs[i].statusLabel = new QLabel(tr("Disconnected"));
-        m_serialDebugTabs[i].statusLabel->setStyleSheet("color: gray;");
         connLayout->addWidget(m_serialDebugTabs[i].connectBtn);
         connLayout->addWidget(m_serialDebugTabs[i].disconnectBtn);
         connLayout->addWidget(m_serialDebugTabs[i].statusLabel);
@@ -99,8 +98,6 @@ void HWConfigDialog::setupSerialDebugTab(QTabWidget* parent)
             m_serialDebugTabs[i].disconnectBtn->setEnabled(connected);
             m_serialDebugTabs[i].statusLabel->setText(
                 connected ? tr("Connected") : tr("Failed: %1").arg(result.errorMessage));
-            m_serialDebugTabs[i].statusLabel->setStyleSheet(
-                connected ? "color: green; font-weight: bold;" : "color: red;");
         });
 
         // Disconnect handler
@@ -110,7 +107,6 @@ void HWConfigDialog::setupSerialDebugTab(QTabWidget* parent)
             m_serialDebugTabs[i].connectBtn->setEnabled(true);
             m_serialDebugTabs[i].disconnectBtn->setEnabled(false);
             m_serialDebugTabs[i].statusLabel->setText(tr("Disconnected"));
-            m_serialDebugTabs[i].statusLabel->setStyleSheet("color: gray;");
         });
     }
 }
@@ -212,7 +208,6 @@ void HWConfigDialog::setupPowerSupplyTab(QTabWidget* parent)
     m_powerSupplyDisconnectBtn = new QPushButton(tr("Disconnect"));
     m_powerSupplyDisconnectBtn->setEnabled(false);
     m_powerSupplyStatusLabel = new QLabel(tr("Disconnected"));
-    m_powerSupplyStatusLabel->setStyleSheet("color: gray;");
     connLayout->addWidget(m_powerSupplyConnectBtn);
     connLayout->addWidget(m_powerSupplyDisconnectBtn);
     connLayout->addWidget(m_powerSupplyStatusLabel);
@@ -235,8 +230,6 @@ void HWConfigDialog::setupPowerSupplyTab(QTabWidget* parent)
         m_powerSupplyDisconnectBtn->setEnabled(connected);
         m_powerSupplyStatusLabel->setText(
             connected ? tr("Connected") : tr("Failed: %1").arg(result.errorMessage));
-        m_powerSupplyStatusLabel->setStyleSheet(
-            connected ? "color: green; font-weight: bold;" : "color: red;");
     });
 
     // Disconnect handler
@@ -246,7 +239,6 @@ void HWConfigDialog::setupPowerSupplyTab(QTabWidget* parent)
         m_powerSupplyConnectBtn->setEnabled(true);
         m_powerSupplyDisconnectBtn->setEnabled(false);
         m_powerSupplyStatusLabel->setText(tr("Disconnected"));
-        m_powerSupplyStatusLabel->setStyleSheet("color: gray;");
     });
 }
 
@@ -285,7 +277,6 @@ void HWConfigDialog::setupModbusTab(QTabWidget* parent)
     m_modbusDisconnectBtn = new QPushButton(tr("Disconnect"));
     m_modbusDisconnectBtn->setEnabled(false);
     m_modbusStatusLabel = new QLabel(tr("Disconnected"));
-    m_modbusStatusLabel->setStyleSheet("color: gray;");
     connLayout->addWidget(m_modbusConnectBtn);
     connLayout->addWidget(m_modbusDisconnectBtn);
     connLayout->addWidget(m_modbusStatusLabel);
@@ -308,8 +299,6 @@ void HWConfigDialog::setupModbusTab(QTabWidget* parent)
         m_modbusDisconnectBtn->setEnabled(connected);
         m_modbusStatusLabel->setText(
             connected ? tr("Connected") : tr("Failed: %1").arg(result.errorMessage));
-        m_modbusStatusLabel->setStyleSheet(
-            connected ? "color: green; font-weight: bold;" : "color: red;");
     });
 
     // Disconnect handler
@@ -319,7 +308,6 @@ void HWConfigDialog::setupModbusTab(QTabWidget* parent)
         m_modbusConnectBtn->setEnabled(true);
         m_modbusDisconnectBtn->setEnabled(false);
         m_modbusStatusLabel->setText(tr("Disconnected"));
-        m_modbusStatusLabel->setStyleSheet("color: gray;");
     });
 }
 

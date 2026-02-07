@@ -13,6 +13,7 @@ namespace ads {
 
 class QMenu;
 class QToolBar;
+class QEvent;
 
 namespace DockManager {
 
@@ -161,6 +162,7 @@ protected:
      * @brief Close event handler - saves state automatically
      */
     void closeEvent(QCloseEvent* event) override;
+    void changeEvent(QEvent* event) override;
 
     // --- Protected accessors for derived classes ---
 
@@ -181,6 +183,8 @@ protected slots:
     void rebuildPerspectiveMenu();
 
 private:
+    void refreshIcons();
+
     struct Private;
     QScopedPointer<Private> d;
 };

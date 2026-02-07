@@ -85,7 +85,6 @@ CANConfigWidget::CANConfigWidget(QWidget* parent)
     m_disconnectBtn = new QPushButton(tr("Disconnect"));
     m_disconnectBtn->setEnabled(false);
     m_statusLabel = new QLabel(tr("Disconnected"));
-    m_statusLabel->setStyleSheet("color: gray;");
     connLayout->addWidget(m_connectBtn);
     connLayout->addWidget(m_disconnectBtn);
     connLayout->addWidget(m_statusLabel);
@@ -108,7 +107,6 @@ CANConfigWidget::CANConfigWidget(QWidget* parent)
     form->addRow(tr("DBC File:"), dbcRow);
 
     m_dbcStatusLabel = new QLabel(tr("No DBC loaded"));
-    m_dbcStatusLabel->setStyleSheet("color: gray; font-style: italic;");
     form->addRow(tr("DBC Status:"), m_dbcStatusLabel);
 
     // Enable/disable FD bitrate based on FD checkbox
@@ -210,11 +208,9 @@ void CANConfigWidget::setChannelIndex(int index)
             QString("Loaded: %1 messages, %2 signals")
                 .arg(db ? db->messages.size() : 0)
                 .arg(db ? db->totalSignalCount() : 0));
-        m_dbcStatusLabel->setStyleSheet("color: green;");
     } else if (dbcMgr.isLoading(index)) {
         m_dbcPathEdit->setText(dbcMgr.dbcFilePath(index));
         m_dbcStatusLabel->setText(tr("Loading..."));
-        m_dbcStatusLabel->setStyleSheet("color: orange;");
     }
 }
 
@@ -294,7 +290,6 @@ void CANConfigWidget::onLoadDBCClicked()
 
     m_dbcPathEdit->setText(filePath);
     m_dbcStatusLabel->setText(tr("Loading..."));
-    m_dbcStatusLabel->setStyleSheet("color: orange;");
     m_dbcLoadBtn->setEnabled(false);
     m_dbcClearBtn->setEnabled(false);
 
@@ -307,7 +302,6 @@ void CANConfigWidget::onClearDBCClicked()
     DBCManager::DBCDatabaseManager::instance().unloadDBC(m_channelIndex);
     m_dbcPathEdit->clear();
     m_dbcStatusLabel->setText(tr("No DBC loaded"));
-    m_dbcStatusLabel->setStyleSheet("color: gray; font-style: italic;");
     m_dbcClearBtn->setEnabled(false);
 }
 
@@ -324,11 +318,9 @@ void CANConfigWidget::onDBCLoadFinished(int channelIndex, bool success, const QS
             QString("Loaded: %1 messages, %2 signals")
                 .arg(db ? db->messages.size() : 0)
                 .arg(db ? db->totalSignalCount() : 0));
-        m_dbcStatusLabel->setStyleSheet("color: green; font-weight: bold;");
         m_dbcClearBtn->setEnabled(true);
     } else {
         m_dbcStatusLabel->setText(tr("Error: %1").arg(errorMsg));
-        m_dbcStatusLabel->setStyleSheet("color: red;");
         m_dbcClearBtn->setEnabled(false);
     }
 }
@@ -409,9 +401,7 @@ void CANConfigWidget::setConnectionStatus(bool connected, const QString& message
     m_disconnectBtn->setEnabled(connected);
     if (connected) {
         m_statusLabel->setText(tr("Connected"));
-        m_statusLabel->setStyleSheet("color: green; font-weight: bold;");
     } else {
         m_statusLabel->setText(message.isEmpty() ? tr("Disconnected") : message);
-        m_statusLabel->setStyleSheet(message.isEmpty() ? "color: gray;" : "color: red;");
     }
 }

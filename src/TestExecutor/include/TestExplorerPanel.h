@@ -20,6 +20,7 @@
 #include <QMenu>
 #include <QSortFilterProxyModel>
 #include <QSet>
+#include <QEvent>
 
 namespace TestExecutor {
 
@@ -55,6 +56,9 @@ public:
      * @brief Collapse all nodes
      */
     void collapseAll();
+
+protected:
+    void changeEvent(QEvent* event) override;
 
 signals:
     /**
@@ -94,6 +98,7 @@ private:
     void setupUi();
     void setupConnections();
     void createContextMenu();
+    void refreshIcons();
     void resolveSelectionContext(QString& groupName, QString& featureName) const;
     void collectTestCaseIdsFromSourceIndex(const QModelIndex& sourceIndex, QStringList& ids, QSet<QString>& seen) const;
 

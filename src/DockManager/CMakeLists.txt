@@ -10,6 +10,7 @@ set(DOCKMANAGER_HEADERS
     include/WorkspaceManager.h
     include/DockToolBar.h
     include/CustomDockComponentsFactory.h
+    include/IconManager.h
 )
 
 set(DOCKMANAGER_SOURCES
@@ -18,6 +19,7 @@ set(DOCKMANAGER_SOURCES
     src/WorkspaceManager.cpp
     src/DockToolBar.cpp
     src/CustomDockComponentsFactory.cpp
+    src/IconManager.cpp
 )
 
 # Create static library
