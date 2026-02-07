@@ -14,10 +14,13 @@
 
 #include "CommandRegistry.h"
 #include <SerialManager.h>
+#include <CANManager.h>
+#include <CANInterface.h>
 #include <QDateTime>
 #include <QDebug>
 #include <QThread>
 #include <QRegularExpression>
+#include <QElapsedTimer>
 
 using namespace SerialManager;
 
@@ -574,27 +577,96 @@ void CommandRegistry::registerSerialCommands()
 // CAN Commands Registration
 //=============================================================================
 
+/**
+ * @brief Helper: Build a CANMessage from common parameter map values.
+ */
+static CANManager::CANMessage buildCANMessage(const QVariantMap& params, bool isFD)
+{
+    CANManager::CANMessage msg{};
+
+    // Parse CAN ID (supports "0x1A3", "1A3", or decimal)
+    QString idStr = params.value("can_id").toString().trimmed();
+    bool ok = false;
+    if (idStr.startsWith("0x", Qt::CaseInsensitive))
+        msg.id = idStr.mid(2).toUInt(&ok, 16);
+    else
+        msg.id = idStr.toUInt(&ok, 16);
+    if (!ok) msg.id = idStr.toUInt(); // fallback decimal
+
+    msg.isExtended = params.value("extended_id", false).toBool();
+    msg.isFD       = isFD;
+    msg.isBRS      = isFD; // enable bit-rate switch when FD
+
+    // Parse payload hex → bytes
+    QByteArray payload = hexStringToBytes(params.value("data").toString());
+    int maxLen = isFD ? 64 : 8;
+    int len    = qMin(payload.size(), maxLen);
+    std::memcpy(msg.data, payload.constData(), len);
+    msg.dlc = CANManager::lengthToDlc(len);
+
+    return msg;
+}
+
+/**
+ * @brief Helper: Receive a CAN response matching a specific ID within timeout.
+ * Flushes the RX queue first, then polls until a matching frame arrives.
+ */
+static CANManager::CANResult receiveMatchingId(const QString& slotName,
+                                                uint32_t targetId,
+                                                CANManager::CANMessage& rxMsg,
+                                                int timeoutMs)
+{
+    auto& can = CANManager::CANBusManager::instance();
+    can.flushReceiveQueue(slotName);
+
+    QElapsedTimer timer;
+    timer.start();
+
+    while (!timer.hasExpired(timeoutMs)) {
+        int remaining = timeoutMs - static_cast<int>(timer.elapsed());
+        if (remaining <= 0) break;
+
+        auto result = can.receive(slotName, rxMsg, qMin(remaining, 100));
+        if (result.success && rxMsg.id == targetId) {
+            return CANManager::CANResult::Success();
+        }
+    }
+    return CANManager::CANResult::Failure(
+        QString("No response with CAN ID 0x%1 within %2 ms")
+            .arg(targetId, 0, 16).arg(timeoutMs));
+}
+
 void CommandRegistry::registerCANCommands()
 {
-    // Send CAN Message
+    // =========================================================================
+    // 1. CANHS_Tx – CAN High-Speed Transmit (8 bytes, fire-and-forget)
+    // =========================================================================
     registerCommand({
-        .id = "can_send_message",
-        .name = "Send CAN Message",
-        .description = "Send a CAN bus message",
+        .id = "canhs_tx",
+        .name = "CANHS_Tx",
+        .description = "Transmit a Classic CAN (High-Speed) message – fire and forget (max 8 bytes)",
         .category = CommandCategory::CAN,
         .parameters = {
             {
+                .name = "slot",
+                .displayName = "CAN Slot",
+                .description = "Logical CAN slot name configured in HW Config (e.g. 'CAN 1')",
+                .type = ParameterType::String,
+                .defaultValue = "CAN 1",
+                .required = true
+            },
+            {
                 .name = "can_id",
                 .displayName = "CAN ID",
-                .description = "Message arbitration ID (hex)",
+                .description = "Arbitration ID in hex (e.g. '0x7E0')",
                 .type = ParameterType::CanId,
                 .defaultValue = "0x100",
                 .required = true
             },
             {
                 .name = "data",
-                .displayName = "Data",
-                .description = "Message payload (hex bytes, max 8 or 64 for FD)",
+                .displayName = "Data (Hex)",
+                .description = "Payload bytes in hex (max 8 bytes, e.g. '02 10 01 00 00 00 00 00')",
                 .type = ParameterType::HexString,
                 .defaultValue = "00 00 00 00 00 00 00 00",
                 .required = true
@@ -602,124 +674,577 @@ void CommandRegistry::registerCANCommands()
             {
                 .name = "extended_id",
                 .displayName = "Extended ID",
-                .description = "Use 29-bit extended ID",
-                .type = ParameterType::Boolean,
-                .defaultValue = false,
-                .required = false
-            },
-            {
-                .name = "fd_mode",
-                .displayName = "CAN FD",
-                .description = "Send as CAN FD message",
+                .description = "Use 29-bit extended CAN ID",
                 .type = ParameterType::Boolean,
                 .defaultValue = false,
                 .required = false
             }
         },
         .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
-            QString canId = params.value("can_id").toString();
-            QString data = params.value("data").toString();
-            qDebug() << "Sending CAN message ID:" << canId << "Data:" << data;
-            return CommandResult::Success("Sent CAN message");
+            QString slot = params.value("slot", "CAN 1").toString();
+            auto& can = CANManager::CANBusManager::instance();
+
+            if (!can.isSlotOpen(slot))
+                return CommandResult::Failure("CAN slot '" + slot + "' is not open");
+
+            CANManager::CANMessage msg = buildCANMessage(params, /*isFD=*/false);
+            auto result = can.transmit(slot, msg);
+
+            QVariantMap resp;
+            resp["can_id"]  = QString("0x%1").arg(msg.id, 0, 16).toUpper();
+            resp["data"]    = bytesToHexString(QByteArray(reinterpret_cast<const char*>(msg.data), msg.dataLength()));
+            resp["dlc"]     = msg.dlc;
+
+            if (result.success)
+                return CommandResult::Success("CAN HS message transmitted", resp);
+            else
+                return CommandResult::Failure("Transmit failed: " + result.errorMessage);
         }
     });
-    
-    // Read CAN Message
+
+    // =========================================================================
+    // 2. CANFD_Tx – CAN FD Transmit (up to 64 bytes, fire-and-forget)
+    // =========================================================================
     registerCommand({
-        .id = "can_read_message",
-        .name = "Read CAN Message",
-        .description = "Read a CAN message with specific ID",
+        .id = "canfd_tx",
+        .name = "CANFD_Tx",
+        .description = "Transmit a CAN FD message – fire and forget (up to 64 bytes)",
         .category = CommandCategory::CAN,
         .parameters = {
             {
-                .name = "target_id",
-                .displayName = "Target CAN ID",
-                .description = "CAN ID to wait for (hex)",
-                .type = ParameterType::CanId,
-                .defaultValue = "0x100",
+                .name = "slot",
+                .displayName = "CAN Slot",
+                .description = "Logical CAN slot name configured in HW Config (e.g. 'CAN 1')",
+                .type = ParameterType::String,
+                .defaultValue = "CAN 1",
                 .required = true
             },
-            {
-                .name = "timeout_ms",
-                .displayName = "Timeout",
-                .description = "Maximum time to wait for message",
-                .type = ParameterType::Duration,
-                .defaultValue = 5000,
-                .required = false,
-                .unit = "ms"
-            }
-        },
-        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
-            QString targetId = params.value("target_id").toString();
-            qDebug() << "Waiting for CAN message ID:" << targetId;
-            QVariantMap response;
-            response["can_id"] = targetId;
-            response["data"] = "00 00 00 00 00 00 00 00";
-            response["timestamp"] = QDateTime::currentMSecsSinceEpoch();
-            return CommandResult::Success("Received CAN message", response);
-        }
-    });
-    
-    // Check CAN Signal Value
-    registerCommand({
-        .id = "can_check_signal",
-        .name = "Check CAN Signal",
-        .description = "Check a signal value in a CAN message",
-        .category = CommandCategory::CAN,
-        .parameters = {
             {
                 .name = "can_id",
                 .displayName = "CAN ID",
-                .description = "Message ID containing the signal",
+                .description = "Arbitration ID in hex (e.g. '0x7E0')",
                 .type = ParameterType::CanId,
                 .defaultValue = "0x100",
                 .required = true
             },
             {
-                .name = "start_bit",
-                .displayName = "Start Bit",
-                .description = "Signal start bit position",
-                .type = ParameterType::Integer,
-                .defaultValue = 0,
-                .required = true,
-                .minValue = 0,
-                .maxValue = 63
+                .name = "data",
+                .displayName = "Data (Hex)",
+                .description = "Payload bytes in hex (up to 64 bytes for CAN FD)",
+                .type = ParameterType::HexString,
+                .defaultValue = "00 00 00 00 00 00 00 00",
+                .required = true
             },
             {
-                .name = "bit_length",
-                .displayName = "Bit Length",
-                .description = "Signal length in bits",
-                .type = ParameterType::Integer,
-                .defaultValue = 8,
-                .required = true,
-                .minValue = 1,
-                .maxValue = 64
+                .name = "extended_id",
+                .displayName = "Extended ID",
+                .description = "Use 29-bit extended CAN ID",
+                .type = ParameterType::Boolean,
+                .defaultValue = false,
+                .required = false
+            }
+        },
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+            QString slot = params.value("slot", "CAN 1").toString();
+            auto& can = CANManager::CANBusManager::instance();
+
+            if (!can.isSlotOpen(slot))
+                return CommandResult::Failure("CAN slot '" + slot + "' is not open");
+
+            CANManager::CANMessage msg = buildCANMessage(params, /*isFD=*/true);
+            auto result = can.transmit(slot, msg);
+
+            QVariantMap resp;
+            resp["can_id"]  = QString("0x%1").arg(msg.id, 0, 16).toUpper();
+            resp["data"]    = bytesToHexString(QByteArray(reinterpret_cast<const char*>(msg.data), msg.dataLength()));
+            resp["dlc"]     = msg.dlc;
+            resp["is_fd"]   = true;
+
+            if (result.success)
+                return CommandResult::Success("CAN FD message transmitted", resp);
+            else
+                return CommandResult::Failure("Transmit failed: " + result.errorMessage);
+        }
+    });
+
+    // =========================================================================
+    // 3. CANHS_TxRx – CAN HS Send and Collect Response
+    // =========================================================================
+    registerCommand({
+        .id = "canhs_txrx",
+        .name = "CANHS_TxRx",
+        .description = "Transmit a Classic CAN message and collect the response (request/response)",
+        .category = CommandCategory::CAN,
+        .parameters = {
+            {
+                .name = "slot",
+                .displayName = "CAN Slot",
+                .description = "Logical CAN slot name (e.g. 'CAN 1')",
+                .type = ParameterType::String,
+                .defaultValue = "CAN 1",
+                .required = true
             },
             {
-                .name = "expected_value",
-                .displayName = "Expected Value",
-                .description = "Expected signal value",
-                .type = ParameterType::Integer,
-                .defaultValue = 0,
+                .name = "can_id",
+                .displayName = "TX CAN ID",
+                .description = "Transmit arbitration ID in hex (e.g. '0x7E0')",
+                .type = ParameterType::CanId,
+                .defaultValue = "0x7E0",
+                .required = true
+            },
+            {
+                .name = "data",
+                .displayName = "TX Data (Hex)",
+                .description = "Payload bytes to send (max 8 bytes)",
+                .type = ParameterType::HexString,
+                .defaultValue = "02 10 01 00 00 00 00 00",
+                .required = true
+            },
+            {
+                .name = "rx_can_id",
+                .displayName = "RX CAN ID",
+                .description = "Expected response CAN ID in hex (e.g. '0x7E8')",
+                .type = ParameterType::CanId,
+                .defaultValue = "0x7E8",
                 .required = true
             },
             {
                 .name = "timeout_ms",
                 .displayName = "Timeout",
-                .description = "Maximum time to wait",
+                .description = "Max time to wait for response",
                 .type = ParameterType::Duration,
                 .defaultValue = 5000,
                 .required = false,
+                .minValue = 50,
+                .maxValue = 60000,
                 .unit = "ms"
+            },
+            {
+                .name = "extended_id",
+                .displayName = "Extended ID",
+                .description = "Use 29-bit extended CAN ID",
+                .type = ParameterType::Boolean,
+                .defaultValue = false,
+                .required = false
             }
         },
         .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
-            QString canId = params.value("can_id").toString();
-            int expectedValue = params.value("expected_value").toInt();
-            qDebug() << "Checking CAN signal in ID:" << canId << "Expected:" << expectedValue;
-            QVariantMap response;
-            response["actual_value"] = expectedValue;
-            return CommandResult::Success("Signal value matches", response);
+            QString slot = params.value("slot", "CAN 1").toString();
+            int timeoutMs = params.value("timeout_ms", 5000).toInt();
+            auto& can = CANManager::CANBusManager::instance();
+
+            if (!can.isSlotOpen(slot))
+                return CommandResult::Failure("CAN slot '" + slot + "' is not open");
+
+            // --- Transmit ---
+            CANManager::CANMessage txMsg = buildCANMessage(params, /*isFD=*/false);
+            auto txResult = can.transmit(slot, txMsg);
+            if (!txResult.success)
+                return CommandResult::Failure("Transmit failed: " + txResult.errorMessage);
+
+            // --- Parse RX CAN ID ---
+            QString rxIdStr = params.value("rx_can_id").toString().trimmed();
+            bool ok = false;
+            uint32_t rxId = rxIdStr.startsWith("0x", Qt::CaseInsensitive)
+                ? rxIdStr.mid(2).toUInt(&ok, 16)
+                : rxIdStr.toUInt(&ok, 16);
+            if (!ok) rxId = rxIdStr.toUInt();
+
+            // --- Receive ---
+            CANManager::CANMessage rxMsg{};
+            auto rxResult = receiveMatchingId(slot, rxId, rxMsg, timeoutMs);
+
+            QVariantMap resp;
+            resp["tx_can_id"] = QString("0x%1").arg(txMsg.id, 0, 16).toUpper();
+            resp["tx_data"]   = bytesToHexString(QByteArray(reinterpret_cast<const char*>(txMsg.data), txMsg.dataLength()));
+            resp["rx_can_id"] = QString("0x%1").arg(rxMsg.id, 0, 16).toUpper();
+            resp["rx_data"]   = bytesToHexString(QByteArray(reinterpret_cast<const char*>(rxMsg.data), rxMsg.dataLength()));
+            resp["rx_dlc"]    = rxMsg.dlc;
+
+            if (rxResult.success)
+                return CommandResult::Success("Response received", resp);
+            else
+                return CommandResult::Failure(rxResult.errorMessage);
+        }
+    });
+
+    // =========================================================================
+    // 4. CANFD_TxRx – CAN FD Send and Collect Response
+    // =========================================================================
+    registerCommand({
+        .id = "canfd_txrx",
+        .name = "CANFD_TxRx",
+        .description = "Transmit a CAN FD message and collect the response (request/response)",
+        .category = CommandCategory::CAN,
+        .parameters = {
+            {
+                .name = "slot",
+                .displayName = "CAN Slot",
+                .description = "Logical CAN slot name (e.g. 'CAN 1')",
+                .type = ParameterType::String,
+                .defaultValue = "CAN 1",
+                .required = true
+            },
+            {
+                .name = "can_id",
+                .displayName = "TX CAN ID",
+                .description = "Transmit arbitration ID in hex (e.g. '0x7E0')",
+                .type = ParameterType::CanId,
+                .defaultValue = "0x7E0",
+                .required = true
+            },
+            {
+                .name = "data",
+                .displayName = "TX Data (Hex)",
+                .description = "Payload bytes to send (up to 64 bytes for FD)",
+                .type = ParameterType::HexString,
+                .defaultValue = "02 10 01 00 00 00 00 00",
+                .required = true
+            },
+            {
+                .name = "rx_can_id",
+                .displayName = "RX CAN ID",
+                .description = "Expected response CAN ID in hex (e.g. '0x7E8')",
+                .type = ParameterType::CanId,
+                .defaultValue = "0x7E8",
+                .required = true
+            },
+            {
+                .name = "timeout_ms",
+                .displayName = "Timeout",
+                .description = "Max time to wait for response",
+                .type = ParameterType::Duration,
+                .defaultValue = 5000,
+                .required = false,
+                .minValue = 50,
+                .maxValue = 60000,
+                .unit = "ms"
+            },
+            {
+                .name = "extended_id",
+                .displayName = "Extended ID",
+                .description = "Use 29-bit extended CAN ID",
+                .type = ParameterType::Boolean,
+                .defaultValue = false,
+                .required = false
+            }
+        },
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+            QString slot = params.value("slot", "CAN 1").toString();
+            int timeoutMs = params.value("timeout_ms", 5000).toInt();
+            auto& can = CANManager::CANBusManager::instance();
+
+            if (!can.isSlotOpen(slot))
+                return CommandResult::Failure("CAN slot '" + slot + "' is not open");
+
+            // --- Transmit (FD) ---
+            CANManager::CANMessage txMsg = buildCANMessage(params, /*isFD=*/true);
+            auto txResult = can.transmit(slot, txMsg);
+            if (!txResult.success)
+                return CommandResult::Failure("Transmit failed: " + txResult.errorMessage);
+
+            // --- Parse RX CAN ID ---
+            QString rxIdStr = params.value("rx_can_id").toString().trimmed();
+            bool ok = false;
+            uint32_t rxId = rxIdStr.startsWith("0x", Qt::CaseInsensitive)
+                ? rxIdStr.mid(2).toUInt(&ok, 16)
+                : rxIdStr.toUInt(&ok, 16);
+            if (!ok) rxId = rxIdStr.toUInt();
+
+            // --- Receive ---
+            CANManager::CANMessage rxMsg{};
+            auto rxResult = receiveMatchingId(slot, rxId, rxMsg, timeoutMs);
+
+            QVariantMap resp;
+            resp["tx_can_id"] = QString("0x%1").arg(txMsg.id, 0, 16).toUpper();
+            resp["tx_data"]   = bytesToHexString(QByteArray(reinterpret_cast<const char*>(txMsg.data), txMsg.dataLength()));
+            resp["rx_can_id"] = QString("0x%1").arg(rxMsg.id, 0, 16).toUpper();
+            resp["rx_data"]   = bytesToHexString(QByteArray(reinterpret_cast<const char*>(rxMsg.data), rxMsg.dataLength()));
+            resp["rx_dlc"]    = rxMsg.dlc;
+            resp["is_fd"]     = true;
+
+            if (rxResult.success)
+                return CommandResult::Success("FD response received", resp);
+            else
+                return CommandResult::Failure(rxResult.errorMessage);
+        }
+    });
+
+    // =========================================================================
+    // 5. CANHS_TxRX – CAN HS Send, Collect Response & Match Expected
+    // =========================================================================
+    registerCommand({
+        .id = "canhs_txrx_match",
+        .name = "CANHS_TxRX",
+        .description = "Transmit a Classic CAN message, collect the response, and compare with expected data",
+        .category = CommandCategory::CAN,
+        .parameters = {
+            {
+                .name = "slot",
+                .displayName = "CAN Slot",
+                .description = "Logical CAN slot name (e.g. 'CAN 1')",
+                .type = ParameterType::String,
+                .defaultValue = "CAN 1",
+                .required = true
+            },
+            {
+                .name = "can_id",
+                .displayName = "TX CAN ID",
+                .description = "Transmit arbitration ID in hex (e.g. '0x7E0')",
+                .type = ParameterType::CanId,
+                .defaultValue = "0x7E0",
+                .required = true
+            },
+            {
+                .name = "data",
+                .displayName = "TX Data (Hex)",
+                .description = "Payload bytes to send (max 8 bytes)",
+                .type = ParameterType::HexString,
+                .defaultValue = "02 10 01 00 00 00 00 00",
+                .required = true
+            },
+            {
+                .name = "rx_can_id",
+                .displayName = "RX CAN ID",
+                .description = "Expected response CAN ID in hex (e.g. '0x7E8')",
+                .type = ParameterType::CanId,
+                .defaultValue = "0x7E8",
+                .required = true
+            },
+            {
+                .name = "expected_response",
+                .displayName = "Expected Response (Hex)",
+                .description = "Expected response payload in hex (e.g. '06 50 01 00 19 01 F4'). Use 'XX' for don't-care bytes.",
+                .type = ParameterType::HexString,
+                .defaultValue = "",
+                .required = true
+            },
+            {
+                .name = "timeout_ms",
+                .displayName = "Timeout",
+                .description = "Max time to wait for response",
+                .type = ParameterType::Duration,
+                .defaultValue = 5000,
+                .required = false,
+                .minValue = 50,
+                .maxValue = 60000,
+                .unit = "ms"
+            },
+            {
+                .name = "extended_id",
+                .displayName = "Extended ID",
+                .description = "Use 29-bit extended CAN ID",
+                .type = ParameterType::Boolean,
+                .defaultValue = false,
+                .required = false
+            }
+        },
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+            QString slot = params.value("slot", "CAN 1").toString();
+            int timeoutMs = params.value("timeout_ms", 5000).toInt();
+            auto& can = CANManager::CANBusManager::instance();
+
+            if (!can.isSlotOpen(slot))
+                return CommandResult::Failure("CAN slot '" + slot + "' is not open");
+
+            // --- Transmit ---
+            CANManager::CANMessage txMsg = buildCANMessage(params, /*isFD=*/false);
+            auto txResult = can.transmit(slot, txMsg);
+            if (!txResult.success)
+                return CommandResult::Failure("Transmit failed: " + txResult.errorMessage);
+
+            // --- Parse RX CAN ID ---
+            QString rxIdStr = params.value("rx_can_id").toString().trimmed();
+            bool ok = false;
+            uint32_t rxId = rxIdStr.startsWith("0x", Qt::CaseInsensitive)
+                ? rxIdStr.mid(2).toUInt(&ok, 16)
+                : rxIdStr.toUInt(&ok, 16);
+            if (!ok) rxId = rxIdStr.toUInt();
+
+            // --- Receive ---
+            CANManager::CANMessage rxMsg{};
+            auto rxResult = receiveMatchingId(slot, rxId, rxMsg, timeoutMs);
+
+            QByteArray rxPayload(reinterpret_cast<const char*>(rxMsg.data), rxMsg.dataLength());
+            QString rxHex = bytesToHexString(rxPayload);
+
+            QVariantMap resp;
+            resp["tx_can_id"]      = QString("0x%1").arg(txMsg.id, 0, 16).toUpper();
+            resp["tx_data"]        = bytesToHexString(QByteArray(reinterpret_cast<const char*>(txMsg.data), txMsg.dataLength()));
+            resp["rx_can_id"]      = QString("0x%1").arg(rxMsg.id, 0, 16).toUpper();
+            resp["rx_data"]        = rxHex;
+            resp["rx_dlc"]         = rxMsg.dlc;
+
+            if (!rxResult.success)
+                return CommandResult::Failure(rxResult.errorMessage);
+
+            // --- Match expected response ---
+            QString expectedHex = params.value("expected_response").toString().trimmed();
+            QByteArray expectedBytes = hexStringToBytes(expectedHex);
+
+            // Support 'XX' wildcard bytes – compare only non-wildcard positions
+            QStringList expectedTokens = expectedHex.toUpper().split(QRegularExpression("[\\s\\-:]+"), Qt::SkipEmptyParts);
+            bool matched = (expectedTokens.size() <= rxPayload.size());
+            QString mismatchDetail;
+            for (int i = 0; matched && i < expectedTokens.size(); ++i) {
+                if (expectedTokens[i] == "XX") continue;  // wildcard
+                bool tokOk = false;
+                uint8_t expByte = static_cast<uint8_t>(expectedTokens[i].toUInt(&tokOk, 16));
+                if (!tokOk) { matched = false; mismatchDetail = "Invalid hex token: " + expectedTokens[i]; break; }
+                if (static_cast<uint8_t>(rxPayload[i]) != expByte) {
+                    matched = false;
+                    mismatchDetail = QString("Byte %1: expected 0x%2, got 0x%3")
+                        .arg(i)
+                        .arg(expByte, 2, 16, QChar('0'))
+                        .arg(static_cast<uint8_t>(rxPayload[i]), 2, 16, QChar('0'));
+                }
+            }
+
+            resp["expected_data"]   = expectedHex;
+            resp["match"]          = matched;
+
+            if (matched)
+                return CommandResult::Success("Response matches expected", resp);
+            else
+                return CommandResult::Failure("Response mismatch – " + mismatchDetail);
+        }
+    });
+
+    // =========================================================================
+    // 6. CANFD_TxRX – CAN FD Send, Collect Response & Match Expected
+    // =========================================================================
+    registerCommand({
+        .id = "canfd_txrx_match",
+        .name = "CANFD_TxRX",
+        .description = "Transmit a CAN FD message, collect the response, and compare with expected data",
+        .category = CommandCategory::CAN,
+        .parameters = {
+            {
+                .name = "slot",
+                .displayName = "CAN Slot",
+                .description = "Logical CAN slot name (e.g. 'CAN 1')",
+                .type = ParameterType::String,
+                .defaultValue = "CAN 1",
+                .required = true
+            },
+            {
+                .name = "can_id",
+                .displayName = "TX CAN ID",
+                .description = "Transmit arbitration ID in hex (e.g. '0x7E0')",
+                .type = ParameterType::CanId,
+                .defaultValue = "0x7E0",
+                .required = true
+            },
+            {
+                .name = "data",
+                .displayName = "TX Data (Hex)",
+                .description = "Payload bytes to send (up to 64 bytes for FD)",
+                .type = ParameterType::HexString,
+                .defaultValue = "02 10 01 00 00 00 00 00",
+                .required = true
+            },
+            {
+                .name = "rx_can_id",
+                .displayName = "RX CAN ID",
+                .description = "Expected response CAN ID in hex (e.g. '0x7E8')",
+                .type = ParameterType::CanId,
+                .defaultValue = "0x7E8",
+                .required = true
+            },
+            {
+                .name = "expected_response",
+                .displayName = "Expected Response (Hex)",
+                .description = "Expected response payload in hex. Use 'XX' for don't-care bytes.",
+                .type = ParameterType::HexString,
+                .defaultValue = "",
+                .required = true
+            },
+            {
+                .name = "timeout_ms",
+                .displayName = "Timeout",
+                .description = "Max time to wait for response",
+                .type = ParameterType::Duration,
+                .defaultValue = 5000,
+                .required = false,
+                .minValue = 50,
+                .maxValue = 60000,
+                .unit = "ms"
+            },
+            {
+                .name = "extended_id",
+                .displayName = "Extended ID",
+                .description = "Use 29-bit extended CAN ID",
+                .type = ParameterType::Boolean,
+                .defaultValue = false,
+                .required = false
+            }
+        },
+        .handler = [](const QVariantMap& params, const QVariantMap& /*config*/) -> CommandResult {
+            QString slot = params.value("slot", "CAN 1").toString();
+            int timeoutMs = params.value("timeout_ms", 5000).toInt();
+            auto& can = CANManager::CANBusManager::instance();
+
+            if (!can.isSlotOpen(slot))
+                return CommandResult::Failure("CAN slot '" + slot + "' is not open");
+
+            // --- Transmit (FD) ---
+            CANManager::CANMessage txMsg = buildCANMessage(params, /*isFD=*/true);
+            auto txResult = can.transmit(slot, txMsg);
+            if (!txResult.success)
+                return CommandResult::Failure("Transmit failed: " + txResult.errorMessage);
+
+            // --- Parse RX CAN ID ---
+            QString rxIdStr = params.value("rx_can_id").toString().trimmed();
+            bool ok = false;
+            uint32_t rxId = rxIdStr.startsWith("0x", Qt::CaseInsensitive)
+                ? rxIdStr.mid(2).toUInt(&ok, 16)
+                : rxIdStr.toUInt(&ok, 16);
+            if (!ok) rxId = rxIdStr.toUInt();
+
+            // --- Receive ---
+            CANManager::CANMessage rxMsg{};
+            auto rxResult = receiveMatchingId(slot, rxId, rxMsg, timeoutMs);
+
+            QByteArray rxPayload(reinterpret_cast<const char*>(rxMsg.data), rxMsg.dataLength());
+            QString rxHex = bytesToHexString(rxPayload);
+
+            QVariantMap resp;
+            resp["tx_can_id"]      = QString("0x%1").arg(txMsg.id, 0, 16).toUpper();
+            resp["tx_data"]        = bytesToHexString(QByteArray(reinterpret_cast<const char*>(txMsg.data), txMsg.dataLength()));
+            resp["rx_can_id"]      = QString("0x%1").arg(rxMsg.id, 0, 16).toUpper();
+            resp["rx_data"]        = rxHex;
+            resp["rx_dlc"]         = rxMsg.dlc;
+            resp["is_fd"]          = true;
+
+            if (!rxResult.success)
+                return CommandResult::Failure(rxResult.errorMessage);
+
+            // --- Match expected response ---
+            QString expectedHex = params.value("expected_response").toString().trimmed();
+            QStringList expectedTokens = expectedHex.toUpper().split(QRegularExpression("[\\s\\-:]+"), Qt::SkipEmptyParts);
+            bool matched = (expectedTokens.size() <= rxPayload.size());
+            QString mismatchDetail;
+            for (int i = 0; matched && i < expectedTokens.size(); ++i) {
+                if (expectedTokens[i] == "XX") continue;
+                bool tokOk = false;
+                uint8_t expByte = static_cast<uint8_t>(expectedTokens[i].toUInt(&tokOk, 16));
+                if (!tokOk) { matched = false; mismatchDetail = "Invalid hex token: " + expectedTokens[i]; break; }
+                if (static_cast<uint8_t>(rxPayload[i]) != expByte) {
+                    matched = false;
+                    mismatchDetail = QString("Byte %1: expected 0x%2, got 0x%3")
+                        .arg(i)
+                        .arg(expByte, 2, 16, QChar('0'))
+                        .arg(static_cast<uint8_t>(rxPayload[i]), 2, 16, QChar('0'));
+                }
+            }
+
+            resp["expected_data"]   = expectedHex;
+            resp["match"]          = matched;
+
+            if (matched)
+                return CommandResult::Success("FD response matches expected", resp);
+            else
+                return CommandResult::Failure("FD response mismatch – " + mismatchDetail);
         }
     });
 }

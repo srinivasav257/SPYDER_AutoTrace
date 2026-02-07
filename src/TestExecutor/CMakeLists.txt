@@ -53,6 +53,7 @@ target_link_libraries(TestExecutor
     PRIVATE
         DockManager::DockManager
         SerialManager::SerialManager
+        CANManager::CANManager
 )
 
 # Allow TestExecutor to access HWConfigManager for port alias resolution
