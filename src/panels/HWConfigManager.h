@@ -20,8 +20,10 @@ struct SerialDebugPortConfig
  */
 struct CANPortConfig
 {
+    QString customName;                         ///< User-defined alias (e.g., "Vehicle CAN")
     QString interfaceType = "PEAK PCAN";        ///< PEAK PCAN, Vector, SocketCAN, Custom
     QString device = "PCAN_USBBUS1";            ///< Device identifier
+    int channel = 1;                            ///< Hardware channel number
     int bitrate = 500000;                       ///< Nominal bitrate (bps)
     bool fdEnabled = false;                     ///< CAN FD mode
     int fdDataBitrate = 2000000;                ///< FD data phase bitrate (bps)
@@ -84,6 +86,12 @@ public:
 
     /** @brief Resolves a custom alias to actual COM port name. Returns alias if not found. */
     QString resolvePortAlias(const QString& alias) const;
+
+    /** @brief Returns all non-empty CAN custom aliases */
+    QStringList allCANAliases() const;
+
+    /** @brief Resolves a CAN alias to its device identifier. Returns alias if not found. */
+    QString resolveCANAlias(const QString& alias) const;
 
     // --- Persistence ---
     void save();

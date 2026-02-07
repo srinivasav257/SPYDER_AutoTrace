@@ -9,6 +9,7 @@
 #include <QSpinBox>
 #include <QFormLayout>
 #include <QPushButton>
+#include <QLabel>
 #include <array>
 
 // ---------------------------------------------------------------------------
@@ -49,12 +50,23 @@ public:
     void setConfig(const CANPortConfig& config);
     CANPortConfig config() const;
 
+    void setConnectionStatus(bool connected, const QString& message = {});
+
+signals:
+    void connectRequested();
+    void disconnectRequested();
+
 private:
+    QLineEdit* m_aliasEdit;
     QComboBox* m_interfaceTypeCombo;
     QLineEdit* m_deviceEdit;
+    QSpinBox* m_channelSpin;
     QComboBox* m_bitrateCombo;
     QCheckBox* m_fdEnabledCheck;
     QComboBox* m_fdBitrateCombo;
+    QPushButton* m_connectBtn;
+    QPushButton* m_disconnectBtn;
+    QLabel* m_statusLabel;
 };
 
 // ---------------------------------------------------------------------------
@@ -84,6 +96,9 @@ private:
     struct SerialDebugTab {
         QLineEdit* customName = nullptr;
         SerialConfigWidget* serialConfig = nullptr;
+        QPushButton* connectBtn = nullptr;
+        QPushButton* disconnectBtn = nullptr;
+        QLabel* statusLabel = nullptr;
     };
     std::array<SerialDebugTab, HWConfigManager::SERIAL_PORT_COUNT> m_serialDebugTabs;
 
@@ -93,9 +108,15 @@ private:
     // Power Supply
     QLineEdit* m_powerSupplyName = nullptr;
     SerialConfigWidget* m_powerSupplySerial = nullptr;
+    QPushButton* m_powerSupplyConnectBtn = nullptr;
+    QPushButton* m_powerSupplyDisconnectBtn = nullptr;
+    QLabel* m_powerSupplyStatusLabel = nullptr;
 
     // Modbus Relay
     QLineEdit* m_modbusName = nullptr;
     SerialConfigWidget* m_modbusSerial = nullptr;
     QSpinBox* m_modbusAddress = nullptr;
+    QPushButton* m_modbusConnectBtn = nullptr;
+    QPushButton* m_modbusDisconnectBtn = nullptr;
+    QLabel* m_modbusStatusLabel = nullptr;
 };

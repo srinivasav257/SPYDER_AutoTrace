@@ -194,26 +194,37 @@ StepEditorWidget::StepEditorWidget(QWidget* parent)
     auto* layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
 
+    // Placeholder shown when no step is selected
+    m_placeholderLabel = new QLabel(tr("Select a step to configure"), this);
+    m_placeholderLabel->setAlignment(Qt::AlignCenter);
+    m_placeholderLabel->setStyleSheet("color: gray; font-style: italic; padding: 40px;");
+    layout->addWidget(m_placeholderLabel);
+
+    // Form container (hidden by default)
+    m_formWidget = new QWidget(this);
+    auto* formWidgetLayout = new QVBoxLayout(m_formWidget);
+    formWidgetLayout->setContentsMargins(0, 0, 0, 0);
+
     auto* formLayout = new QFormLayout();
 
     // Category selector
-    m_categoryCombo = new QComboBox(this);
+    m_categoryCombo = new QComboBox(m_formWidget);
     m_categoryCombo->addItems({"Serial", "CAN", "Power", "Flow", "Validation", "System", "mdEOL"});
     formLayout->addRow("Category:", m_categoryCombo);
 
     // Command selector
-    m_commandCombo = new QComboBox(this);
+    m_commandCombo = new QComboBox(m_formWidget);
     formLayout->addRow("Command:", m_commandCombo);
 
     // Description
-    m_descriptionEdit = new QLineEdit(this);
+    m_descriptionEdit = new QLineEdit(m_formWidget);
     formLayout->addRow("Description:", m_descriptionEdit);
 
     // Enabled checkbox
-    m_enabledCheck = new QCheckBox("Enabled", this);
+    m_enabledCheck = new QCheckBox("Enabled", m_formWidget);
     m_enabledCheck->setChecked(true);
 
-    m_continueOnFailCheck = new QCheckBox("Continue on Failure", this);
+    m_continueOnFailCheck = new QCheckBox("Continue on Failure", m_formWidget);
 
     auto* checkLayout = new QHBoxLayout();
     checkLayout->addWidget(m_enabledCheck);
@@ -221,15 +232,18 @@ StepEditorWidget::StepEditorWidget(QWidget* parent)
     checkLayout->addStretch();
     formLayout->addRow("Options:", checkLayout);
 
-    layout->addLayout(formLayout);
+    formWidgetLayout->addLayout(formLayout);
 
     // Parameters container
-    auto* paramGroup = new QGroupBox("Parameters", this);
+    auto* paramGroup = new QGroupBox("Parameters", m_formWidget);
     m_parameterLayout = new QFormLayout(paramGroup);
     m_parameterContainer = paramGroup;
-    layout->addWidget(paramGroup);
+    formWidgetLayout->addWidget(paramGroup);
 
-    layout->addStretch();
+    formWidgetLayout->addStretch();
+
+    layout->addWidget(m_formWidget);
+    m_formWidget->hide();
 
     // Connect signals
     connect(m_categoryCombo, &QComboBox::currentTextChanged, this, &StepEditorWidget::onCategoryChanged);
@@ -237,14 +251,15 @@ StepEditorWidget::StepEditorWidget(QWidget* parent)
     connect(m_descriptionEdit, &QLineEdit::textChanged, this, &StepEditorWidget::stepModified);
     connect(m_enabledCheck, &QCheckBox::toggled, this, &StepEditorWidget::stepModified);
     connect(m_continueOnFailCheck, &QCheckBox::toggled, this, &StepEditorWidget::stepModified);
-
-    // Initialize with first category
-    onCategoryChanged(m_categoryCombo->currentText());
 }
 
 void StepEditorWidget::loadStep(const TestStep& step)
 {
     m_currentStep = step;
+
+    // Show the form, hide placeholder
+    m_placeholderLabel->hide();
+    m_formWidget->show();
 
     // Block signals during load
     m_categoryCombo->blockSignals(true);
@@ -253,8 +268,19 @@ void StepEditorWidget::loadStep(const TestStep& step)
     m_enabledCheck->blockSignals(true);
     m_continueOnFailCheck->blockSignals(true);
 
+    // Set category
     m_categoryCombo->setCurrentText(TestStep::categoryToString(step.category));
-    onCategoryChanged(m_categoryCombo->currentText());
+
+    // Populate command combo for this category without triggering onCommandChanged
+    {
+        CommandCategory cat = step.category;
+        auto& registry = CommandRegistry::instance();
+        m_commandCombo->clear();
+        auto commands = registry.commandsByCategory(cat);
+        for (const auto& cmd : commands) {
+            m_commandCombo->addItem(cmd.name, cmd.id);
+        }
+    }
 
     // Find and set command by id
     auto& registry = CommandRegistry::instance();
@@ -267,7 +293,10 @@ void StepEditorWidget::loadStep(const TestStep& step)
     m_enabledCheck->setChecked(step.enabled);
     m_continueOnFailCheck->setChecked(step.continueOnFail);
 
-    // Load parameters
+    // Build parameter editors for the correct command
+    updateParameterEditors();
+
+    // Load parameter values
     for (ParameterEditorWidget* editor : m_parameterEditors) {
         QString paramName = editor->parameterDef().name;
         if (step.parameters.contains(paramName)) {
@@ -320,6 +349,10 @@ void StepEditorWidget::clear()
     m_enabledCheck->setChecked(true);
     m_continueOnFailCheck->setChecked(false);
     clearParameterEditors();
+
+    // Show placeholder, hide form
+    m_formWidget->hide();
+    m_placeholderLabel->show();
 }
 
 void StepEditorWidget::setCommand(const QString& commandId)

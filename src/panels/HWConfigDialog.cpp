@@ -148,10 +148,21 @@ CANConfigWidget::CANConfigWidget(QWidget* parent)
 {
     auto* form = new QFormLayout(this);
 
+    // Alias (Device Name for tests)
+    m_aliasEdit = new QLineEdit;
+    m_aliasEdit->setPlaceholderText(tr("e.g., Vehicle_CAN_HS"));
+    form->addRow(tr("Alias (Device Name):"), m_aliasEdit);
+
     // Interface Type
     m_interfaceTypeCombo = new QComboBox;
     m_interfaceTypeCombo->addItems({"PEAK PCAN", "Vector", "SocketCAN", "Custom"});
     form->addRow(tr("Interface Type:"), m_interfaceTypeCombo);
+
+    // Channel
+    m_channelSpin = new QSpinBox;
+    m_channelSpin->setRange(1, 16);
+    m_channelSpin->setValue(1);
+    form->addRow(tr("Channel:"), m_channelSpin);
 
     // Device
     m_deviceEdit = new QLineEdit("PCAN_USBBUS1");
@@ -175,14 +186,33 @@ CANConfigWidget::CANConfigWidget(QWidget* parent)
     m_fdBitrateCombo->setEnabled(false);
     form->addRow(tr("FD Data Bitrate (bps):"), m_fdBitrateCombo);
 
+    // Connect/Disconnect
+    auto* connLayout = new QHBoxLayout;
+    m_connectBtn = new QPushButton(tr("Connect"));
+    m_disconnectBtn = new QPushButton(tr("Disconnect"));
+    m_disconnectBtn->setEnabled(false);
+    m_statusLabel = new QLabel(tr("Disconnected"));
+    m_statusLabel->setStyleSheet("color: gray;");
+    connLayout->addWidget(m_connectBtn);
+    connLayout->addWidget(m_disconnectBtn);
+    connLayout->addWidget(m_statusLabel);
+    connLayout->addStretch();
+    form->addRow(tr("Connection:"), connLayout);
+
     // Enable/disable FD bitrate based on FD checkbox
     connect(m_fdEnabledCheck, &QCheckBox::toggled, m_fdBitrateCombo, &QComboBox::setEnabled);
+
+    // Connect/Disconnect signals
+    connect(m_connectBtn, &QPushButton::clicked, this, &CANConfigWidget::connectRequested);
+    connect(m_disconnectBtn, &QPushButton::clicked, this, &CANConfigWidget::disconnectRequested);
 }
 
 void CANConfigWidget::setConfig(const CANPortConfig& cfg)
 {
+    m_aliasEdit->setText(cfg.customName);
     m_interfaceTypeCombo->setCurrentText(cfg.interfaceType);
     m_deviceEdit->setText(cfg.device);
+    m_channelSpin->setValue(cfg.channel);
     m_bitrateCombo->setCurrentText(QString::number(cfg.bitrate));
     m_fdEnabledCheck->setChecked(cfg.fdEnabled);
     m_fdBitrateCombo->setCurrentText(QString::number(cfg.fdDataBitrate));
@@ -192,12 +222,27 @@ void CANConfigWidget::setConfig(const CANPortConfig& cfg)
 CANPortConfig CANConfigWidget::config() const
 {
     CANPortConfig cfg;
+    cfg.customName = m_aliasEdit->text();
     cfg.interfaceType = m_interfaceTypeCombo->currentText();
     cfg.device = m_deviceEdit->text();
+    cfg.channel = m_channelSpin->value();
     cfg.bitrate = m_bitrateCombo->currentText().toInt();
     cfg.fdEnabled = m_fdEnabledCheck->isChecked();
     cfg.fdDataBitrate = m_fdBitrateCombo->currentText().toInt();
     return cfg;
+}
+
+void CANConfigWidget::setConnectionStatus(bool connected, const QString& message)
+{
+    m_connectBtn->setEnabled(!connected);
+    m_disconnectBtn->setEnabled(connected);
+    if (connected) {
+        m_statusLabel->setText(tr("Connected"));
+        m_statusLabel->setStyleSheet("color: green; font-weight: bold;");
+    } else {
+        m_statusLabel->setText(message.isEmpty() ? tr("Disconnected") : message);
+        m_statusLabel->setStyleSheet(message.isEmpty() ? "color: gray;" : "color: red;");
+    }
 }
 
 // ===========================================================================
@@ -256,9 +301,48 @@ void HWConfigDialog::setupSerialDebugTab(QTabWidget* parent)
         m_serialDebugTabs[i].serialConfig = new SerialConfigWidget;
         layout->addWidget(m_serialDebugTabs[i].serialConfig);
 
+        // Connect/Disconnect buttons
+        auto* connLayout = new QHBoxLayout;
+        m_serialDebugTabs[i].connectBtn = new QPushButton(tr("Connect"));
+        m_serialDebugTabs[i].disconnectBtn = new QPushButton(tr("Disconnect"));
+        m_serialDebugTabs[i].disconnectBtn->setEnabled(false);
+        m_serialDebugTabs[i].statusLabel = new QLabel(tr("Disconnected"));
+        m_serialDebugTabs[i].statusLabel->setStyleSheet("color: gray;");
+        connLayout->addWidget(m_serialDebugTabs[i].connectBtn);
+        connLayout->addWidget(m_serialDebugTabs[i].disconnectBtn);
+        connLayout->addWidget(m_serialDebugTabs[i].statusLabel);
+        connLayout->addStretch();
+        layout->addLayout(connLayout);
+
         layout->addStretch();
 
         innerTabs->addTab(page, tr("Port %1").arg(i + 1));
+
+        // Connect handler
+        connect(m_serialDebugTabs[i].connectBtn, &QPushButton::clicked, this, [this, i]() {
+            auto cfg = m_serialDebugTabs[i].serialConfig->config();
+            if (cfg.portName.isEmpty()) return;
+            auto& serial = SerialManager::SerialPortManager::instance();
+            serial.setPortConfig(cfg.portName, cfg);
+            auto result = serial.openPort(cfg.portName);
+            bool connected = result.success;
+            m_serialDebugTabs[i].connectBtn->setEnabled(!connected);
+            m_serialDebugTabs[i].disconnectBtn->setEnabled(connected);
+            m_serialDebugTabs[i].statusLabel->setText(
+                connected ? tr("Connected") : tr("Failed: %1").arg(result.errorMessage));
+            m_serialDebugTabs[i].statusLabel->setStyleSheet(
+                connected ? "color: green; font-weight: bold;" : "color: red;");
+        });
+
+        // Disconnect handler
+        connect(m_serialDebugTabs[i].disconnectBtn, &QPushButton::clicked, this, [this, i]() {
+            auto cfg = m_serialDebugTabs[i].serialConfig->config();
+            SerialManager::SerialPortManager::instance().closePort(cfg.portName);
+            m_serialDebugTabs[i].connectBtn->setEnabled(true);
+            m_serialDebugTabs[i].disconnectBtn->setEnabled(false);
+            m_serialDebugTabs[i].statusLabel->setText(tr("Disconnected"));
+            m_serialDebugTabs[i].statusLabel->setStyleSheet("color: gray;");
+        });
     }
 }
 
@@ -274,6 +358,18 @@ void HWConfigDialog::setupCANTab(QTabWidget* parent)
         layout->addWidget(m_canTabs[i]);
         layout->addStretch();
         innerTabs->addTab(page, tr("CAN %1 (HS/FD)").arg(i + 1));
+
+        // Connect handler (CAN bus connection - stub for now)
+        connect(m_canTabs[i], &CANConfigWidget::connectRequested, this, [this, i]() {
+            // TODO: Implement actual CAN bus connection via CAN driver
+            m_canTabs[i]->setConnectionStatus(true);
+        });
+
+        // Disconnect handler
+        connect(m_canTabs[i], &CANConfigWidget::disconnectRequested, this, [this, i]() {
+            // TODO: Implement actual CAN bus disconnection
+            m_canTabs[i]->setConnectionStatus(false);
+        });
     }
 }
 
@@ -297,9 +393,49 @@ void HWConfigDialog::setupPowerSupplyTab(QTabWidget* parent)
 
     m_powerSupplySerial = new SerialConfigWidget;
     layout->addWidget(m_powerSupplySerial);
+
+    // Connect/Disconnect buttons
+    auto* connLayout = new QHBoxLayout;
+    m_powerSupplyConnectBtn = new QPushButton(tr("Connect"));
+    m_powerSupplyDisconnectBtn = new QPushButton(tr("Disconnect"));
+    m_powerSupplyDisconnectBtn->setEnabled(false);
+    m_powerSupplyStatusLabel = new QLabel(tr("Disconnected"));
+    m_powerSupplyStatusLabel->setStyleSheet("color: gray;");
+    connLayout->addWidget(m_powerSupplyConnectBtn);
+    connLayout->addWidget(m_powerSupplyDisconnectBtn);
+    connLayout->addWidget(m_powerSupplyStatusLabel);
+    connLayout->addStretch();
+    layout->addLayout(connLayout);
+
     layout->addStretch();
 
     parent->addTab(page, tr("Power Supply"));
+
+    // Connect handler
+    connect(m_powerSupplyConnectBtn, &QPushButton::clicked, this, [this]() {
+        auto cfg = m_powerSupplySerial->config();
+        if (cfg.portName.isEmpty()) return;
+        auto& serial = SerialManager::SerialPortManager::instance();
+        serial.setPortConfig(cfg.portName, cfg);
+        auto result = serial.openPort(cfg.portName);
+        bool connected = result.success;
+        m_powerSupplyConnectBtn->setEnabled(!connected);
+        m_powerSupplyDisconnectBtn->setEnabled(connected);
+        m_powerSupplyStatusLabel->setText(
+            connected ? tr("Connected") : tr("Failed: %1").arg(result.errorMessage));
+        m_powerSupplyStatusLabel->setStyleSheet(
+            connected ? "color: green; font-weight: bold;" : "color: red;");
+    });
+
+    // Disconnect handler
+    connect(m_powerSupplyDisconnectBtn, &QPushButton::clicked, this, [this]() {
+        auto cfg = m_powerSupplySerial->config();
+        SerialManager::SerialPortManager::instance().closePort(cfg.portName);
+        m_powerSupplyConnectBtn->setEnabled(true);
+        m_powerSupplyDisconnectBtn->setEnabled(false);
+        m_powerSupplyStatusLabel->setText(tr("Disconnected"));
+        m_powerSupplyStatusLabel->setStyleSheet("color: gray;");
+    });
 }
 
 void HWConfigDialog::setupModbusTab(QTabWidget* parent)
@@ -331,9 +467,48 @@ void HWConfigDialog::setupModbusTab(QTabWidget* parent)
     addrLayout->addRow(tr("Modbus Address:"), m_modbusAddress);
     layout->addLayout(addrLayout);
 
+    // Connect/Disconnect buttons
+    auto* connLayout = new QHBoxLayout;
+    m_modbusConnectBtn = new QPushButton(tr("Connect"));
+    m_modbusDisconnectBtn = new QPushButton(tr("Disconnect"));
+    m_modbusDisconnectBtn->setEnabled(false);
+    m_modbusStatusLabel = new QLabel(tr("Disconnected"));
+    m_modbusStatusLabel->setStyleSheet("color: gray;");
+    connLayout->addWidget(m_modbusConnectBtn);
+    connLayout->addWidget(m_modbusDisconnectBtn);
+    connLayout->addWidget(m_modbusStatusLabel);
+    connLayout->addStretch();
+    layout->addLayout(connLayout);
+
     layout->addStretch();
 
     parent->addTab(page, tr("Modbus Relay"));
+
+    // Connect handler
+    connect(m_modbusConnectBtn, &QPushButton::clicked, this, [this]() {
+        auto cfg = m_modbusSerial->config();
+        if (cfg.portName.isEmpty()) return;
+        auto& serial = SerialManager::SerialPortManager::instance();
+        serial.setPortConfig(cfg.portName, cfg);
+        auto result = serial.openPort(cfg.portName);
+        bool connected = result.success;
+        m_modbusConnectBtn->setEnabled(!connected);
+        m_modbusDisconnectBtn->setEnabled(connected);
+        m_modbusStatusLabel->setText(
+            connected ? tr("Connected") : tr("Failed: %1").arg(result.errorMessage));
+        m_modbusStatusLabel->setStyleSheet(
+            connected ? "color: green; font-weight: bold;" : "color: red;");
+    });
+
+    // Disconnect handler
+    connect(m_modbusDisconnectBtn, &QPushButton::clicked, this, [this]() {
+        auto cfg = m_modbusSerial->config();
+        SerialManager::SerialPortManager::instance().closePort(cfg.portName);
+        m_modbusConnectBtn->setEnabled(true);
+        m_modbusDisconnectBtn->setEnabled(false);
+        m_modbusStatusLabel->setText(tr("Disconnected"));
+        m_modbusStatusLabel->setStyleSheet("color: gray;");
+    });
 }
 
 void HWConfigDialog::loadFromManager()

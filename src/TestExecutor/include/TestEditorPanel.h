@@ -28,6 +28,7 @@
 #include <QPushButton>
 #include <QFormLayout>
 #include <QTabWidget>
+#include <QLabel>
 
 namespace TestExecutor {
 
@@ -123,6 +124,9 @@ private:
     QWidget* m_parameterContainer = nullptr;
     QFormLayout* m_parameterLayout = nullptr;
     QVector<ParameterEditorWidget*> m_parameterEditors;
+
+    QLabel* m_placeholderLabel = nullptr;
+    QWidget* m_formWidget = nullptr;
 
     TestStep m_currentStep;
 };

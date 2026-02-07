@@ -15,6 +15,10 @@ HWConfigManager::HWConfigManager()
     m_serialDebugPorts[2].customName = "Debug Port 3";
     m_serialDebugPorts[3].customName = "Debug Port 4";
 
+    // Set default CAN custom names
+    m_canPorts[0].customName = "CAN 1";
+    m_canPorts[1].customName = "CAN 2";
+
     // Set default power supply baud rate (TENMA uses 9600)
     m_powerSupply.serial.baudRate = 9600;
 
@@ -111,6 +115,32 @@ QString HWConfigManager::resolvePortAlias(const QString& alias) const
 }
 
 // ---------------------------------------------------------------------------
+// CAN Alias Resolution
+// ---------------------------------------------------------------------------
+
+QStringList HWConfigManager::allCANAliases() const
+{
+    QStringList aliases;
+    for (int i = 0; i < CAN_PORT_COUNT; ++i) {
+        const auto& c = m_canPorts[i];
+        if (!c.customName.isEmpty()) {
+            aliases.append(c.customName);
+        }
+    }
+    return aliases;
+}
+
+QString HWConfigManager::resolveCANAlias(const QString& alias) const
+{
+    for (int i = 0; i < CAN_PORT_COUNT; ++i) {
+        if (m_canPorts[i].customName == alias) {
+            return m_canPorts[i].device;
+        }
+    }
+    return alias;
+}
+
+// ---------------------------------------------------------------------------
 // Persistence helpers
 // ---------------------------------------------------------------------------
 
@@ -194,8 +224,10 @@ void HWConfigManager::save()
     // CAN Ports
     for (int i = 0; i < CAN_PORT_COUNT; ++i) {
         QString key = QString("CAN/%1").arg(i);
+        s.setValue(key + "/customName", m_canPorts[i].customName);
         s.setValue(key + "/interfaceType", m_canPorts[i].interfaceType);
         s.setValue(key + "/device", m_canPorts[i].device);
+        s.setValue(key + "/channel", m_canPorts[i].channel);
         s.setValue(key + "/bitrate", m_canPorts[i].bitrate);
         s.setValue(key + "/fdEnabled", m_canPorts[i].fdEnabled);
         s.setValue(key + "/fdDataBitrate", m_canPorts[i].fdDataBitrate);
@@ -231,8 +263,10 @@ void HWConfigManager::load()
     for (int i = 0; i < CAN_PORT_COUNT; ++i) {
         QString key = QString("CAN/%1").arg(i);
         if (s.contains(key + "/interfaceType")) {
+            m_canPorts[i].customName = s.value(key + "/customName").toString();
             m_canPorts[i].interfaceType = s.value(key + "/interfaceType").toString();
             m_canPorts[i].device = s.value(key + "/device").toString();
+            m_canPorts[i].channel = s.value(key + "/channel", 1).toInt();
             m_canPorts[i].bitrate = s.value(key + "/bitrate").toInt();
             m_canPorts[i].fdEnabled = s.value(key + "/fdEnabled").toBool();
             m_canPorts[i].fdDataBitrate = s.value(key + "/fdDataBitrate").toInt();
