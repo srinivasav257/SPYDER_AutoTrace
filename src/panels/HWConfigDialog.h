@@ -1,6 +1,7 @@
 #pragma once
 
 #include "HWConfigManager.h"
+#include <CANManager.h>
 #include <QDialog>
 #include <QTabWidget>
 #include <QComboBox>
@@ -52,21 +53,34 @@ public:
 
     void setConnectionStatus(bool connected, const QString& message = {});
 
+    /** @brief Refresh detected Vector hardware channels in the mapping combo. */
+    void refreshVectorChannels();
+
 signals:
     void connectRequested();
     void disconnectRequested();
 
+private slots:
+    void onInterfaceTypeChanged(const QString& type);
+
 private:
     QLineEdit* m_aliasEdit;
     QComboBox* m_interfaceTypeCombo;
+    QComboBox* m_channelMappingCombo;    ///< Vector HW channel selection
+    QPushButton* m_detectHWBtn;          ///< Refresh Vector hardware detection
+    QWidget* m_channelMappingRow;        ///< Container for channel mapping (shown for Vector)
     QLineEdit* m_deviceEdit;
+    QWidget* m_deviceRow;                ///< Container for manual device field (hidden for Vector)
     QSpinBox* m_channelSpin;
+    QWidget* m_channelRow;               ///< Container for manual channel field (hidden for Vector)
     QComboBox* m_bitrateCombo;
     QCheckBox* m_fdEnabledCheck;
     QComboBox* m_fdBitrateCombo;
     QPushButton* m_connectBtn;
     QPushButton* m_disconnectBtn;
     QLabel* m_statusLabel;
+
+    QList<CANManager::CANChannelInfo> m_detectedChannels;  ///< Cached detection results
 };
 
 // ---------------------------------------------------------------------------

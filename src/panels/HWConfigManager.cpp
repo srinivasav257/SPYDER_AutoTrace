@@ -231,6 +231,12 @@ void HWConfigManager::save()
         s.setValue(key + "/bitrate", m_canPorts[i].bitrate);
         s.setValue(key + "/fdEnabled", m_canPorts[i].fdEnabled);
         s.setValue(key + "/fdDataBitrate", m_canPorts[i].fdDataBitrate);
+        // Vector XL channel mapping
+        s.setValue(key + "/vectorHwType", m_canPorts[i].vectorHwType);
+        s.setValue(key + "/vectorHwIndex", m_canPorts[i].vectorHwIndex);
+        s.setValue(key + "/vectorHwChannel", m_canPorts[i].vectorHwChannel);
+        s.setValue(key + "/vectorChannelIdx", m_canPorts[i].vectorChannelIdx);
+        s.setValue(key + "/vectorChannelMask", QVariant::fromValue(m_canPorts[i].vectorChannelMask));
     }
 
     // Power Supply
@@ -270,6 +276,12 @@ void HWConfigManager::load()
             m_canPorts[i].bitrate = s.value(key + "/bitrate").toInt();
             m_canPorts[i].fdEnabled = s.value(key + "/fdEnabled").toBool();
             m_canPorts[i].fdDataBitrate = s.value(key + "/fdDataBitrate").toInt();
+            // Vector XL channel mapping
+            m_canPorts[i].vectorHwType = s.value(key + "/vectorHwType", 0).toInt();
+            m_canPorts[i].vectorHwIndex = s.value(key + "/vectorHwIndex", 0).toInt();
+            m_canPorts[i].vectorHwChannel = s.value(key + "/vectorHwChannel", 0).toInt();
+            m_canPorts[i].vectorChannelIdx = s.value(key + "/vectorChannelIdx", -1).toInt();
+            m_canPorts[i].vectorChannelMask = s.value(key + "/vectorChannelMask", 0).toULongLong();
         }
     }
 

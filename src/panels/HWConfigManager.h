@@ -21,12 +21,19 @@ struct SerialDebugPortConfig
 struct CANPortConfig
 {
     QString customName;                         ///< User-defined alias (e.g., "Vehicle CAN")
-    QString interfaceType = "PEAK PCAN";        ///< PEAK PCAN, Vector, SocketCAN, Custom
+    QString interfaceType = "Vector";           ///< Vector, PEAK PCAN, SocketCAN, Custom
     QString device = "PCAN_USBBUS1";            ///< Device identifier
     int channel = 1;                            ///< Hardware channel number
     int bitrate = 500000;                       ///< Nominal bitrate (bps)
     bool fdEnabled = false;                     ///< CAN FD mode
     int fdDataBitrate = 2000000;                ///< FD data phase bitrate (bps)
+
+    // Vector XL channel mapping (populated from hardware detection)
+    int vectorHwType     = 0;                   ///< XL_HWTYPE_xxx
+    int vectorHwIndex    = 0;                   ///< Hardware instance index
+    int vectorHwChannel  = 0;                   ///< Channel on the hardware
+    int vectorChannelIdx = -1;                  ///< Global channel index (-1 = not set)
+    quint64 vectorChannelMask = 0;              ///< XL channel access mask
 };
 
 /**

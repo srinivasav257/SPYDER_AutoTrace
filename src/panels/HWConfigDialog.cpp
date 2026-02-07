@@ -1,11 +1,14 @@
 #include "HWConfigDialog.h"
 
+#include <CANManager.h>
+#include <VectorCANDriver.h>
 #include <QDialogButtonBox>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QGroupBox>
 #include <QLabel>
 #include <QSerialPortInfo>
+#include <QMessageBox>
 
 // ===========================================================================
 // SerialConfigWidget
@@ -155,19 +158,39 @@ CANConfigWidget::CANConfigWidget(QWidget* parent)
 
     // Interface Type
     m_interfaceTypeCombo = new QComboBox;
-    m_interfaceTypeCombo->addItems({"PEAK PCAN", "Vector", "SocketCAN", "Custom"});
+    m_interfaceTypeCombo->addItems({"Vector", "PEAK PCAN", "SocketCAN", "Custom"});
     form->addRow(tr("Interface Type:"), m_interfaceTypeCombo);
 
-    // Channel
+    // ----- Vector Channel Mapping (shown when Vector is selected) -----
+    m_channelMappingRow = new QWidget;
+    auto* mappingLayout = new QHBoxLayout(m_channelMappingRow);
+    mappingLayout->setContentsMargins(0, 0, 0, 0);
+    m_channelMappingCombo = new QComboBox;
+    m_channelMappingCombo->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    m_channelMappingCombo->setMinimumWidth(250);
+    m_detectHWBtn = new QPushButton(tr("Detect HW"));
+    m_detectHWBtn->setToolTip(tr("Scan for connected Vector CAN hardware"));
+    mappingLayout->addWidget(m_channelMappingCombo, 1);
+    mappingLayout->addWidget(m_detectHWBtn);
+    form->addRow(tr("Channel Mapping:"), m_channelMappingRow);
+
+    // ----- Manual Device / Channel (shown when non-Vector) -----
+    m_deviceRow = new QWidget;
+    auto* deviceLayout = new QHBoxLayout(m_deviceRow);
+    deviceLayout->setContentsMargins(0, 0, 0, 0);
+    m_deviceEdit = new QLineEdit("PCAN_USBBUS1");
+    m_deviceEdit->setPlaceholderText(tr("e.g., PCAN_USBBUS1, can0"));
+    deviceLayout->addWidget(m_deviceEdit);
+    form->addRow(tr("Device:"), m_deviceRow);
+
+    m_channelRow = new QWidget;
+    auto* chLayout = new QHBoxLayout(m_channelRow);
+    chLayout->setContentsMargins(0, 0, 0, 0);
     m_channelSpin = new QSpinBox;
     m_channelSpin->setRange(1, 16);
     m_channelSpin->setValue(1);
-    form->addRow(tr("Channel:"), m_channelSpin);
-
-    // Device
-    m_deviceEdit = new QLineEdit("PCAN_USBBUS1");
-    m_deviceEdit->setPlaceholderText(tr("e.g., PCAN_USBBUS1, can0"));
-    form->addRow(tr("Device:"), m_deviceEdit);
+    chLayout->addWidget(m_channelSpin);
+    form->addRow(tr("Channel:"), m_channelRow);
 
     // Bitrate
     m_bitrateCombo = new QComboBox;
@@ -205,6 +228,72 @@ CANConfigWidget::CANConfigWidget(QWidget* parent)
     // Connect/Disconnect signals
     connect(m_connectBtn, &QPushButton::clicked, this, &CANConfigWidget::connectRequested);
     connect(m_disconnectBtn, &QPushButton::clicked, this, &CANConfigWidget::disconnectRequested);
+
+    // Interface type switching: show/hide channel mapping vs manual fields
+    connect(m_interfaceTypeCombo, &QComboBox::currentTextChanged,
+            this, &CANConfigWidget::onInterfaceTypeChanged);
+
+    // Detect HW button
+    connect(m_detectHWBtn, &QPushButton::clicked, this, &CANConfigWidget::refreshVectorChannels);
+
+    // Set initial visibility based on default interface type
+    onInterfaceTypeChanged(m_interfaceTypeCombo->currentText());
+
+    // Auto-detect Vector channels on creation
+    QMetaObject::invokeMethod(this, &CANConfigWidget::refreshVectorChannels, Qt::QueuedConnection);
+}
+
+void CANConfigWidget::onInterfaceTypeChanged(const QString& type)
+{
+    bool isVector = (type == "Vector");
+    m_channelMappingRow->setVisible(isVector);
+    m_deviceRow->setVisible(!isVector);
+    m_channelRow->setVisible(!isVector);
+}
+
+void CANConfigWidget::refreshVectorChannels()
+{
+    m_channelMappingCombo->clear();
+    m_detectedChannels.clear();
+
+    auto& canMgr = CANManager::CANBusManager::instance();
+    auto* vectorDrv = canMgr.vectorDriver();
+    if (!vectorDrv)
+        return;
+
+    // Initialize driver if needed
+    if (!vectorDrv->initialize()) {
+        m_channelMappingCombo->addItem(tr("(Vector driver not available)"));
+        return;
+    }
+
+    auto channels = vectorDrv->detectChannels();
+    if (channels.isEmpty()) {
+        m_channelMappingCombo->addItem(tr("(No Vector CAN channels detected)"));
+        return;
+    }
+
+    m_detectedChannels = channels;
+    for (int i = 0; i < channels.size(); ++i) {
+        const auto& ch = channels[i];
+        QString label = QString("%1 — %2 Ch%3%4")
+            .arg(ch.name)
+            .arg(ch.hwTypeName)
+            .arg(ch.hwChannel + 1)
+            .arg(ch.supportsFD ? " [CAN FD]" : "");
+        if (ch.serialNumber > 0)
+            label += QString("  S/N:%1").arg(ch.serialNumber);
+
+        m_channelMappingCombo->addItem(label, i);  // userData = index into m_detectedChannels
+    }
+}
+
+    // Enable/disable FD bitrate based on FD checkbox
+    connect(m_fdEnabledCheck, &QCheckBox::toggled, m_fdBitrateCombo, &QComboBox::setEnabled);
+
+    // Connect/Disconnect signals
+    connect(m_connectBtn, &QPushButton::clicked, this, &CANConfigWidget::connectRequested);
+    connect(m_disconnectBtn, &QPushButton::clicked, this, &CANConfigWidget::disconnectRequested);
 }
 
 void CANConfigWidget::setConfig(const CANPortConfig& cfg)
@@ -217,6 +306,23 @@ void CANConfigWidget::setConfig(const CANPortConfig& cfg)
     m_fdEnabledCheck->setChecked(cfg.fdEnabled);
     m_fdBitrateCombo->setCurrentText(QString::number(cfg.fdDataBitrate));
     m_fdBitrateCombo->setEnabled(cfg.fdEnabled);
+
+    // Restore Vector channel mapping selection
+    if (cfg.interfaceType == "Vector" && cfg.vectorChannelIdx >= 0) {
+        // Try to find the matching channel in the combo
+        for (int i = 0; i < m_channelMappingCombo->count(); ++i) {
+            int idx = m_channelMappingCombo->itemData(i).toInt();
+            if (idx >= 0 && idx < m_detectedChannels.size()) {
+                const auto& ch = m_detectedChannels[idx];
+                if (ch.hwType == cfg.vectorHwType &&
+                    ch.hwIndex == cfg.vectorHwIndex &&
+                    ch.hwChannel == cfg.vectorHwChannel) {
+                    m_channelMappingCombo->setCurrentIndex(i);
+                    break;
+                }
+            }
+        }
+    }
 }
 
 CANPortConfig CANConfigWidget::config() const
@@ -229,6 +335,26 @@ CANPortConfig CANConfigWidget::config() const
     cfg.bitrate = m_bitrateCombo->currentText().toInt();
     cfg.fdEnabled = m_fdEnabledCheck->isChecked();
     cfg.fdDataBitrate = m_fdBitrateCombo->currentText().toInt();
+
+    // Store Vector channel mapping if a valid channel is selected
+    if (cfg.interfaceType == "Vector") {
+        int comboIdx = m_channelMappingCombo->currentIndex();
+        QVariant userData = m_channelMappingCombo->itemData(comboIdx);
+        if (userData.isValid()) {
+            int chIdx = userData.toInt();
+            if (chIdx >= 0 && chIdx < m_detectedChannels.size()) {
+                const auto& ch = m_detectedChannels[chIdx];
+                cfg.vectorHwType       = ch.hwType;
+                cfg.vectorHwIndex      = ch.hwIndex;
+                cfg.vectorHwChannel    = ch.hwChannel;
+                cfg.vectorChannelIdx   = ch.channelIndex;
+                cfg.vectorChannelMask  = ch.channelMask;
+                cfg.device             = ch.name;
+                cfg.channel            = ch.hwChannel + 1;
+            }
+        }
+    }
+
     return cfg;
 }
 
@@ -359,15 +485,50 @@ void HWConfigDialog::setupCANTab(QTabWidget* parent)
         layout->addStretch();
         innerTabs->addTab(page, tr("CAN %1 (HS/FD)").arg(i + 1));
 
-        // Connect handler (CAN bus connection - stub for now)
+        // Connect handler (CAN bus connection via CANManager)
         connect(m_canTabs[i], &CANConfigWidget::connectRequested, this, [this, i]() {
-            // TODO: Implement actual CAN bus connection via CAN driver
-            m_canTabs[i]->setConnectionStatus(true);
+            auto cfg = m_canTabs[i]->config();
+            QString slotName = QString("CAN %1").arg(i + 1);
+
+            auto& canMgr = CANManager::CANBusManager::instance();
+
+            if (cfg.interfaceType == "Vector") {
+                auto* vectorDrv = canMgr.vectorDriver();
+                if (!vectorDrv || !vectorDrv->initialize()) {
+                    m_canTabs[i]->setConnectionStatus(false, tr("Vector driver not available"));
+                    return;
+                }
+
+                // Build channel info from stored config
+                CANManager::CANChannelInfo chInfo;
+                chInfo.hwType       = cfg.vectorHwType;
+                chInfo.hwIndex      = cfg.vectorHwIndex;
+                chInfo.hwChannel    = cfg.vectorHwChannel;
+                chInfo.channelIndex = cfg.vectorChannelIdx;
+                chInfo.channelMask  = cfg.vectorChannelMask;
+                chInfo.name         = cfg.device;
+
+                CANManager::CANBusConfig busConfig;
+                busConfig.bitrate       = cfg.bitrate;
+                busConfig.fdEnabled     = cfg.fdEnabled;
+                busConfig.fdDataBitrate = cfg.fdDataBitrate;
+
+                auto result = canMgr.openSlot(slotName, vectorDrv, chInfo, busConfig);
+                if (result.success) {
+                    m_canTabs[i]->setConnectionStatus(true);
+                } else {
+                    m_canTabs[i]->setConnectionStatus(false, result.errorMessage);
+                }
+            } else {
+                // Non-Vector: placeholder for PEAK/SocketCAN/Custom
+                m_canTabs[i]->setConnectionStatus(false, tr("Driver not implemented yet"));
+            }
         });
 
         // Disconnect handler
         connect(m_canTabs[i], &CANConfigWidget::disconnectRequested, this, [this, i]() {
-            // TODO: Implement actual CAN bus disconnection
+            QString slotName = QString("CAN %1").arg(i + 1);
+            CANManager::CANBusManager::instance().closeSlot(slotName);
             m_canTabs[i]->setConnectionStatus(false);
         });
     }

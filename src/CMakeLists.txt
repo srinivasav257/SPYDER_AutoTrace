@@ -4,6 +4,9 @@ add_subdirectory(DockManager)
 # SerialManager library - serial port communication framework
 add_subdirectory(SerialManager)
 
+# CANManager library - CAN bus communication framework (Vector XL, Kvaser)
+add_subdirectory(CANManager)
+
 # TestExecutor library - professional test automation framework
 add_subdirectory(TestExecutor)
 
@@ -37,6 +40,7 @@ target_link_libraries(SPYDER_AutoTrace PRIVATE
     TestExecutor::TestExecutor
     ManDiag::ManDiag
     SerialManager::SerialManager
+    CANManager::CANManager
     Qt6::Widgets
     Qt6::SerialPort
 )
