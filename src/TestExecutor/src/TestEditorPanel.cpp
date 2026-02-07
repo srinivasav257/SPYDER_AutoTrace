@@ -815,11 +815,18 @@ void TestEditorDialog::setupUi()
 
     m_btnRevert = new QPushButton("Revert", this);
     m_btnSave = new QPushButton("Save", this);
-    m_btnSave->setStyleSheet("QPushButton { background-color: #2196F3; color: white; font-weight: bold; padding: 8px 20px; }");
 
     buttonLayout->addWidget(m_btnRevert);
     buttonLayout->addWidget(m_btnSave);
     mainLayout->addLayout(buttonLayout);
+
+    m_statusBar = new QStatusBar(this);
+    m_statusBar->setSizeGripEnabled(false);
+    mainLayout->addWidget(m_statusBar);
+
+    m_btnSave->setStyleSheet(
+        "QPushButton { background-color: #F3F3F3; color: #222222; padding: 8px 20px; }");
+    m_btnRevert->setEnabled(false);
 }
 
 void TestEditorDialog::setupConnections()
@@ -942,7 +949,15 @@ void TestEditorDialog::setDirty(bool dirty)
         m_dirty = dirty;
         emit dirtyStateChanged(dirty);
 
-        m_btnSave->setEnabled(dirty);
+        if (dirty) {
+            m_btnSave->setStyleSheet(
+                "QPushButton { background-color: #2196F3; color: white; font-weight: bold; padding: 8px 20px; }");
+        } else {
+            m_btnSave->setStyleSheet(
+                "QPushButton { background-color: #F3F3F3; color: #222222; padding: 8px 20px; }");
+        }
+
+        m_btnSave->setEnabled(true);
         m_btnRevert->setEnabled(dirty);
     }
 }
@@ -1039,9 +1054,13 @@ void TestEditorDialog::onStepTableCellChanged(int row, int /*column*/)
 void TestEditorDialog::onSaveClicked()
 {
     if (save()) {
-        QMessageBox::information(this, "Saved", "Test case saved successfully.");
+        if (m_statusBar) {
+            m_statusBar->showMessage("Test case saved successfully.", 3000);
+        }
     } else {
-        QMessageBox::warning(this, "Save Failed", "Failed to save test case.");
+        if (m_statusBar) {
+            m_statusBar->showMessage("Save failed. Unable to update test case.", 5000);
+        }
     }
 }
 

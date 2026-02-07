@@ -80,6 +80,7 @@ signals:
 private slots:
     void onImportClicked();
     void onExportClicked();
+    void onExportAsClicked();
     void onAddGroupClicked();
     void onAddFeatureClicked();
     void onAddTestClicked();

@@ -9,6 +9,9 @@
 #include <QJsonArray>
 #include <QMimeData>
 #include <QDebug>
+#include <QApplication>
+#include <QStyle>
+#include <QFileInfo>
 #include <functional>
 
 namespace TestExecutor {
@@ -145,7 +148,8 @@ QVariant TestTreeModel::data(const QModelIndex& index, int role) const
             return static_cast<int>(item->status);
 
         case Qt::CheckStateRole:
-            if (index.column() == 0 && item->type != TreeItemType::Root) {
+            if (index.column() == 0 &&
+                (item->type == TreeItemType::Feature || item->type == TreeItemType::TestCase)) {
                 return item->checkState;
             }
             break;
@@ -153,11 +157,11 @@ QVariant TestTreeModel::data(const QModelIndex& index, int role) const
         case Qt::DecorationRole:
             if (index.column() == 0) {
                 if (item->type == TreeItemType::Group) {
-                    // Reserved for future custom icon
+                    return QApplication::style()->standardIcon(QStyle::SP_DirIcon);
                 } else if (item->type == TreeItemType::Feature) {
-                    // Reserved for future custom icon
+                    return QApplication::style()->standardIcon(QStyle::SP_FileDialogContentsView);
                 } else if (item->type == TreeItemType::TestCase) {
-                    // Reserved for future custom icon
+                    return QApplication::style()->standardIcon(QStyle::SP_FileIcon);
                 }
             }
             break;
@@ -173,7 +177,8 @@ bool TestTreeModel::setData(const QModelIndex& index, const QVariant& value, int
     }
 
     TreeItem* item = static_cast<TreeItem*>(index.internalPointer());
-    if (!item || item->type == TreeItemType::Root) {
+    if (!item ||
+        (item->type != TreeItemType::Feature && item->type != TreeItemType::TestCase)) {
         return false;
     }
 
@@ -217,7 +222,14 @@ QVariant TestTreeModel::headerData(int section, Qt::Orientation orientation, int
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         if (section == 0) {
-            return "Test Name";
+            const QString filePath = TestRepository::instance().currentFilePath();
+            if (!filePath.isEmpty()) {
+                const QString projectName = QFileInfo(filePath).baseName();
+                if (!projectName.isEmpty()) {
+                    return projectName;
+                }
+            }
+            return "Project";
         }
     }
     return QVariant();
@@ -232,7 +244,8 @@ Qt::ItemFlags TestTreeModel::flags(const QModelIndex& index) const
     Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
     
     TreeItem* item = static_cast<TreeItem*>(index.internalPointer());
-    if (index.column() == 0 && item->type != TreeItemType::Root) {
+    if (index.column() == 0 &&
+        (item->type == TreeItemType::Feature || item->type == TreeItemType::TestCase)) {
         flags |= Qt::ItemIsUserCheckable;
     }
     if (item->type == TreeItemType::TestCase) {
@@ -349,6 +362,11 @@ void TestTreeModel::refresh()
     beginResetModel();
     buildTree();
     endResetModel();
+}
+
+void TestTreeModel::notifyHeaderChanged()
+{
+    emit headerDataChanged(Qt::Horizontal, 0, 0);
 }
 
 void TestTreeModel::buildTree()
@@ -564,6 +582,7 @@ bool TestRepository::loadFromFile(const QString& filePath)
     setDirty(false);
     
     m_treeModel->refresh();
+    m_treeModel->notifyHeaderChanged();
     
     emit repositoryLoaded(filePath);
     return true;
@@ -627,6 +646,7 @@ bool TestRepository::saveToFile(const QString& filePath)
 
     m_currentFilePath = filePath;
     setDirty(false);
+    m_treeModel->notifyHeaderChanged();
 
     emit repositorySaved(filePath);
     return true;
@@ -956,6 +976,79 @@ bool TestRepository::addFeature(const QString& groupName, const QString& feature
     return true;
 }
 
+bool TestRepository::removeFeature(const QString& groupName, const QString& featureName)
+{
+    const QString normalizedGroup = normalizedGroupName(groupName);
+    const QString normalizedFeature = normalizedFeatureName(featureName);
+
+    bool changed = false;
+
+    QStringList idsToRemove;
+    for (auto it = m_testCases.constBegin(); it != m_testCases.constEnd(); ++it) {
+        const TestCase& tc = it.value();
+        if (normalizedGroupName(tc.component).compare(normalizedGroup, Qt::CaseInsensitive) == 0 &&
+            normalizedFeatureName(tc.feature).compare(normalizedFeature, Qt::CaseInsensitive) == 0) {
+            idsToRemove.append(it.key());
+        }
+    }
+
+    for (const QString& id : idsToRemove) {
+        m_testCases.remove(id);
+        emit testCaseRemoved(id);
+        changed = true;
+    }
+
+    auto groupIt = m_featuresByGroup.find(normalizedGroup);
+    if (groupIt != m_featuresByGroup.end()) {
+        if (groupIt->remove(normalizedFeature)) {
+            changed = true;
+        }
+        if (groupIt->isEmpty()) {
+            m_featuresByGroup.erase(groupIt);
+        }
+    }
+
+    if (changed) {
+        setDirty(true);
+        m_treeModel->refresh();
+    }
+    return changed;
+}
+
+bool TestRepository::removeGroup(const QString& groupName)
+{
+    const QString normalizedGroup = normalizedGroupName(groupName);
+
+    bool changed = false;
+
+    QStringList idsToRemove;
+    for (auto it = m_testCases.constBegin(); it != m_testCases.constEnd(); ++it) {
+        const TestCase& tc = it.value();
+        if (normalizedGroupName(tc.component).compare(normalizedGroup, Qt::CaseInsensitive) == 0) {
+            idsToRemove.append(it.key());
+        }
+    }
+
+    for (const QString& id : idsToRemove) {
+        m_testCases.remove(id);
+        emit testCaseRemoved(id);
+        changed = true;
+    }
+
+    if (m_featuresByGroup.remove(normalizedGroup)) {
+        changed = true;
+    }
+    if (m_groups.remove(normalizedGroup)) {
+        changed = true;
+    }
+
+    if (changed) {
+        setDirty(true);
+        m_treeModel->refresh();
+    }
+    return changed;
+}
+
 TestCase TestRepository::createNewTestCase()
 {
     TestCase tc;
@@ -983,6 +1076,7 @@ void TestRepository::clear()
     m_currentFilePath.clear();
     setDirty(false);
     m_treeModel->refresh();
+    m_treeModel->notifyHeaderChanged();
 }
 
 QString TestRepository::normalizedGroupName(const QString& value)

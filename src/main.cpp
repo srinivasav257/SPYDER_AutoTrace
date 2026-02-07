@@ -2,6 +2,7 @@
 #include "HWConfigManager.h"
 #include "HWConfigDialog.h"
 #include "TestExecutorPanels.h"
+#include "TestRepository.h"
 #include <ManDiag.h>
 #include <DBCManager.h>
 #include <QApplication>
@@ -9,6 +10,8 @@
 #include <QSplashScreen>
 #include <QPainter>
 #include <QElapsedTimer>
+#include <QSettings>
+#include <QFileInfo>
 
 // Helper: create a programmatic splash image (no external resource needed)
 static QPixmap createSplashPixmap()
@@ -57,6 +60,12 @@ int main(int argc, char *argv[])
     QApplication::setOrganizationName("SPYDER");
     QApplication::setApplicationVersion("1.0.0");
 
+    // Make splitter handles subtle (thin light-gray) across the app
+    app.setStyleSheet(
+        "QSplitter::handle { background-color: #D0D0D0; }"
+        "QSplitter::handle:horizontal { width: 2px; }"
+        "QSplitter::handle:vertical { height: 2px; }");
+
     // --- Splash screen ---
     QSplashScreen splash(createSplashPixmap());
     splash.show();
@@ -78,6 +87,28 @@ int main(int argc, char *argv[])
     showStatus("Registering test panels...");
     // Register all panel types before creating the window
     TestExecutor::registerTestExecutorPanels();
+
+    showStatus("Loading test repository...");
+    auto& testRepo = TestExecutor::TestRepository::instance();
+
+    QObject::connect(&testRepo, &TestExecutor::TestRepository::repositorySaved,
+                     &app, [](const QString& filePath) {
+        QSettings settings;
+        settings.setValue("TestExecutor/lastRepositoryFile", filePath);
+    });
+    QObject::connect(&testRepo, &TestExecutor::TestRepository::repositoryLoaded,
+                     &app, [](const QString& filePath) {
+        QSettings settings;
+        settings.setValue("TestExecutor/lastRepositoryFile", filePath);
+    });
+
+    {
+        QSettings settings;
+        const QString lastRepositoryFile = settings.value("TestExecutor/lastRepositoryFile").toString();
+        if (!lastRepositoryFile.isEmpty() && QFileInfo::exists(lastRepositoryFile)) {
+            testRepo.loadFromFile(lastRepositoryFile);
+        }
+    }
 
     showStatus("Registering ManDiag commands...");
     // Register ManDiag commands (EOL and MOL)

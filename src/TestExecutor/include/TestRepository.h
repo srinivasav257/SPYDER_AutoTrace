@@ -84,6 +84,7 @@ public:
     
     // Rebuild model from repository
     void refresh();
+    void notifyHeaderChanged();
 
 private:
     struct TreeItem;
@@ -258,6 +259,16 @@ public:
      * @brief Add a feature under a group for test explorer
      */
     bool addFeature(const QString& groupName, const QString& featureName);
+
+    /**
+     * @brief Remove a feature and all tests under it
+     */
+    bool removeFeature(const QString& groupName, const QString& featureName);
+
+    /**
+     * @brief Remove a group and all contained features/tests
+     */
+    bool removeGroup(const QString& groupName);
 
     // === Tree Model ===
     

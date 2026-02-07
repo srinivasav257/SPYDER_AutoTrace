@@ -29,6 +29,7 @@
 #include <QFormLayout>
 #include <QTabWidget>
 #include <QLabel>
+#include <QStatusBar>
 
 namespace TestExecutor {
 
@@ -242,6 +243,7 @@ private:
     // === Actions ===
     QPushButton* m_btnSave = nullptr;
     QPushButton* m_btnRevert = nullptr;
+    QStatusBar* m_statusBar = nullptr;
 
     // === State ===
     QString m_currentTestCaseId;
