@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QMap>
 #include <QScopedPointer>
+#include <QStringList>
 
 namespace ads {
     class CDockManager;
@@ -22,6 +23,7 @@ namespace DockManager {
 class WorkspaceManager;
 class DockToolBar;
 class WelcomePageWidget;
+class ActivityRail;
 
 /**
  * @brief Base main window class with integrated dock management.
@@ -88,6 +90,11 @@ public:
      * @brief Get the dock toolbar (may be nullptr if not created)
      */
     DockToolBar* dockToolBar() const;
+
+    /**
+     * @brief Get the left activity rail.
+     */
+    ActivityRail* activityRail() const;
 
     /**
      * @brief Get a dock widget by its panel ID
@@ -167,6 +174,11 @@ protected:
     virtual void createWelcomePage();
 
     /**
+     * @brief Create the left activity rail.
+     */
+    virtual void createActivityRail();
+
+    /**
      * @brief Create the dock toolbar.
      *
      * Override to customize the toolbar or prevent its creation
@@ -216,6 +228,8 @@ private:
     void syncWelcomePageGeometry();
     void updateWelcomePageVisibility();
     bool hasOpenDockWidgets() const;
+    void activateTaskGroup(const QString& taskId);
+    void showOnlyPanels(const QStringList& panelIds);
 
     struct Private;
     QScopedPointer<Private> d;

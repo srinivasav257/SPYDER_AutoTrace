@@ -1,6 +1,7 @@
 #include <DockFramework.h>
 #include "HWConfigManager.h"
 #include "HWConfigDialog.h"
+#include "SamplePanels.h"
 #include "TestExecutorPanels.h"
 #include "TestRepository.h"
 #include <ManDiag.h>
@@ -84,6 +85,7 @@ int main(int argc, char *argv[])
     showStatus("Registering test panels...");
     // Register all panel types before creating the window
     TestExecutor::registerTestExecutorPanels();
+    SamplePanels::registerSamplePanels();
 
     showStatus("Loading test repository...");
     auto& testRepo = TestExecutor::TestRepository::instance();

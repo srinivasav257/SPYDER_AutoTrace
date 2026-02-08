@@ -5,6 +5,7 @@
 #include "IconManager.h"
 #include "FramelessTopBar.h"
 #include "WelcomePageWidget.h"
+#include "ActivityRail.h"
 
 #include "DockManager.h"
 #include "DockWidget.h"
@@ -16,10 +17,14 @@
 #include <QStatusBar>
 #include <QCloseEvent>
 #include <QEvent>
+#include <QLineEdit>
 #include <QMessageBox>
 #include <QApplication>
 #include <QDebug>
+#include <QInputDialog>
+#include <QSet>
 #include <QSignalBlocker>
+#include <QStringList>
 #include <QTimer>
 
 #ifdef Q_OS_WIN
@@ -38,6 +43,7 @@ struct DockMainWindow::Private
     WorkspaceManager* workspaceManager = nullptr;
     FramelessTopBar* topBar = nullptr;
     WelcomePageWidget* welcomePage = nullptr;
+    ActivityRail* activityRail = nullptr;
     DockToolBar* dockToolBar = nullptr;
 
     QMap<QString, ads::CDockWidget*> dockWidgets;
@@ -67,7 +73,7 @@ DockMainWindow::DockMainWindow(QWidget* parent)
     createPanels();
     createTopBar();
     createMenus();
-    createToolBar();
+    createActivityRail();
     setupDefaultLayout();
     createWelcomePage();
 
@@ -85,7 +91,10 @@ DockMainWindow::DockMainWindow(QWidget* parent)
         restoreGeometry(savedGeometry);
     }
 
-    d->workspaceManager->restoreState();
+    const bool restoredState = d->workspaceManager->restoreState();
+    if (!restoredState) {
+        activateTaskGroup(QStringLiteral("test_dashboard"));
+    }
     updateWelcomePageVisibility();
     QTimer::singleShot(0, this, [this]() {
         updateWelcomePageVisibility();
@@ -115,6 +124,11 @@ WorkspaceManager* DockMainWindow::workspaceManager() const
 DockToolBar* DockMainWindow::dockToolBar() const
 {
     return d->dockToolBar;
+}
+
+ActivityRail* DockMainWindow::activityRail() const
+{
+    return d->activityRail;
 }
 
 ads::CDockWidget* DockMainWindow::dockWidget(const QString& panelId) const
@@ -305,6 +319,31 @@ void DockMainWindow::createWelcomePage()
     updateWelcomePageVisibility();
 }
 
+void DockMainWindow::createActivityRail()
+{
+    if (d->activityRail) {
+        return;
+    }
+
+    d->activityRail = new ActivityRail(this);
+    addToolBar(Qt::LeftToolBarArea, d->activityRail);
+
+    connect(d->activityRail, &ActivityRail::taskRequested, this, [this](const QString& taskId) {
+        activateTaskGroup(taskId);
+    });
+
+    connect(d->activityRail, &ActivityRail::utilityRequested, this, [this](const QString& utilityId) {
+        if (utilityId == QLatin1String("settings")) {
+            statusBar()->showMessage(tr("Settings panel will be added later."), 2500);
+            return;
+        }
+
+        if (utilityId == QLatin1String("profile")) {
+            statusBar()->showMessage(tr("Profile panel will be added later."), 2500);
+        }
+    });
+}
+
 void DockMainWindow::createMenus()
 {
     auto* appBar = appMenuBar();
@@ -342,10 +381,16 @@ void DockMainWindow::createMenus()
     viewMenu->addAction(tr("Show All Panels"), this, [this]() {
         for (auto* dw : d->dockWidgets)
             dw->toggleView(true);
+        if (d->activityRail) {
+            d->activityRail->setActiveTask(QString());
+        }
     });
     viewMenu->addAction(tr("Hide All Panels"), this, [this]() {
         for (auto* dw : d->dockWidgets)
             dw->toggleView(false);
+        if (d->activityRail) {
+            d->activityRail->setActiveTask(QString());
+        }
     });
 
     // --- Perspectives menu ---
@@ -371,64 +416,8 @@ void DockMainWindow::createMenus()
 
 void DockMainWindow::createToolBar()
 {
-    d->dockToolBar = new DockToolBar(d->workspaceManager, this);
-    addToolBar(d->dockToolBar);
-
-    // Hide all toolbar items - layout options available in menu only
-    d->dockToolBar->setSaveRestoreVisible(false);
-    d->dockToolBar->setPerspectivesVisible(false);
-    d->dockToolBar->setLockVisible(false);
-    d->dockToolBar->setMovable(false);
-    d->dockToolBar->setFloatable(false);
-    d->dockToolBar->setToolButtonStyle(Qt::ToolButtonIconOnly);
-
-    // Hide default separators from hidden actions
-    for (QAction* action : d->dockToolBar->actions()) {
-        if (action && action->isSeparator()) {
-            action->setVisible(false);
-        }
-    }
-
-    // Quick panel toggles
-
-    auto addPanelToggle = [this](const QString& panelId, const QString& tooltip) {
-        auto* dw = d->dockWidgets.value(panelId);
-        if (!dw) {
-            return;
-        }
-
-        QAction* toggleAction = dw->toggleViewAction();
-        toggleAction->setToolTip(tooltip);
-        d->dockToolBar->addAction(toggleAction);
-        d->panelToggleActions.insert(panelId, toggleAction);
-
-        auto updateActionEnabledState = [this, panelId]() {
-            auto* dockWidget = d->dockWidgets.value(panelId);
-            auto* action = d->panelToggleActions.value(panelId);
-            if (!dockWidget || !action) {
-                return;
-            }
-
-            const bool visible = dockWidget->isVisible();
-            QSignalBlocker block(action);
-            action->setChecked(visible);
-            action->setEnabled(!visible);
-        };
-
-        connect(dw, &ads::CDockWidget::viewToggled, this, [updateActionEnabledState](bool) {
-            updateActionEnabledState();
-        });
-        connect(dw, &QObject::destroyed, this, [this, panelId]() {
-            d->panelToggleActions.remove(panelId);
-        });
-
-        updateActionEnabledState();
-    };
-
-    addPanelToggle("test_explorer", tr("Toggle Test Explorer"));
-    addPanelToggle("test_progress", tr("Toggle Test Progress"));
-
-    refreshIcons();
+    // Legacy top toolbar intentionally disabled.
+    d->dockToolBar = nullptr;
 }
 
 void DockMainWindow::initializeComplete()
@@ -509,6 +498,43 @@ void DockMainWindow::updateWelcomePageVisibility()
         return;
     }
 
+    auto isPanelVisible = [this](const QString& panelId) {
+        auto* dockWidget = d->dockWidgets.value(panelId);
+        if (!dockWidget) {
+            return false;
+        }
+        QAction* toggleAction = dockWidget->toggleViewAction();
+        return toggleAction && toggleAction->isChecked();
+    };
+
+    int visibleCount = 0;
+    for (auto* dockWidget : d->dockWidgets) {
+        if (!dockWidget) {
+            continue;
+        }
+        QAction* toggleAction = dockWidget->toggleViewAction();
+        if (toggleAction && toggleAction->isChecked()) {
+            ++visibleCount;
+        }
+    }
+
+    if (d->activityRail) {
+        const bool isTestDashboard = visibleCount == 2 &&
+                                     isPanelVisible(QStringLiteral("test_explorer")) &&
+                                     isPanelVisible(QStringLiteral("test_progress"));
+        const bool isCanalyzer = visibleCount == 2 &&
+                                 isPanelVisible(QStringLiteral("can_trace")) &&
+                                 isPanelVisible(QStringLiteral("ig_block"));
+
+        if (isTestDashboard) {
+            d->activityRail->setActiveTask(QStringLiteral("test_dashboard"));
+        } else if (isCanalyzer) {
+            d->activityRail->setActiveTask(QStringLiteral("canalyzer"));
+        } else {
+            d->activityRail->setActiveTask(QString());
+        }
+    }
+
     const bool showWelcome = !hasOpenDockWidgets();
     if (showWelcome) {
         syncWelcomePageGeometry();
@@ -516,6 +542,50 @@ void DockMainWindow::updateWelcomePageVisibility()
         d->welcomePage->raise();
     } else {
         d->welcomePage->hide();
+    }
+}
+
+void DockMainWindow::showOnlyPanels(const QStringList& panelIds)
+{
+    const QSet<QString> targetPanels(panelIds.begin(), panelIds.end());
+
+    for (auto it = d->dockWidgets.constBegin(); it != d->dockWidgets.constEnd(); ++it) {
+        auto* dw = it.value();
+        if (!dw) {
+            continue;
+        }
+
+        const bool shouldBeVisible = targetPanels.contains(it.key());
+        dw->toggleView(shouldBeVisible);
+    }
+
+    // Bring requested panels to foreground in requested order.
+    for (const QString& panelId : panelIds) {
+        if (auto* dw = d->dockWidgets.value(panelId)) {
+            dw->raise();
+        }
+    }
+
+    updateWelcomePageVisibility();
+}
+
+void DockMainWindow::activateTaskGroup(const QString& taskId)
+{
+    if (taskId == QLatin1String("test_dashboard")) {
+        showOnlyPanels({QStringLiteral("test_explorer"), QStringLiteral("test_progress")});
+        if (d->activityRail) {
+            d->activityRail->setActiveTask(taskId);
+        }
+        statusBar()->showMessage(tr("Switched to Test Dashboard"), 2000);
+        return;
+    }
+
+    if (taskId == QLatin1String("canalyzer")) {
+        showOnlyPanels({QStringLiteral("can_trace"), QStringLiteral("ig_block")});
+        if (d->activityRail) {
+            d->activityRail->setActiveTask(taskId);
+        }
+        statusBar()->showMessage(tr("Switched to CANalyzer"), 2000);
     }
 }
 
@@ -528,9 +598,19 @@ void DockMainWindow::rebuildPerspectiveMenu()
 
     // Save perspective action
     d->perspectiveMenu->addAction(tr("Save Perspective..."), this, [this]() {
-        // DockToolBar handles this, but provide menu access too
-        if (d->dockToolBar)
-            d->dockToolBar->createPerspectiveAction()->trigger();
+        bool ok = false;
+        const QString name = QInputDialog::getText(
+            this,
+            tr("Save Perspective"),
+            tr("Perspective name:"),
+            QLineEdit::Normal,
+            QString(),
+            &ok).trimmed();
+
+        if (ok && !name.isEmpty()) {
+            d->workspaceManager->savePerspective(name);
+            statusBar()->showMessage(tr("Perspective '%1' saved").arg(name), 3000);
+        }
     });
 
     d->perspectiveMenu->addSeparator();

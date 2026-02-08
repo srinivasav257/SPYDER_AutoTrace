@@ -1,3 +1,14 @@
 #pragma once
-// SamplePanels.h — placeholder for future non-config sample panels.
-// registerSamplePanels() was removed as it was a no-op.
+
+namespace SamplePanels {
+
+/**
+ * @brief Register placeholder panels used by the activity rail.
+ *
+ * Current placeholders:
+ * - can_trace
+ * - ig_block
+ */
+bool registerSamplePanels();
+
+} // namespace SamplePanels

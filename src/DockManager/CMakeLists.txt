@@ -7,6 +7,7 @@ set(DOCKMANAGER_HEADERS
     include/PanelDefinition.h
     include/PanelRegistry.h
     include/DockMainWindow.h
+    include/ActivityRail.h
     include/FramelessTopBar.h
     include/WelcomePageWidget.h
     include/WorkspaceManager.h
@@ -18,6 +19,7 @@ set(DOCKMANAGER_HEADERS
 set(DOCKMANAGER_SOURCES
     src/PanelRegistry.cpp
     src/DockMainWindow.cpp
+    src/ActivityRail.cpp
     src/FramelessTopBar.cpp
     src/WelcomePageWidget.cpp
     src/WorkspaceManager.cpp

@@ -26,6 +26,7 @@
 #include "PanelDefinition.h"
 #include "PanelRegistry.h"
 #include "DockMainWindow.h"
+#include "ActivityRail.h"
 #include "FramelessTopBar.h"
 #include "WelcomePageWidget.h"
 #include "WorkspaceManager.h"
