@@ -1,4 +1,5 @@
 #include "ActivityRail.h"
+#include "ThemeManager.h"
 
 #include <QAction>
 #include <QActionGroup>
@@ -18,28 +19,8 @@ ActivityRail::ActivityRail(QWidget* parent)
     setContextMenuPolicy(Qt::PreventContextMenu);
     setAllowedAreas(Qt::LeftToolBarArea);
     setMinimumWidth(46);
-    setStyleSheet(
-        "QToolBar#ActivityRail {"
-        "  spacing: 4px;"
-        "  padding-top: 6px;"
-        "  padding-bottom: 6px;"
-        "  border-right: 1px solid palette(mid);"
-        "  background: palette(window);"
-        "}"
-        "QToolBar#ActivityRail QToolButton {"
-        "  width: 36px;"
-        "  height: 36px;"
-        "  border: none;"
-        "  margin: 0px 4px;"
-        "  border-radius: 6px;"
-        "}"
-        "QToolBar#ActivityRail QToolButton:checked {"
-        "  background: palette(highlight);"
-        "}"
-        "QToolBar#ActivityRail QToolButton:hover:!checked {"
-        "  background: palette(button);"
-        "}"
-    );
+
+    StyleLib::ThemeManager::instance().applyScopedStyle(this, StyleLib::ScopedStyle::ActivityRail);
 
     auto* taskGroup = new QActionGroup(this);
     taskGroup->setExclusive(true);

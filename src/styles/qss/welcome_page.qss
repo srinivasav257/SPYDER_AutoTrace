@@ -1,0 +1,42 @@
+QWidget#welcomePage {
+    background-color: palette(base);
+}
+
+QFrame#welcomeCard {
+    background-color: palette(window);
+    border: 1px solid palette(mid);
+    border-radius: 4px;
+}
+
+QLabel#welcomeTitle {
+    color: palette(text);
+    font-size: 20px;
+    font-weight: 600;
+}
+
+QLabel#welcomeSubtitle {
+    color: palette(mid);
+    font-size: 12px;
+}
+
+QPushButton#welcomeShortcutButton {
+    min-height: 30px;
+    padding: 4px 12px;
+    border: 1px solid palette(mid);
+    border-radius: 4px;
+    background: palette(button);
+    color: palette(button-text);
+}
+
+QPushButton#welcomeShortcutButton:hover {
+    border-color: palette(highlight);
+}
+
+QPushButton#welcomeShortcutButton:focus {
+    border-color: palette(highlight);
+}
+
+QPushButton#welcomeShortcutButton:pressed {
+    background: palette(highlight);
+    color: palette(highlighted-text);
+}

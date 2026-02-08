@@ -1,0 +1,33 @@
+QMenuBar {
+    border-bottom: 1px solid palette(mid);
+    background: palette(window);
+}
+
+QMenuBar::item {
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+QMenuBar::item:selected {
+    background: palette(button);
+}
+
+QMenu {
+    border: 1px solid palette(mid);
+    background: palette(window);
+}
+
+QMenu::item:selected {
+    background: palette(highlight);
+    color: palette(highlighted-text);
+}
+
+QStatusBar {
+    border-top: 1px solid palette(mid);
+}
+
+QToolTip {
+    border: 1px solid palette(mid);
+    background: palette(tooltip-base);
+    color: palette(tooltip-text);
+}

@@ -4,6 +4,8 @@
 #include "SamplePanels.h"
 #include "TestExecutorPanels.h"
 #include "TestRepository.h"
+#include "ThemeCatalog.h"
+#include "ThemeManager.h"
 #include <ManDiag.h>
 #include <DBCManager.h>
 #include <QApplication>
@@ -63,6 +65,15 @@ int main(int argc, char *argv[])
     QApplication::setApplicationName("AutoTrace");
     QApplication::setOrganizationName("SPYDER");
     QApplication::setApplicationVersion("1.0.0");
+
+    {
+        QSettings settings;
+        const QString savedThemeKey = settings.value(
+            "UI/theme",
+            StyleLib::themeKey(StyleLib::ThemeId::LightLavender)).toString();
+        const StyleLib::ThemeId startupTheme = StyleLib::themeIdFromKey(savedThemeKey);
+        StyleLib::ThemeManager::instance().initialize(app, startupTheme);
+    }
 
     // --- Splash screen ---
     QSplashScreen splash(createSplashPixmap());

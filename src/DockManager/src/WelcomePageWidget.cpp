@@ -1,4 +1,5 @@
 #include "WelcomePageWidget.h"
+#include "ThemeManager.h"
 
 #include <QApplication>
 #include <QFrame>
@@ -76,28 +77,7 @@ WelcomePageWidget::WelcomePageWidget(QWidget* parent)
         emit shortcutRequested(QStringLiteral("quick_start_dummy"));
     });
 
-    setStyleSheet(
-        "QWidget#welcomePage {"
-        "  background-color: palette(base);"
-        "}"
-        "QFrame#welcomeCard {"
-        "  background-color: palette(window);"
-        "  border: 1px solid palette(mid);"
-        "  border-radius: 10px;"
-        "}"
-        "QLabel#welcomeTitle {"
-        "  font-size: 20px;"
-        "  font-weight: 600;"
-        "}"
-        "QLabel#welcomeSubtitle {"
-        "  color: palette(mid);"
-        "  font-size: 12px;"
-        "}"
-        "QPushButton#welcomeShortcutButton {"
-        "  min-height: 30px;"
-        "  padding: 4px 12px;"
-        "}"
-    );
+    StyleLib::ThemeManager::instance().applyScopedStyle(this, StyleLib::ScopedStyle::WelcomePage);
 }
 
 void WelcomePageWidget::setAppIcon(const QIcon& icon)
