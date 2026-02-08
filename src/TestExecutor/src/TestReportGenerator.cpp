@@ -14,6 +14,24 @@
 #include <QApplication>
 
 namespace TestExecutor {
+namespace {
+
+QString loadReportStyleSheet()
+{
+    static const QString kStyleSheet = []() {
+        QFile cssFile(QStringLiteral(":/styles/reporting/test_report.css"));
+        if (!cssFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            return QString();
+        }
+
+        const QString css = QString::fromUtf8(cssFile.readAll());
+        return css.trimmed().isEmpty() ? QString() : css;
+    }();
+
+    return kStyleSheet;
+}
+
+} // namespace
 
 bool TestReportGenerator::generateReport(const TestSession& session,
                                           const QString& filePath,
@@ -73,7 +91,10 @@ bool TestReportGenerator::generateHtmlReport(const TestSession& session,
         totalDuration += result.durationMs;
     }
     
-    // HTML Header with embedded CSS (similar to pytest-html)
+    const QString reportCss = loadReportStyleSheet();
+    const QString customCss = options.customCss.trimmed();
+
+    // HTML Header with centralized CSS
     out << R"(<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -81,137 +102,12 @@ bool TestReportGenerator::generateHtmlReport(const TestSession& session,
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>)" << options.projectName << R"( - Test Report</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: #f5f5f5;
-        }
-        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
-        
-        /* Header */
-        .header {
-            background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
-            color: white;
-            padding: 30px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        .header h1 { font-size: 2rem; margin-bottom: 10px; }
-        .header .meta { opacity: 0.9; font-size: 0.9rem; }
-        
-        /* Summary Cards */
-        .summary { 
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        .card {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-        .card .value { font-size: 2rem; font-weight: bold; }
-        .card .label { color: #666; font-size: 0.9rem; text-transform: uppercase; }
-        .card.passed .value { color: #4caf50; }
-        .card.failed .value { color: #f44336; }
-        .card.skipped .value { color: #ff9800; }
-        .card.total .value { color: #2196f3; }
-        
-        /* Progress Bar */
-        .progress-container {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .progress-bar {
-            display: flex;
-            height: 30px;
-            border-radius: 4px;
-            overflow: hidden;
-            background: #e0e0e0;
-        }
-        .progress-bar .passed { background: #4caf50; }
-        .progress-bar .failed { background: #f44336; }
-        .progress-bar .skipped { background: #ff9800; }
-        
-        /* Results Table */
-        .results-table {
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .results-table table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .results-table th {
-            background: #37474f;
-            color: white;
-            padding: 15px 10px;
-            text-align: left;
-            font-weight: 500;
-        }
-        .results-table td {
-            padding: 12px 10px;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        .results-table tr:hover { background: #f5f5f5; }
-        .results-table tr:nth-child(even) { background: #fafafa; }
-        .results-table tr:nth-child(even):hover { background: #f0f0f0; }
-        
-        /* Status Badges */
-        .status {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-        .status.passed { background: #e8f5e9; color: #2e7d32; }
-        .status.failed { background: #ffebee; color: #c62828; }
-        .status.error { background: #fff3e0; color: #e65100; }
-        .status.skipped { background: #fff8e1; color: #f57f17; }
-        .status.running { background: #e3f2fd; color: #1565c0; }
-        
-        /* Links */
-        a { color: #1976d2; text-decoration: none; }
-        a:hover { text-decoration: underline; }
-        
-        /* Footer */
-        .footer {
-            text-align: center;
-            padding: 20px;
-            color: #666;
-            font-size: 0.85rem;
-        }
-        
-        /* Collapsible Details */
-        .details-toggle {
-            cursor: pointer;
-            color: #1976d2;
-            font-size: 0.9rem;
-        }
-        .step-details {
-            display: none;
-            background: #f5f5f5;
-            padding: 10px;
-            margin-top: 10px;
-            border-radius: 4px;
-            font-family: monospace;
-            font-size: 0.85rem;
-        }
-        .step-details.visible { display: block; }
-    </style>
+)";
+    out << reportCss << "\n";
+    if (!customCss.isEmpty()) {
+        out << "\n/* ReportOptions::customCss */\n" << customCss << "\n";
+    }
+    out << R"(    </style>
 </head>
 <body>
     <div class="container">
@@ -324,7 +220,7 @@ bool TestReportGenerator::generateHtmlReport(const TestSession& session,
     // Footer
     out << "        <div class=\"footer\">\n";
     out << "            <p>Report generated by SPYDER AutoTrace Test Executor</p>\n";
-    out << "            <p>© " << QDate::currentDate().year() << " " << options.projectName.toHtmlEscaped() << "</p>\n";
+    out << "            <p>&copy; " << QDate::currentDate().year() << " " << options.projectName.toHtmlEscaped() << "</p>\n";
     out << "        </div>\n";
     out << "    </div>\n";
     

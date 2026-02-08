@@ -3,6 +3,7 @@
 #include <QToolBar>
 
 class QAction;
+class QEvent;
 
 namespace DockManager {
 
@@ -17,14 +18,20 @@ public:
     explicit ActivityRail(QWidget* parent = nullptr);
 
     void setActiveTask(const QString& taskId);
+    void refreshIcons();
 
 signals:
     void taskRequested(const QString& taskId);
     void utilityRequested(const QString& utilityId);
 
+protected:
+    void changeEvent(QEvent* event) override;
+
 private:
     QAction* m_testDashboardAction = nullptr;
     QAction* m_canalyzerAction = nullptr;
+    QAction* m_settingsAction = nullptr;
+    QAction* m_profileAction = nullptr;
 };
 
 } // namespace DockManager

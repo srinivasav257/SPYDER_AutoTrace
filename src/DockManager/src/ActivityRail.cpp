@@ -1,8 +1,10 @@
 #include "ActivityRail.h"
+#include "IconManager.h"
 #include "ThemeManager.h"
 
 #include <QAction>
 #include <QActionGroup>
+#include <QEvent>
 #include <QWidget>
 
 namespace DockManager {
@@ -25,37 +27,35 @@ ActivityRail::ActivityRail(QWidget* parent)
     auto* taskGroup = new QActionGroup(this);
     taskGroup->setExclusive(true);
 
-    m_testDashboardAction = addAction(QIcon(":/icons/WindowStyle/tests_explorer.png"), tr("Test Dashboard"));
+    m_testDashboardAction = addAction(QIcon(), tr("Test Dashboard"));
     m_testDashboardAction->setCheckable(true);
     m_testDashboardAction->setActionGroup(taskGroup);
     connect(m_testDashboardAction, &QAction::triggered, this, [this]() {
         emit taskRequested(QStringLiteral("test_dashboard"));
     });
 
-    m_canalyzerAction = addAction(QIcon(":/icons/WindowStyle/connected_3D.png"), tr("CANalyzer"));
+    m_canalyzerAction = addAction(QIcon(), tr("CANalyzer"));
     m_canalyzerAction->setCheckable(true);
     m_canalyzerAction->setActionGroup(taskGroup);
     connect(m_canalyzerAction, &QAction::triggered, this, [this]() {
         emit taskRequested(QStringLiteral("canalyzer"));
     });
 
-    addSeparator();
-
     auto* spacer = new QWidget(this);
     spacer->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
     addWidget(spacer);
 
-    addSeparator();
-
-    QAction* settingsAction = addAction(QIcon(":/icons/WindowStyle/settings.png"), tr("Settings"));
-    connect(settingsAction, &QAction::triggered, this, [this]() {
+    m_settingsAction = addAction(QIcon(), tr("Settings"));
+    connect(m_settingsAction, &QAction::triggered, this, [this]() {
         emit utilityRequested(QStringLiteral("settings"));
     });
 
-    QAction* profileAction = addAction(QIcon(":/icons/WindowStyle/profile.png"), tr("Profile"));
-    connect(profileAction, &QAction::triggered, this, [this]() {
+    m_profileAction = addAction(QIcon(), tr("Profile"));
+    connect(m_profileAction, &QAction::triggered, this, [this]() {
         emit utilityRequested(QStringLiteral("profile"));
     });
+
+    refreshIcons();
 }
 
 void ActivityRail::setActiveTask(const QString& taskId)
@@ -67,6 +67,32 @@ void ActivityRail::setActiveTask(const QString& taskId)
     } else {
         m_testDashboardAction->setChecked(false);
         m_canalyzerAction->setChecked(false);
+    }
+}
+
+void ActivityRail::refreshIcons()
+{
+    if (m_testDashboardAction) {
+        m_testDashboardAction->setIcon(Icons::icon(Icons::Id::ActivityDashboard, this));
+    }
+    if (m_canalyzerAction) {
+        m_canalyzerAction->setIcon(Icons::icon(Icons::Id::ActivityCanalyzer, this));
+    }
+    if (m_settingsAction) {
+        m_settingsAction->setIcon(Icons::icon(Icons::Id::ActivitySettings, this));
+    }
+    if (m_profileAction) {
+        m_profileAction->setIcon(Icons::icon(Icons::Id::ActivityProfile, this));
+    }
+}
+
+void ActivityRail::changeEvent(QEvent* event)
+{
+    QToolBar::changeEvent(event);
+
+    if (event->type() == QEvent::PaletteChange ||
+        event->type() == QEvent::StyleChange) {
+        refreshIcons();
     }
 }
 

@@ -20,7 +20,11 @@ enum class Id
     GroupItem,
     FeatureItem,
     TestItem,
-    Run
+    Run,
+    ActivityDashboard,
+    ActivityCanalyzer,
+    ActivitySettings,
+    ActivityProfile
 };
 
 QIcon icon(Id id, const QWidget* context = nullptr);

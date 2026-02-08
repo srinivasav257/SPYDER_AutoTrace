@@ -16,11 +16,12 @@ FramelessTopBar::FramelessTopBar(QWidget* hostWindow, QWidget* parent)
     , m_hostWindow(hostWindow)
 {
     setObjectName("framelessTopBar");
-    setFixedHeight(34);
+    setAttribute(Qt::WA_StyledBackground, true);
+    setFixedHeight(38);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
     auto* layout = new QHBoxLayout(this);
-    layout->setContentsMargins(8, 0, 4, 0);
+    layout->setContentsMargins(8, 3, 4, 1);
     layout->setSpacing(4);
 
     m_iconLabel = new QLabel(this);
@@ -32,16 +33,19 @@ FramelessTopBar::FramelessTopBar(QWidget* hostWindow, QWidget* parent)
     m_menuBar->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
 
     m_minimizeButton = new QToolButton(this);
+    m_minimizeButton->setObjectName("titleMinimizeButton");
     m_minimizeButton->setAutoRaise(true);
     m_minimizeButton->setFixedSize(36, 26);
     m_minimizeButton->setToolTip(tr("Minimize"));
     m_minimizeButton->setIcon(style()->standardIcon(QStyle::SP_TitleBarMinButton));
 
     m_maximizeButton = new QToolButton(this);
+    m_maximizeButton->setObjectName("titleMaximizeButton");
     m_maximizeButton->setAutoRaise(true);
     m_maximizeButton->setFixedSize(36, 26);
 
     m_closeButton = new QToolButton(this);
+    m_closeButton->setObjectName("titleCloseButton");
     m_closeButton->setAutoRaise(true);
     m_closeButton->setFixedSize(36, 26);
     m_closeButton->setToolTip(tr("Close"));

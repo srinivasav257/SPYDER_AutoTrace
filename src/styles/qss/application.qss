@@ -1,15 +1,62 @@
-QMenuBar {
-    border-bottom: 1px solid palette(mid);
-    background: palette(window);
+QWidget#framelessTopBar {
+    border: none;
+    background: palette(mid);
+    color: palette(window-text);
 }
 
-QMenuBar::item {
-    padding: 4px 8px;
+QWidget#framelessTopBar QLabel {
+    background: transparent;
+    color: palette(window-text);
+}
+
+QWidget#framelessTopBar QMenuBar {
+    border: none;
+    background: transparent;
+    color: palette(window-text);
+}
+
+QWidget#framelessTopBar QMenuBar::item {
+    padding: 6px 8px 4px 8px;
+    margin: 0px 1px;
     border-radius: 4px;
+    background: transparent;
+    color: palette(window-text);
 }
 
-QMenuBar::item:selected {
+QWidget#framelessTopBar QMenuBar::item:selected {
     background: palette(button);
+    color: palette(text);
+}
+
+QWidget#framelessTopBar QToolButton {
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: palette(window-text);
+}
+
+QWidget#framelessTopBar QToolButton:hover {
+    background: palette(button);
+}
+
+QWidget#framelessTopBar QToolButton:pressed {
+    background: palette(highlight);
+    color: palette(highlighted-text);
+}
+
+QWidget#framelessTopBar QToolButton#titleCloseButton:hover {
+    background: #e81123;
+    color: #ffffff;
+}
+
+QWidget#framelessTopBar QToolButton#titleCloseButton:pressed {
+    background: #c50f1f;
+    color: #ffffff;
+}
+
+QMenuBar {
+    border: none;
+    background: transparent;
 }
 
 QMenu {
@@ -23,7 +70,17 @@ QMenu::item:selected {
 }
 
 QStatusBar {
-    border-top: 1px solid palette(mid);
+    border: none;
+    background: palette(highlight);
+    color: palette(highlighted-text);
+}
+
+QStatusBar::item {
+    border: none;
+}
+
+QStatusBar QLabel {
+    color: palette(highlighted-text);
 }
 
 QToolTip {

@@ -57,7 +57,6 @@ ThemeManager& ThemeManager::instance()
 void ThemeManager::initialize(QApplication& app, ThemeId themeId)
 {
     ensurePerformanceStyle(app);
-    app.setStyleSheet(styleSheetFor(ScopedStyle::Application));
     applyTheme(app, themeId);
 }
 
@@ -66,6 +65,34 @@ void ThemeManager::applyTheme(QApplication& app, ThemeId themeId)
     m_currentTheme = themeId;
     app.setPalette(buildPalette(themeId));
     app.setProperty("spyder.theme", themeKey(themeId));
+
+    // Force stylesheet reparse so palette(...) roles refresh immediately on theme switch.
+    const QString appStyle = styleSheetFor(ScopedStyle::Application);
+    app.setStyleSheet(QString());
+    app.setStyleSheet(appStyle);
+
+    // Reapply scoped styles that were registered through applyScopedStyle().
+    const int minScope = static_cast<int>(ScopedStyle::Application);
+    const int maxScope = static_cast<int>(ScopedStyle::WelcomePage);
+    for (QWidget* widget : app.allWidgets()) {
+        if (!widget) {
+            continue;
+        }
+
+        const auto scopeValue = widget->property("spyder.styleScope");
+        if (!scopeValue.isValid()) {
+            continue;
+        }
+
+        bool ok = false;
+        const int scopeId = scopeValue.toInt(&ok);
+        if (!ok || scopeId < minScope || scopeId > maxScope) {
+            continue;
+        }
+
+        widget->setStyleSheet(styleSheetFor(static_cast<ScopedStyle>(scopeId)));
+        widget->update();
+    }
 }
 
 ThemeId ThemeManager::currentTheme() const
@@ -84,6 +111,7 @@ void ThemeManager::applyScopedStyle(QWidget* widget, ScopedStyle scope) const
         return;
     }
 
+    widget->setProperty("spyder.styleScope", static_cast<int>(scope));
     widget->setStyleSheet(styleSheetFor(scope));
 }
 

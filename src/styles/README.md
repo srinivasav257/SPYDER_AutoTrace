@@ -17,6 +17,10 @@ This folder centralizes all runtime Qt UI styling for performance-critical workf
 - `activity_rail.qss`: activity rail only (`QToolBar#ActivityRail`).
 - `welcome_page.qss`: welcome page only (ID selectors).
 
+4. Report CSS (`reporting/*.css`)
+- `test_report.css`: centralized styling for generated HTML test reports.
+- Loaded from Qt resources in `TestReportGenerator` and embedded into each report.
+
 ## Theme Set
 
 - `Light Lavender` accent `#7C4DFF`

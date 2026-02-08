@@ -480,15 +480,15 @@ void DockMainWindow::refreshIcons()
         }
     };
 
-    const QIcon explorerIcon(":/icons/WindowStyle/tests_explorer.png");
-    const QIcon progressIcon(":/icons/WindowStyle/test.png");
+    const QIcon explorerIcon = DockManager::Icons::icon(DockManager::Icons::Id::PanelExplorer, this);
+    const QIcon progressIcon = DockManager::Icons::icon(DockManager::Icons::Id::PanelProgress, this);
 
-    setPanelIcon("test_explorer",
-                 explorerIcon.isNull() ? DockManager::Icons::icon(DockManager::Icons::Id::PanelExplorer, this)
-                                       : explorerIcon);
-    setPanelIcon("test_progress",
-                 progressIcon.isNull() ? DockManager::Icons::icon(DockManager::Icons::Id::PanelProgress, this)
-                                       : progressIcon);
+    setPanelIcon("test_explorer", explorerIcon);
+    setPanelIcon("test_progress", progressIcon);
+
+    if (d->activityRail) {
+        d->activityRail->refreshIcons();
+    }
 
     updateActionEnabledState("test_explorer");
     updateActionEnabledState("test_progress");

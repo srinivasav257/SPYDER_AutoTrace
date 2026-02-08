@@ -1,5 +1,6 @@
 #include "SamplePanels.h"
 
+#include "IconManager.h"
 #include "PanelRegistry.h"
 #include <QIcon>
 #include <QLabel>
@@ -42,7 +43,7 @@ bool registerSamplePanels()
         .factory = [](QWidget* parent) -> QWidget* {
             return createPlaceholderPanel(QObject::tr("CAN Trace"), parent);
         },
-        .icon = QIcon(":/icons/WindowStyle/connected_3D.png")
+        .icon = DockManager::Icons::icon(DockManager::Icons::Id::ActivityCanalyzer)
     });
 
     success &= registry.registerPanel({
@@ -53,7 +54,7 @@ bool registerSamplePanels()
         .factory = [](QWidget* parent) -> QWidget* {
             return createPlaceholderPanel(QObject::tr("IG Block"), parent);
         },
-        .icon = QIcon(":/icons/WindowStyle/settings.png")
+        .icon = DockManager::Icons::icon(DockManager::Icons::Id::ActivitySettings)
     });
 
     return success;

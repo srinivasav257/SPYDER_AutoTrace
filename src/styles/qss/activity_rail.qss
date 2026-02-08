@@ -2,8 +2,8 @@ QToolBar#ActivityRail {
     spacing: 4px;
     padding-top: 6px;
     padding-bottom: 6px;
-    border-right: 1px solid palette(mid);
-    background: palette(window);
+    border: none;
+    background: palette(midlight);
 }
 
 QToolBar#ActivityRail QToolButton {
