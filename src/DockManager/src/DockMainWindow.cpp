@@ -3,6 +3,8 @@
 #include "WorkspaceManager.h"
 #include "DockToolBar.h"
 #include "IconManager.h"
+#include "FramelessTopBar.h"
+#include "WelcomePageWidget.h"
 
 #include "DockManager.h"
 #include "DockWidget.h"
@@ -18,6 +20,15 @@
 #include <QApplication>
 #include <QDebug>
 #include <QSignalBlocker>
+#include <QTimer>
+
+#ifdef Q_OS_WIN
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#include <windowsx.h>
+#endif
 
 namespace DockManager {
 
@@ -25,6 +36,8 @@ struct DockMainWindow::Private
 {
     ads::CDockManager* dockManager = nullptr;
     WorkspaceManager* workspaceManager = nullptr;
+    FramelessTopBar* topBar = nullptr;
+    WelcomePageWidget* welcomePage = nullptr;
     DockToolBar* dockToolBar = nullptr;
 
     QMap<QString, ads::CDockWidget*> dockWidgets;
@@ -52,9 +65,11 @@ DockMainWindow::DockMainWindow(QWidget* parent)
 
     // Create panels and layout
     createPanels();
+    createTopBar();
     createMenus();
     createToolBar();
     setupDefaultLayout();
+    createWelcomePage();
 
     // Load saved perspectives FIRST (before saving Default)
     d->workspaceManager->loadPerspectives();
@@ -71,6 +86,10 @@ DockMainWindow::DockMainWindow(QWidget* parent)
     }
 
     d->workspaceManager->restoreState();
+    updateWelcomePageVisibility();
+    QTimer::singleShot(0, this, [this]() {
+        updateWelcomePageVisibility();
+    });
 
     // Update perspective menu
     rebuildPerspectiveMenu();
@@ -106,6 +125,15 @@ ads::CDockWidget* DockMainWindow::dockWidget(const QString& panelId) const
 QMap<QString, ads::CDockWidget*> DockMainWindow::dockWidgets() const
 {
     return d->dockWidgets;
+}
+
+QMenuBar* DockMainWindow::appMenuBar() const
+{
+    if (d->topBar && d->topBar->menuBar()) {
+        return d->topBar->menuBar();
+    }
+
+    return QMainWindow::menuBar();
 }
 
 ads::CDockAreaWidget* DockMainWindow::centralArea() const
@@ -159,6 +187,15 @@ void DockMainWindow::createPanels()
         dockWidget->setMinimumSizeHintMode(ads::CDockWidget::MinimumSizeHintFromContent);
 
         d->dockWidgets.insert(def.id, dockWidget);
+
+        connect(dockWidget, &ads::CDockWidget::viewToggled, this, [this](bool) {
+            updateWelcomePageVisibility();
+        });
+        if (QAction* toggleAction = dockWidget->toggleViewAction()) {
+            connect(toggleAction, &QAction::toggled, this, [this](bool) {
+                updateWelcomePageVisibility();
+            });
+        }
     }
 }
 
@@ -225,10 +262,58 @@ void DockMainWindow::setupDefaultLayout()
     }
 }
 
+void DockMainWindow::createTopBar()
+{
+    setWindowFlag(Qt::FramelessWindowHint, true);
+
+    d->topBar = new FramelessTopBar(this, this);
+    setMenuWidget(d->topBar);
+}
+
+void DockMainWindow::createWelcomePage()
+{
+    if (!d->dockManager || d->welcomePage) {
+        return;
+    }
+
+    d->welcomePage = new WelcomePageWidget(d->dockManager);
+    d->welcomePage->setAppIcon(windowIcon().isNull() ? QApplication::windowIcon() : windowIcon());
+    d->welcomePage->hide();
+
+    connect(d->welcomePage, &WelcomePageWidget::shortcutRequested, this, [this](const QString& shortcutId) {
+        if (shortcutId == QLatin1String("open_test_explorer")) {
+            if (auto* dw = d->dockWidgets.value("test_explorer")) {
+                dw->toggleView(true);
+            }
+            return;
+        }
+
+        if (shortcutId == QLatin1String("open_test_progress")) {
+            if (auto* dw = d->dockWidgets.value("test_progress")) {
+                dw->toggleView(true);
+            }
+            return;
+        }
+
+        if (shortcutId == QLatin1String("quick_start_dummy")) {
+            statusBar()->showMessage(tr("Quick Start will be implemented in next steps."), 2500);
+        }
+    });
+
+    d->dockManager->installEventFilter(this);
+    syncWelcomePageGeometry();
+    updateWelcomePageVisibility();
+}
+
 void DockMainWindow::createMenus()
 {
+    auto* appBar = appMenuBar();
+    if (!appBar) {
+        return;
+    }
+
     // --- File menu ---
-    auto* fileMenu = menuBar()->addMenu(tr("&File"));
+    auto* fileMenu = appBar->addMenu(tr("&File"));
     fileMenu->addAction(tr("Save Layout"), this, [this]() {
         d->workspaceManager->saveState();
         statusBar()->showMessage(tr("Layout saved"), 3000);
@@ -241,7 +326,7 @@ void DockMainWindow::createMenus()
     fileMenu->addAction(tr("E&xit"), QKeySequence::Quit, this, &QMainWindow::close);
 
     // --- View menu (auto-populated by category) ---
-    auto* viewMenu = menuBar()->addMenu(tr("&View"));
+    auto* viewMenu = appBar->addMenu(tr("&View"));
 
     // Add toggle actions grouped by category
     for (const auto& category : PanelRegistry::instance().categories()) {
@@ -264,14 +349,14 @@ void DockMainWindow::createMenus()
     });
 
     // --- Perspectives menu ---
-    d->perspectiveMenu = menuBar()->addMenu(tr("&Perspectives"));
+    d->perspectiveMenu = appBar->addMenu(tr("&Perspectives"));
 
     // Connect to workspace manager for menu updates
     connect(d->workspaceManager, &WorkspaceManager::perspectiveSaved,
             this, &DockMainWindow::rebuildPerspectiveMenu);
 
     // --- Help menu ---
-    auto* helpMenu = menuBar()->addMenu(tr("&Help"));
+    auto* helpMenu = appBar->addMenu(tr("&Help"));
     helpMenu->addAction(tr("About"), this, [this]() {
         QMessageBox::about(this, tr("About"),
             tr("<h3>%1</h3>"
@@ -393,6 +478,47 @@ void DockMainWindow::refreshIcons()
     updateActionEnabledState("test_progress");
 }
 
+void DockMainWindow::syncWelcomePageGeometry()
+{
+    if (!d->dockManager || !d->welcomePage) {
+        return;
+    }
+
+    d->welcomePage->setGeometry(d->dockManager->rect());
+}
+
+bool DockMainWindow::hasOpenDockWidgets() const
+{
+    for (auto* dockWidget : d->dockWidgets) {
+        if (!dockWidget) {
+            continue;
+        }
+
+        QAction* toggleAction = dockWidget->toggleViewAction();
+        if (toggleAction && toggleAction->isChecked()) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void DockMainWindow::updateWelcomePageVisibility()
+{
+    if (!d->welcomePage) {
+        return;
+    }
+
+    const bool showWelcome = !hasOpenDockWidgets();
+    if (showWelcome) {
+        syncWelcomePageGeometry();
+        d->welcomePage->show();
+        d->welcomePage->raise();
+    } else {
+        d->welcomePage->hide();
+    }
+}
+
 void DockMainWindow::rebuildPerspectiveMenu()
 {
     if (!d->perspectiveMenu)
@@ -435,7 +561,99 @@ void DockMainWindow::changeEvent(QEvent* event)
     if (event->type() == QEvent::PaletteChange ||
         event->type() == QEvent::StyleChange) {
         refreshIcons();
+        updateWelcomePageVisibility();
     }
 }
+
+bool DockMainWindow::eventFilter(QObject* watched, QEvent* event)
+{
+    if (watched == d->dockManager && d->welcomePage) {
+        if (event->type() == QEvent::Resize ||
+            event->type() == QEvent::Show ||
+            event->type() == QEvent::LayoutRequest) {
+            syncWelcomePageGeometry();
+            if (d->welcomePage->isVisible()) {
+                d->welcomePage->raise();
+            }
+        }
+    }
+
+    return QMainWindow::eventFilter(watched, event);
+}
+
+#ifdef Q_OS_WIN
+bool DockMainWindow::nativeEvent(const QByteArray& eventType, void* message, qintptr* result)
+{
+    Q_UNUSED(eventType)
+
+    if (isMaximized() || isFullScreen()) {
+        return QMainWindow::nativeEvent(eventType, message, result);
+    }
+
+    MSG* msg = static_cast<MSG*>(message);
+    if (msg && msg->message == WM_NCHITTEST) {
+        constexpr LONG kResizeBorder = 8;
+
+        RECT windowRect{};
+        if (!GetWindowRect(reinterpret_cast<HWND>(winId()), &windowRect)) {
+            return QMainWindow::nativeEvent(eventType, message, result);
+        }
+
+        const bool canResizeWidth = minimumWidth() < maximumWidth();
+        const bool canResizeHeight = minimumHeight() < maximumHeight();
+
+        const LONG globalX = GET_X_LPARAM(msg->lParam);
+        const LONG globalY = GET_Y_LPARAM(msg->lParam);
+
+        const bool onLeft = canResizeWidth &&
+                            globalX >= windowRect.left &&
+                            globalX < windowRect.left + kResizeBorder;
+        const bool onRight = canResizeWidth &&
+                             globalX < windowRect.right &&
+                             globalX >= windowRect.right - kResizeBorder;
+        const bool onTop = canResizeHeight &&
+                           globalY >= windowRect.top &&
+                           globalY < windowRect.top + kResizeBorder;
+        const bool onBottom = canResizeHeight &&
+                              globalY < windowRect.bottom &&
+                              globalY >= windowRect.bottom - kResizeBorder;
+
+        if (onTop && onLeft) {
+            *result = HTTOPLEFT;
+            return true;
+        }
+        if (onTop && onRight) {
+            *result = HTTOPRIGHT;
+            return true;
+        }
+        if (onBottom && onLeft) {
+            *result = HTBOTTOMLEFT;
+            return true;
+        }
+        if (onBottom && onRight) {
+            *result = HTBOTTOMRIGHT;
+            return true;
+        }
+        if (onLeft) {
+            *result = HTLEFT;
+            return true;
+        }
+        if (onRight) {
+            *result = HTRIGHT;
+            return true;
+        }
+        if (onTop) {
+            *result = HTTOP;
+            return true;
+        }
+        if (onBottom) {
+            *result = HTBOTTOM;
+            return true;
+        }
+    }
+
+    return QMainWindow::nativeEvent(eventType, message, result);
+}
+#endif
 
 } // namespace DockManager

@@ -7,6 +7,8 @@ set(DOCKMANAGER_HEADERS
     include/PanelDefinition.h
     include/PanelRegistry.h
     include/DockMainWindow.h
+    include/FramelessTopBar.h
+    include/WelcomePageWidget.h
     include/WorkspaceManager.h
     include/DockToolBar.h
     include/CustomDockComponentsFactory.h
@@ -16,6 +18,8 @@ set(DOCKMANAGER_HEADERS
 set(DOCKMANAGER_SOURCES
     src/PanelRegistry.cpp
     src/DockMainWindow.cpp
+    src/FramelessTopBar.cpp
+    src/WelcomePageWidget.cpp
     src/WorkspaceManager.cpp
     src/DockToolBar.cpp
     src/CustomDockComponentsFactory.cpp

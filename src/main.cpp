@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
         dlg.exec();
     });
     // Insert Tools menu before the Help menu (last menu)
-    auto* menuBar = window.menuBar();
+    auto* menuBar = window.appMenuBar();
     auto actions = menuBar->actions();
     if (!actions.isEmpty()) {
         menuBar->insertMenu(actions.last(), toolsMenu);

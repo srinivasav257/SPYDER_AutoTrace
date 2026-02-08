@@ -12,13 +12,16 @@ namespace ads {
 }
 
 class QMenu;
+class QMenuBar;
 class QToolBar;
 class QEvent;
+class QByteArray;
 
 namespace DockManager {
 
 class WorkspaceManager;
 class DockToolBar;
+class WelcomePageWidget;
 
 /**
  * @brief Base main window class with integrated dock management.
@@ -98,6 +101,13 @@ public:
      */
     QMap<QString, ads::CDockWidget*> dockWidgets() const;
 
+    /**
+     * @brief Get the application menu bar shown in the custom top bar.
+     *
+     * Use this instead of QMainWindow::menuBar() for frameless layouts.
+     */
+    QMenuBar* appMenuBar() const;
+
 protected:
     // --- Virtual methods for customization ---
 
@@ -143,6 +153,20 @@ protected:
     virtual void createMenus();
 
     /**
+     * @brief Create the custom top bar for frameless mode.
+     *
+     * Override to replace top bar behavior while keeping the same API.
+     */
+    virtual void createTopBar();
+
+    /**
+     * @brief Create the default welcome page shown when all dock widgets are hidden.
+     *
+     * Override to customize welcome content.
+     */
+    virtual void createWelcomePage();
+
+    /**
      * @brief Create the dock toolbar.
      *
      * Override to customize the toolbar or prevent its creation
@@ -163,6 +187,11 @@ protected:
      */
     void closeEvent(QCloseEvent* event) override;
     void changeEvent(QEvent* event) override;
+    bool eventFilter(QObject* watched, QEvent* event) override;
+
+#ifdef Q_OS_WIN
+    bool nativeEvent(const QByteArray& eventType, void* message, qintptr* result) override;
+#endif
 
     // --- Protected accessors for derived classes ---
 
@@ -184,6 +213,9 @@ protected slots:
 
 private:
     void refreshIcons();
+    void syncWelcomePageGeometry();
+    void updateWelcomePageVisibility();
+    bool hasOpenDockWidgets() const;
 
     struct Private;
     QScopedPointer<Private> d;
