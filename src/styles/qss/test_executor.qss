@@ -55,6 +55,65 @@ QWidget#testProgressPanel QPlainTextEdit {
     selection-color: palette(highlighted-text);
 }
 
+QWidget#testExplorerPanel QTreeView {
+    border: 1px solid palette(mid);
+    outline: none;
+    show-decoration-selected: 1;
+}
+
+QWidget#testExplorerPanel QTreeView::item {
+    min-height: 20px;
+    padding: 1px 4px;
+    border: 1px solid transparent;
+    color: palette(text);
+}
+
+QWidget#testExplorerPanel QTreeView::item:hover {
+    background: palette(button);
+}
+
+QWidget#testExplorerPanel QTreeView::item:selected {
+    background: palette(highlight);
+    color: palette(text);
+}
+
+QWidget#testExplorerPanel QTreeView::branch {
+    background: transparent;
+}
+
+QWidget#testExplorerPanel QTreeView::branch:closed:has-children,
+QWidget#testExplorerPanel QTreeView::branch:closed:has-children:has-siblings {
+    image: url(:/icons/tree_expand.svg);
+}
+
+QWidget#testExplorerPanel QTreeView::branch:open:has-children,
+QWidget#testExplorerPanel QTreeView::branch:open:has-children:has-siblings {
+    image: url(:/icons/tree_collapse.svg);
+}
+
+QWidget#testExplorerPanel QTreeView::indicator {
+    width: 13px;
+    height: 13px;
+    border: 1px solid palette(mid);
+    border-radius: 2px;
+    background: palette(base);
+}
+
+QWidget#testExplorerPanel QTreeView::indicator:hover {
+    border-color: palette(highlight);
+}
+
+QWidget#testExplorerPanel QTreeView::indicator:checked {
+    border-color: palette(highlight);
+    background: palette(highlight);
+    image: url(:/icons/WindowStyle/check_mark.png);
+}
+
+QWidget#testExplorerPanel QTreeView::indicator:indeterminate {
+    border-color: palette(highlight);
+    background: palette(button);
+}
+
 QWidget#testProgressPanel QTableView QTableCornerButton::section,
 QWidget#testProgressPanel QHeaderView::section,
 QDialog#testEditorDialog QHeaderView::section {

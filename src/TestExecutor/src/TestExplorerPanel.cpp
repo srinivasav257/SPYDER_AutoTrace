@@ -69,6 +69,7 @@ TestExplorerPanel::TestExplorerPanel(QWidget* parent)
     : QWidget(parent)
 {
     setObjectName(QStringLiteral("testExplorerPanel"));
+    setAttribute(Qt::WA_StyledBackground, true);
     setupUi();
     StyleLib::ThemeManager::instance().applyScopedStyle(this, StyleLib::ScopedStyle::TestExecutor);
     setupConnections();
@@ -223,6 +224,9 @@ void TestExplorerPanel::setupUi()
     m_treeView->setAlternatingRowColors(false);
     m_treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     m_treeView->setContextMenuPolicy(Qt::CustomContextMenu);
+    m_treeView->setUniformRowHeights(true);
+    m_treeView->setIndentation(18);
+    m_treeView->setIconSize(QSize(16, 16));
     m_treeView->setDragEnabled(true);
     m_treeView->setAcceptDrops(true);
     m_treeView->setDropIndicatorShown(true);

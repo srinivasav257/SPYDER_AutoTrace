@@ -24,6 +24,7 @@ TestProgressPanel::TestProgressPanel(QWidget* parent)
     : QWidget(parent)
 {
     setObjectName(QStringLiteral("testProgressPanel"));
+    setAttribute(Qt::WA_StyledBackground, true);
     setupUi();
     StyleLib::ThemeManager::instance().applyScopedStyle(this, StyleLib::ScopedStyle::TestExecutor);
     setupConnections();

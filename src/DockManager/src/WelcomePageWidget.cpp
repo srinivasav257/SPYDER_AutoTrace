@@ -23,6 +23,7 @@ WelcomePageWidget::WelcomePageWidget(QWidget* parent)
 
     auto* card = new QFrame(this);
     card->setObjectName("welcomeCard");
+    card->setFrameShape(QFrame::NoFrame);
     card->setMaximumWidth(560);
 
     auto* cardLayout = new QVBoxLayout(card);

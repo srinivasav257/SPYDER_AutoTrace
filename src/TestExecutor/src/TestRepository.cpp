@@ -4,13 +4,13 @@
  */
 
 #include "TestRepository.h"
-#include "IconManager.h"
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QMimeData>
 #include <QDebug>
 #include <QFileInfo>
+#include <QIcon>
 #include <functional>
 
 namespace TestExecutor {
@@ -155,12 +155,16 @@ QVariant TestTreeModel::data(const QModelIndex& index, int role) const
             
         case Qt::DecorationRole:
             if (index.column() == 0) {
+                static const QIcon groupIcon(QStringLiteral(":/icons/WindowStyle/group.png"));
+                static const QIcon featureIcon(QStringLiteral(":/icons/WindowStyle/feature.png"));
+                static const QIcon testIcon(QStringLiteral(":/icons/WindowStyle/test.png"));
+
                 if (item->type == TreeItemType::Group) {
-                    return DockManager::Icons::icon(DockManager::Icons::Id::GroupItem);
+                    return groupIcon;
                 } else if (item->type == TreeItemType::Feature) {
-                    return DockManager::Icons::icon(DockManager::Icons::Id::FeatureItem);
+                    return featureIcon;
                 } else if (item->type == TreeItemType::TestCase) {
-                    return DockManager::Icons::icon(DockManager::Icons::Id::TestItem);
+                    return testIcon;
                 }
             }
             break;
