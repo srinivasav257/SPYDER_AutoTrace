@@ -229,7 +229,7 @@ QVariant TestTreeModel::headerData(int section, Qt::Orientation orientation, int
             if (!filePath.isEmpty()) {
                 const QString projectName = QFileInfo(filePath).baseName();
                 if (!projectName.isEmpty()) {
-                    return projectName;
+                    return projectName.toUpper();
                 }
             }
             return "Project";
