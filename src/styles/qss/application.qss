@@ -113,12 +113,13 @@ QStatusBar QLabel {
 }
 
 QToolTip {
-    border: 1px solid palette(mid);
+    border: 1px solid #454545;
     border-radius: 4px;
-    padding: 5px 8px;
-    font-size: 12px;
-    background: palette(tooltip-base);
-    color: palette(tooltip-text);
+    min-width: 0px;
+    padding: 2px 6px;
+    font-size: 11px;
+    background: #252526;
+    color: #d4d4d4;
 }
 
 QMainWindow {
