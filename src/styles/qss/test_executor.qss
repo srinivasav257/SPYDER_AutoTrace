@@ -43,6 +43,23 @@ QDialog#testEditorDialog QPushButton:pressed {
     color: palette(highlighted-text);
 }
 
+QWidget#testExplorerPanel QPushButton[iconOnly="true"] {
+    border: none;
+    border-radius: 4px;
+    padding: 0px;
+    background: transparent;
+}
+
+QWidget#testExplorerPanel QPushButton[iconOnly="true"]:hover {
+    background: palette(button);
+}
+
+QWidget#testExplorerPanel QPushButton[iconOnly="true"]:pressed,
+QWidget#testExplorerPanel QPushButton[iconOnly="true"]:checked {
+    background: palette(highlight);
+    color: palette(highlighted-text);
+}
+
 QWidget#testExplorerPanel QTreeView,
 QWidget#testProgressPanel QTableWidget,
 QDialog#testEditorDialog QTableWidget,
@@ -156,7 +173,7 @@ QWidget#testProgressPanel QProgressBar::chunk {
 
 QWidget#testProgressPanel QSplitter::handle,
 QDialog#testEditorDialog QSplitter::handle {
-    background: palette(mid);
+    background: transparent;
 }
 
 QDialog#testEditorDialog QTabWidget::pane {

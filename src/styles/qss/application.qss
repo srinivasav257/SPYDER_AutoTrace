@@ -157,7 +157,12 @@ QToolBar {
 }
 
 QSplitter::handle {
-    background: palette(mid);
+    background: transparent;
+}
+
+ads--CDockSplitter::handle,
+CDockSplitter::handle {
+    background: transparent;
 }
 
 ads--CDockManager,
@@ -195,9 +200,9 @@ ads--CDockAreaTitleBar QToolButton,
 CDockAreaTitleBar QToolButton,
 ads--CTitleBarButton,
 CTitleBarButton {
-    border: 1px solid palette(mid);
+    border: none;
     border-radius: 3px;
-    background: palette(button);
+    background: transparent;
     color: palette(button-text);
 }
 
@@ -205,13 +210,17 @@ ads--CDockAreaTitleBar QToolButton:hover,
 CDockAreaTitleBar QToolButton:hover,
 ads--CTitleBarButton:hover,
 CTitleBarButton:hover {
-    border-color: palette(highlight);
+    background: palette(button);
 }
 
 ads--CDockAreaTitleBar QToolButton:pressed,
 CDockAreaTitleBar QToolButton:pressed,
 ads--CTitleBarButton:pressed,
-CTitleBarButton:pressed {
+CTitleBarButton:pressed,
+ads--CDockAreaTitleBar QToolButton:checked,
+CDockAreaTitleBar QToolButton:checked,
+ads--CTitleBarButton:checked,
+CTitleBarButton:checked {
     background: palette(highlight);
     color: palette(highlighted-text);
 }

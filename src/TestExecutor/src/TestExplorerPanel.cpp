@@ -150,46 +150,36 @@ void TestExplorerPanel::setupUi()
     // === Toolbar ===
     auto* toolbarLayout = new QHBoxLayout();
     toolbarLayout->setSpacing(2);
+    const auto configureIconToolbarButton = [](QPushButton* button, const char* tooltip) {
+        button->setProperty("iconOnly", true);
+        button->setToolTip(QString::fromUtf8(tooltip));
+        button->setFixedSize(28, 28);
+        button->setIconSize(kToolbarIconSize);
+    };
 
     m_btnImport = new QPushButton(this);
-    m_btnImport->setToolTip("Import test cases from JSON file");
-    m_btnImport->setFixedSize(28, 28);
-    m_btnImport->setIconSize(kToolbarIconSize);
+    configureIconToolbarButton(m_btnImport, "Import test cases from JSON file");
 
     m_btnExport = new QPushButton(this);
-    m_btnExport->setToolTip("Save tests");
-    m_btnExport->setFixedSize(28, 28);
-    m_btnExport->setIconSize(kToolbarIconSize);
+    configureIconToolbarButton(m_btnExport, "Save tests");
 
     m_btnAddGroup = new QPushButton(this);
-    m_btnAddGroup->setToolTip("Add Group");
-    m_btnAddGroup->setFixedSize(28, 28);
-    m_btnAddGroup->setIconSize(kToolbarIconSize);
+    configureIconToolbarButton(m_btnAddGroup, "Add Group");
 
     m_btnAddFeature = new QPushButton(this);
-    m_btnAddFeature->setToolTip("Add Feature");
-    m_btnAddFeature->setFixedSize(28, 28);
-    m_btnAddFeature->setIconSize(kToolbarIconSize);
+    configureIconToolbarButton(m_btnAddFeature, "Add Feature");
 
     m_btnAddTest = new QPushButton(this);
-    m_btnAddTest->setToolTip("Add Test");
-    m_btnAddTest->setFixedSize(28, 28);
-    m_btnAddTest->setIconSize(kToolbarIconSize);
+    configureIconToolbarButton(m_btnAddTest, "Add Test");
 
     m_btnRemove = new QPushButton(this);
-    m_btnRemove->setToolTip("Remove selected item(s)");
-    m_btnRemove->setFixedSize(28, 28);
-    m_btnRemove->setIconSize(kToolbarIconSize);
+    configureIconToolbarButton(m_btnRemove, "Remove selected item(s)");
 
     m_btnExpand = new QPushButton(this);
-    m_btnExpand->setToolTip("Expand all");
-    m_btnExpand->setFixedSize(28, 28);
-    m_btnExpand->setIconSize(kToolbarIconSize);
+    configureIconToolbarButton(m_btnExpand, "Expand all");
 
     m_btnCollapse = new QPushButton(this);
-    m_btnCollapse->setToolTip("Collapse all");
-    m_btnCollapse->setFixedSize(28, 28);
-    m_btnCollapse->setIconSize(kToolbarIconSize);
+    configureIconToolbarButton(m_btnCollapse, "Collapse all");
 
     m_btnRun = new QPushButton("Run", this);
     m_btnRun->setToolTip("Run checked or selected tests");
