@@ -1,6 +1,6 @@
 QWidget#framelessTopBar {
     border: none;
-    background: palette(mid);
+    background: #000000;
     color: palette(window-text);
 }
 
