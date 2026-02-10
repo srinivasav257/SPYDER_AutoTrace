@@ -223,10 +223,10 @@ ads--CDockAreaTitleBar,
 CDockAreaTitleBar,
 ads--CDockAreaTabBar,
 CDockAreaTabBar {
-    border: 1px solid palette(mid);
+    border: 1px solid #000000;
     border-bottom: none;
-    background: palette(button);
-    color: palette(button-text);
+    background: #000000;
+    color: #ffffff;
 }
 
 ads--CDockAreaTitleBar QToolButton,
@@ -236,14 +236,14 @@ CTitleBarButton {
     border: none;
     border-radius: 3px;
     background: transparent;
-    color: palette(button-text);
+    color: #ffffff;
 }
 
 ads--CDockAreaTitleBar QToolButton:hover,
 CDockAreaTitleBar QToolButton:hover,
 ads--CTitleBarButton:hover,
 CTitleBarButton:hover {
-    background: palette(button);
+    background: #000000;
 }
 
 ads--CDockAreaTitleBar QToolButton:pressed,
@@ -254,32 +254,33 @@ ads--CDockAreaTitleBar QToolButton:checked,
 CDockAreaTitleBar QToolButton:checked,
 ads--CTitleBarButton:checked,
 CTitleBarButton:checked {
-    background: palette(highlight);
-    color: palette(highlighted-text);
+    background: #000000;
+    color: #ffffff;
 }
 
 ads--CDockWidgetTab,
 CDockWidgetTab {
-    border: 1px solid palette(mid);
+    border: 1px solid #000000;
     border-bottom: none;
     border-top-left-radius: 4px;
     border-top-right-radius: 4px;
     margin-right: 2px;
     padding: 4px 8px;
-    background: palette(button);
-    color: palette(button-text);
+    background: #000000;
+    color: #ffffff;
 }
 
 ads--CDockWidgetTab:hover,
 CDockWidgetTab:hover {
-    border-color: palette(highlight);
+    border-color: #000000;
+    background: #000000;
 }
 
 ads--CDockWidgetTab[activeTab="true"],
 CDockWidgetTab[activeTab="true"] {
-    border-color: palette(highlight);
-    background: palette(base);
-    color: palette(text);
+    border-color: #000000;
+    background: #000000;
+    color: #ffffff;
 }
 
 ads--CAutoHideSideBar,

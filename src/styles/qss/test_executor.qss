@@ -115,24 +115,24 @@ QWidget#testExplorerPanel QTreeView::branch:open:has-children:has-siblings {
 QWidget#testExplorerPanel QTreeView::indicator {
     width: 13px;
     height: 13px;
-    border: 1px solid #000000;
+    border: 1px solid #808080;
     border-radius: 2px;
     background: #0A0D0F;
 }
 
 QWidget#testExplorerPanel QTreeView::indicator:hover {
-    border-color: #000000;
+    border-color: #808080;
 }
 
 QWidget#testExplorerPanel QTreeView::indicator:checked {
-    border-color: #000000;
-    background: #0A0D0F;
+    border-color: #808080;
+    background: #808080;
     image: url(:/icons/WindowStyle/check_mark.png);
 }
 
 QWidget#testExplorerPanel QTreeView::indicator:indeterminate {
-    border-color: #000000;
-    background: #0A0D0F;
+    border-color: #808080;
+    background: #808080;
 }
 
 QWidget#testProgressPanel QTableView QTableCornerButton::section,
@@ -159,11 +159,11 @@ QWidget#testProgressPanel QGroupBox::title,
 QDialog#testEditorDialog QGroupBox::title {
     left: 10px;
     padding: 0 4px;
-    color: palette(text);
+    color: #ffffff;
 }
 
 QWidget#testProgressPanel QProgressBar {
-    border: 1px solid #000000;
+    border: 1px solid #808080;
     border-radius: 4px;
     background: #0A0D0F;
     color: palette(text);
