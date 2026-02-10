@@ -5,11 +5,60 @@
 #include <QLabel>
 #include <QMenuBar>
 #include <QMouseEvent>
+#include <QPainter>
 #include <QStyle>
 #include <QToolButton>
 #include <QWindow>
 
 namespace DockManager {
+
+namespace {
+
+enum class TitleButtonGlyph
+{
+    Minimize,
+    Maximize,
+    Restore,
+    Close
+};
+
+QColor titleButtonIconColor()
+{
+    return QColor(QStringLiteral("#E0E0E1"));
+}
+
+QIcon makeTitleButtonIcon(TitleButtonGlyph glyph, const QColor& color)
+{
+    constexpr int kSize = 14;
+    QPixmap pixmap(kSize, kSize);
+    pixmap.fill(Qt::transparent);
+
+    QPainter painter(&pixmap);
+    painter.setRenderHint(QPainter::Antialiasing, false);
+    painter.setPen(QPen(color, 1.0, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin));
+    painter.setBrush(Qt::NoBrush);
+
+    switch (glyph) {
+    case TitleButtonGlyph::Minimize:
+        painter.drawLine(QPointF(2.5, 10.5), QPointF(11.5, 10.5));
+        break;
+    case TitleButtonGlyph::Maximize:
+        painter.drawRect(QRectF(2.5, 2.5, 9.0, 9.0));
+        break;
+    case TitleButtonGlyph::Restore:
+        painter.drawRect(QRectF(4.5, 2.5, 7.0, 6.5));
+        painter.drawRect(QRectF(2.5, 4.5, 7.0, 6.5));
+        break;
+    case TitleButtonGlyph::Close:
+        painter.drawLine(QPointF(3.0, 3.0), QPointF(11.0, 11.0));
+        painter.drawLine(QPointF(11.0, 3.0), QPointF(3.0, 11.0));
+        break;
+    }
+
+    return QIcon(pixmap);
+}
+
+} // namespace
 
 FramelessTopBar::FramelessTopBar(QWidget* hostWindow, QWidget* parent)
     : QWidget(parent)
@@ -35,21 +84,24 @@ FramelessTopBar::FramelessTopBar(QWidget* hostWindow, QWidget* parent)
     m_minimizeButton = new QToolButton(this);
     m_minimizeButton->setObjectName("titleMinimizeButton");
     m_minimizeButton->setAutoRaise(true);
-    m_minimizeButton->setFixedSize(36, 26);
+    m_minimizeButton->setFixedSize(40, 28);
+    m_minimizeButton->setIconSize(QSize(14, 14));
     m_minimizeButton->setToolTip(tr("Minimize"));
-    m_minimizeButton->setIcon(style()->standardIcon(QStyle::SP_TitleBarMinButton));
+    m_minimizeButton->setIcon(makeTitleButtonIcon(TitleButtonGlyph::Minimize, titleButtonIconColor()));
 
     m_maximizeButton = new QToolButton(this);
     m_maximizeButton->setObjectName("titleMaximizeButton");
     m_maximizeButton->setAutoRaise(true);
-    m_maximizeButton->setFixedSize(36, 26);
+    m_maximizeButton->setFixedSize(40, 28);
+    m_maximizeButton->setIconSize(QSize(14, 14));
 
     m_closeButton = new QToolButton(this);
     m_closeButton->setObjectName("titleCloseButton");
     m_closeButton->setAutoRaise(true);
-    m_closeButton->setFixedSize(36, 26);
+    m_closeButton->setFixedSize(40, 28);
+    m_closeButton->setIconSize(QSize(14, 14));
     m_closeButton->setToolTip(tr("Close"));
-    m_closeButton->setIcon(style()->standardIcon(QStyle::SP_TitleBarCloseButton));
+    m_closeButton->setIcon(makeTitleButtonIcon(TitleButtonGlyph::Close, titleButtonIconColor()));
 
     layout->addWidget(m_iconLabel);
     layout->addSpacing(10);
@@ -153,10 +205,10 @@ void FramelessTopBar::updateWindowStateButton()
     const bool isMaximized = m_hostWindow->isMaximized();
     if (isMaximized) {
         m_maximizeButton->setToolTip(tr("Restore"));
-        m_maximizeButton->setIcon(style()->standardIcon(QStyle::SP_TitleBarNormalButton));
+        m_maximizeButton->setIcon(makeTitleButtonIcon(TitleButtonGlyph::Restore, titleButtonIconColor()));
     } else {
         m_maximizeButton->setToolTip(tr("Maximize"));
-        m_maximizeButton->setIcon(style()->standardIcon(QStyle::SP_TitleBarMaxButton));
+        m_maximizeButton->setIcon(makeTitleButtonIcon(TitleButtonGlyph::Maximize, titleButtonIconColor()));
     }
 }
 

@@ -17,7 +17,7 @@ ActivityRail::ActivityRail(QWidget* parent)
     setMovable(false);
     setFloatable(false);
     setToolButtonStyle(Qt::ToolButtonIconOnly);
-    setIconSize(QSize(24, 24));
+    setIconSize(QSize(26, 26));
     setContextMenuPolicy(Qt::PreventContextMenu);
     setAllowedAreas(Qt::LeftToolBarArea);
     setMinimumWidth(40);

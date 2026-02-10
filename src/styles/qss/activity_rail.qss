@@ -14,6 +14,11 @@ QToolBar#ActivityRail QToolButton {
     padding: 0px;
     border-radius: 0px;
     background: transparent;
+    color: #a6a5a2;
+}
+
+QToolBar#ActivityRail QToolButton:hover {
+    color: #e0e0e1;
 }
 
 QToolBar#ActivityRail QToolButton:checked {

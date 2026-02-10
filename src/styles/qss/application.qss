@@ -16,41 +16,59 @@ QWidget#framelessTopBar QMenuBar {
 }
 
 QWidget#framelessTopBar QMenuBar::item {
-    padding: 6px 8px 4px 8px;
-    margin: 0px 1px;
+    padding: 6px 10px 4px 10px;
+    margin: 0px 2px;
+    border: 1px solid transparent;
     border-radius: 4px;
     background: transparent;
-    color: palette(window-text);
+    color: #c8c8ca;
 }
 
 QWidget#framelessTopBar QMenuBar::item:selected {
-    background: palette(button);
-    color: palette(text);
+    background: rgba(210, 110, 65, 36);
+    border-color: rgba(210, 110, 65, 130);
+    color: #ffffff;
 }
 
-QWidget#framelessTopBar QToolButton {
-    border: none;
+QWidget#framelessTopBar QMenuBar::item:pressed {
+    background: rgba(210, 110, 65, 62);
+    border-color: #d26e41;
+    color: #ffffff;
+}
+
+QWidget#framelessTopBar QToolButton#titleMinimizeButton,
+QWidget#framelessTopBar QToolButton#titleMaximizeButton,
+QWidget#framelessTopBar QToolButton#titleCloseButton {
+    border: 1px solid transparent;
     border-radius: 4px;
     background: transparent;
-    color: palette(window-text);
+    color: #e0e0e1;
+    padding: 0px;
+    margin: 0px;
 }
 
-QWidget#framelessTopBar QToolButton:hover {
-    background: palette(button);
+QWidget#framelessTopBar QToolButton#titleMinimizeButton:hover,
+QWidget#framelessTopBar QToolButton#titleMaximizeButton:hover {
+    background: rgba(255, 255, 255, 20);
+    border-color: rgba(255, 255, 255, 35);
 }
 
-QWidget#framelessTopBar QToolButton:pressed {
-    background: palette(highlight);
-    color: palette(highlighted-text);
+QWidget#framelessTopBar QToolButton#titleMinimizeButton:pressed,
+QWidget#framelessTopBar QToolButton#titleMaximizeButton:pressed {
+    background: rgba(255, 255, 255, 34);
+    border-color: rgba(255, 255, 255, 50);
+    color: #ffffff;
 }
 
 QWidget#framelessTopBar QToolButton#titleCloseButton:hover {
     background: #e81123;
+    border-color: #e81123;
     color: #ffffff;
 }
 
 QWidget#framelessTopBar QToolButton#titleCloseButton:pressed {
     background: #c50f1f;
+    border-color: #c50f1f;
     color: #ffffff;
 }
 
@@ -61,12 +79,23 @@ QMenuBar {
 
 QMenu {
     border: 1px solid palette(mid);
+    border-radius: 6px;
+    padding: 4px;
     background: palette(window);
 }
 
+QMenu::item {
+    border: 1px solid transparent;
+    border-radius: 4px;
+    padding: 6px 20px 6px 10px;
+    margin: 1px 2px;
+    background: transparent;
+}
+
 QMenu::item:selected {
-    background: palette(highlight);
-    color: palette(highlighted-text);
+    background: rgba(210, 110, 65, 40);
+    border-color: rgba(210, 110, 65, 120);
+    color: #ffffff;
 }
 
 QStatusBar {
@@ -85,6 +114,9 @@ QStatusBar QLabel {
 
 QToolTip {
     border: 1px solid palette(mid);
+    border-radius: 4px;
+    padding: 5px 8px;
+    font-size: 12px;
     background: palette(tooltip-base);
     color: palette(tooltip-text);
 }

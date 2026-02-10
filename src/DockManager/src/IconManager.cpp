@@ -13,7 +13,7 @@ namespace DockManager::Icons {
 namespace {
 
 constexpr int kIconSize = 18;
-constexpr int kActivityRailIconSize = 24;
+constexpr int kActivityRailIconSize = 26;
 
 bool isActivityRailContext(const QWidget* context)
 {
@@ -300,8 +300,8 @@ void drawCanalyzer(QPainter& painter, const QRectF& rect, const QColor& color)
 void drawSettings(QPainter& painter, const QRectF& rect, const QColor& color)
 {
     const QPointF c = rect.center();
-    const qreal inner = 3.1;
-    const qreal outer = 6.0;
+    const qreal inner = rect.width() * 0.19;
+    const qreal outer = rect.width() * 0.34;
 
     painter.setPen(linePen(color));
     painter.setBrush(Qt::NoBrush);
@@ -313,7 +313,7 @@ void drawSettings(QPainter& painter, const QRectF& rect, const QColor& color)
         painter.drawLine(p1, p2);
     }
 
-    painter.drawEllipse(c, 3.4, 3.4);
+    painter.drawEllipse(c, rect.width() * 0.17, rect.width() * 0.17);
 }
 
 void drawProfile(QPainter& painter, const QRectF& rect, const QColor& color)
@@ -322,13 +322,17 @@ void drawProfile(QPainter& painter, const QRectF& rect, const QColor& color)
     painter.setPen(linePen(color));
     painter.setBrush(Qt::NoBrush);
 
-    painter.drawEllipse(QPointF(c.x(), rect.top() + 6.0), 2.8, 2.8);
+    const qreal headRadius = rect.width() * 0.17;
+    const qreal shoulderHalfWidth = rect.width() * 0.30;
+    const qreal shoulderTop = rect.bottom() - rect.height() * 0.40;
+    const qreal shoulderBottom = rect.bottom() - rect.height() * 0.12;
+    painter.drawEllipse(QPointF(c.x(), rect.top() + rect.height() * 0.30), headRadius, headRadius);
 
     QPainterPath shoulders;
-    shoulders.moveTo(c.x() - 5.2, rect.bottom() - 2.8);
-    shoulders.cubicTo(c.x() - 5.2, rect.bottom() - 6.0,
-                      c.x() + 5.2, rect.bottom() - 6.0,
-                      c.x() + 5.2, rect.bottom() - 2.8);
+    shoulders.moveTo(c.x() - shoulderHalfWidth, shoulderBottom);
+    shoulders.cubicTo(c.x() - shoulderHalfWidth, shoulderTop,
+                      c.x() + shoulderHalfWidth, shoulderTop,
+                      c.x() + shoulderHalfWidth, shoulderBottom);
     painter.drawPath(shoulders);
 }
 
@@ -348,13 +352,17 @@ QIcon buildIcon(const QWidget* context,
     };
 
     const QColor normal = iconColor(context);
+    QColor hover = normal;
+    if (isActivityRailContext(context)) {
+        hover = QColor(QStringLiteral("#E0E0E1"));
+    }
     const QColor active = activeIconColor(context, normal);
     const QColor disabled = disabledIconColor(normal);
 
     QIcon icon;
     icon.addPixmap(render(normal), QIcon::Normal, QIcon::Off);
-    icon.addPixmap(render(normal), QIcon::Active, QIcon::Off);
-    icon.addPixmap(render(normal), QIcon::Selected, QIcon::Off);
+    icon.addPixmap(render(hover), QIcon::Active, QIcon::Off);
+    icon.addPixmap(render(hover), QIcon::Selected, QIcon::Off);
     icon.addPixmap(render(active), QIcon::Normal, QIcon::On);
     icon.addPixmap(render(active), QIcon::Active, QIcon::On);
     icon.addPixmap(render(active), QIcon::Selected, QIcon::On);
