@@ -21,24 +21,24 @@
 static QPixmap createSplashPixmap()
 {
     QPixmap pix(480, 280);
-    pix.fill(QColor(QStringLiteral("#0F1A21")));
+    pix.fill(QColor(QStringLiteral("#0A181E")));
 
     QPainter p(&pix);
     p.setRenderHint(QPainter::Antialiasing);
 
     // Accent bar
-    p.fillRect(0, 0, 480, 6, QColor(QStringLiteral("#3FB950")));
+    p.fillRect(0, 0, 480, 6, QColor(QStringLiteral("#D26E41")));
 
     // App name
     QFont titleFont("Segoe UI", 28, QFont::Bold);
     p.setFont(titleFont);
-    p.setPen(Qt::white);
+    p.setPen(QColor(QStringLiteral("#E0E0E1")));
     p.drawText(pix.rect().adjusted(0, 50, 0, -80), Qt::AlignCenter, "SPYDER AutoTrace");
 
     // Version
     QFont verFont("Segoe UI", 12);
     p.setFont(verFont);
-    p.setPen(QColor(180, 180, 180));
+    p.setPen(QColor(QStringLiteral("#A6A5A2")));
     p.drawText(pix.rect().adjusted(0, 110, 0, -40), Qt::AlignCenter,
                QString("v%1").arg(QApplication::applicationVersion().isEmpty()
                                       ? "1.0.0"
@@ -47,7 +47,7 @@ static QPixmap createSplashPixmap()
     // Loading text
     QFont loadFont("Segoe UI", 10);
     p.setFont(loadFont);
-    p.setPen(QColor(140, 140, 140));
+    p.setPen(QColor(QStringLiteral("#655B55")));
     p.drawText(pix.rect().adjusted(20, 0, -20, -18), Qt::AlignBottom | Qt::AlignHCenter,
                "Initializing...");
 
@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
     app.processEvents();
 
     auto showStatus = [&](const QString& msg) {
-        splash.showMessage(msg, Qt::AlignBottom | Qt::AlignHCenter, QColor(180, 180, 180));
+        splash.showMessage(msg, Qt::AlignBottom | Qt::AlignHCenter, QColor(QStringLiteral("#A6A5A2")));
         app.processEvents();
     };
 

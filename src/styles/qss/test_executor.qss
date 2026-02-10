@@ -91,7 +91,7 @@ QWidget#testExplorerPanel QTreeView::item:hover {
 
 QWidget#testExplorerPanel QTreeView::item:selected {
     background: palette(highlight);
-    color: palette(text);
+    color: palette(highlighted-text);
 }
 
 QWidget#testExplorerPanel QTreeView::branch {

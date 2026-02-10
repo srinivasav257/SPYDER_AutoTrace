@@ -6,19 +6,19 @@ namespace {
 const QVector<ThemeDefinition> kThemes{
     {
         ThemeId::DarkGreenBlue,
-        QStringLiteral("dark_acqua_green_blue"),
-        QStringLiteral("Dark Acqua Green Blue"),
-        QColor(QStringLiteral("#132028")),
-        QColor(QStringLiteral("#0F1A21")),
-        QColor(QStringLiteral("#182833")),
-        QColor(QStringLiteral("#E6EDF3")),
-        QColor(QStringLiteral("#1B2B36")),
-        QColor(QStringLiteral("#E6EDF3")),
-        QColor(QStringLiteral("#304250")),
-        QColor(QStringLiteral("#3FB950")),
-        QColor(QStringLiteral("#0F1A21")),
-        QColor(QStringLiteral("#1B2B36")),
-        QColor(QStringLiteral("#E6EDF3"))
+        QStringLiteral("hackers_curiosity"),
+        QStringLiteral("Hacker's Curiosity"),
+        QColor(QStringLiteral("#322628")),
+        QColor(QStringLiteral("#0A181E")),
+        QColor(QStringLiteral("#655B55")),
+        QColor(QStringLiteral("#E0E0E1")),
+        QColor(QStringLiteral("#322628")),
+        QColor(QStringLiteral("#E0E0E1")),
+        QColor(QStringLiteral("#655B55")),
+        QColor(QStringLiteral("#D26E41")),
+        QColor(QStringLiteral("#0A181E")),
+        QColor(QStringLiteral("#322628")),
+        QColor(QStringLiteral("#A6A5A2"))
     }
 };
 
@@ -43,6 +43,9 @@ const ThemeDefinition& themeDefinition(ThemeId id)
 ThemeId themeIdFromKey(const QString& key)
 {
     if (key.compare(QStringLiteral("dark_green_blue"), Qt::CaseInsensitive) == 0) {
+        return ThemeId::DarkGreenBlue;
+    }
+    if (key.compare(QStringLiteral("dark_acqua_green_blue"), Qt::CaseInsensitive) == 0) {
         return ThemeId::DarkGreenBlue;
     }
 
