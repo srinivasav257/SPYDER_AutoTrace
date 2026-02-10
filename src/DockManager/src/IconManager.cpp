@@ -15,7 +15,7 @@ namespace DockManager::Icons
     {
 
         constexpr int kIconSize = 18;
-        constexpr int kActivityRailIconSize = 26;
+        constexpr int kActivityRailIconSize = 32;
 
         bool isActivityRailContext(const QWidget *context)
         {
@@ -45,7 +45,7 @@ namespace DockManager::Icons
         {
             if (isActivityRailContext(context))
             {
-                return QColor(QStringLiteral("#A6A5A2"));
+                return QColor(QStringLiteral("#C8CDD0"));
             }
             if (context)
             {
