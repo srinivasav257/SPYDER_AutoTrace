@@ -9,7 +9,7 @@ const QVector<ThemeDefinition> kThemes{
         QStringLiteral("hackers_curiosity"),
         QStringLiteral("Hacker's Curiosity"),
         QColor(QStringLiteral("#322628")),
-        QColor(QStringLiteral("#0A181E")),
+        QColor(QStringLiteral("#000000")),
         QColor(QStringLiteral("#655B55")),
         QColor(QStringLiteral("#E0E0E1")),
         QColor(QStringLiteral("#322628")),
