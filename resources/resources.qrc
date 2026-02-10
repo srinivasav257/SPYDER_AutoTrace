@@ -30,6 +30,7 @@
         <file alias="styles/application.qss">../src/styles/qss/application.qss</file>
         <file alias="styles/activity_rail.qss">../src/styles/qss/activity_rail.qss</file>
         <file alias="styles/welcome_page.qss">../src/styles/qss/welcome_page.qss</file>
+        <file alias="styles/test_executor.qss">../src/styles/qss/test_executor.qss</file>
         <file alias="styles/reporting/test_report.css">../src/styles/reporting/test_report.css</file>
     </qresource>
 </RCC>

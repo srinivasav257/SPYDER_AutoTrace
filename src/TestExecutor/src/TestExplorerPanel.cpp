@@ -8,6 +8,7 @@
 #include "TestRepository.h"
 #include "TestExecutorEngine.h"
 #include "IconManager.h"
+#include "ThemeManager.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QHeaderView>
@@ -67,7 +68,9 @@ QStringList testNamesInBucket(const QString& groupName, const QString& featureNa
 TestExplorerPanel::TestExplorerPanel(QWidget* parent)
     : QWidget(parent)
 {
+    setObjectName(QStringLiteral("testExplorerPanel"));
     setupUi();
+    StyleLib::ThemeManager::instance().applyScopedStyle(this, StyleLib::ScopedStyle::TestExecutor);
     setupConnections();
     createContextMenu();
 }

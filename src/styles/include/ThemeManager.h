@@ -12,7 +12,8 @@ enum class ScopedStyle : int
 {
     Application = 0,
     ActivityRail,
-    WelcomePage
+    WelcomePage,
+    TestExecutor
 };
 
 class ThemeManager
@@ -35,7 +36,7 @@ private:
     QPalette buildPalette(ThemeId id) const;
     QString styleSheetFor(ScopedStyle scope) const;
 
-    ThemeId m_currentTheme = ThemeId::LightLavender;
+    ThemeId m_currentTheme = ThemeId::DarkGreenBlue;
 };
 
 } // namespace StyleLib

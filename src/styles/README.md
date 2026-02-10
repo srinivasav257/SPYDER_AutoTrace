@@ -23,9 +23,7 @@ This folder centralizes all runtime Qt UI styling for performance-critical workf
 
 ## Theme Set
 
-- `Light Lavender` accent `#7C4DFF`
-- `Dark Green Blue` accent `#3FB950`
-- `Dark Orange Purple` accent `#FF6B35`
+- `Dark Acqua Green Blue` accent `#3FB950`
 
 ## Performance Rules
 

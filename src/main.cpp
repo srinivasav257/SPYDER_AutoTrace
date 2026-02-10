@@ -21,13 +21,13 @@
 static QPixmap createSplashPixmap()
 {
     QPixmap pix(480, 280);
-    pix.fill(QColor(30, 30, 30));
+    pix.fill(QColor(QStringLiteral("#0F1A21")));
 
     QPainter p(&pix);
     p.setRenderHint(QPainter::Antialiasing);
 
     // Accent bar
-    p.fillRect(0, 0, 480, 6, QColor(0, 120, 215));
+    p.fillRect(0, 0, 480, 6, QColor(QStringLiteral("#3FB950")));
 
     // App name
     QFont titleFont("Segoe UI", 28, QFont::Bold);
@@ -67,12 +67,10 @@ int main(int argc, char *argv[])
     QApplication::setApplicationVersion("1.0.0");
 
     {
+        StyleLib::ThemeManager::instance().initialize(app, StyleLib::ThemeId::DarkGreenBlue);
+
         QSettings settings;
-        const QString savedThemeKey = settings.value(
-            "UI/theme",
-            StyleLib::themeKey(StyleLib::ThemeId::LightLavender)).toString();
-        const StyleLib::ThemeId startupTheme = StyleLib::themeIdFromKey(savedThemeKey);
-        StyleLib::ThemeManager::instance().initialize(app, startupTheme);
+        settings.setValue("UI/theme", StyleLib::themeKey(StyleLib::ThemeId::DarkGreenBlue));
     }
 
     // --- Splash screen ---

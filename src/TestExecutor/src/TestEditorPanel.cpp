@@ -7,6 +7,7 @@
 #include "TestRepository.h"
 #include "CommandRegistry.h"
 #include "HWConfigManager.h"
+#include "ThemeManager.h"
 #include <DBCManager.h>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -536,7 +537,9 @@ void StepEditorWidget::clearParameterEditors()
 TestEditorDialog::TestEditorDialog(QWidget* parent)
     : QDialog(parent)
 {
+    setObjectName(QStringLiteral("testEditorDialog"));
     setupUi();
+    StyleLib::ThemeManager::instance().applyScopedStyle(this, StyleLib::ScopedStyle::TestExecutor);
     setupConnections();
 }
 

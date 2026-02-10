@@ -1,0 +1,121 @@
+QWidget#testExplorerPanel,
+QWidget#testProgressPanel,
+QDialog#testEditorDialog {
+    background: palette(base);
+    color: palette(text);
+}
+
+QWidget#testExplorerPanel QLineEdit,
+QWidget#testProgressPanel QLineEdit,
+QDialog#testEditorDialog QLineEdit,
+QDialog#testEditorDialog QComboBox,
+QDialog#testEditorDialog QSpinBox,
+QDialog#testEditorDialog QDoubleSpinBox {
+    border: 1px solid palette(mid);
+    border-radius: 4px;
+    padding: 4px 6px;
+    background: palette(base);
+    color: palette(text);
+    selection-background-color: palette(highlight);
+    selection-color: palette(highlighted-text);
+}
+
+QWidget#testExplorerPanel QPushButton,
+QWidget#testProgressPanel QPushButton,
+QDialog#testEditorDialog QPushButton {
+    border: 1px solid palette(mid);
+    border-radius: 4px;
+    padding: 5px 10px;
+    background: palette(button);
+    color: palette(button-text);
+}
+
+QWidget#testExplorerPanel QPushButton:hover,
+QWidget#testProgressPanel QPushButton:hover,
+QDialog#testEditorDialog QPushButton:hover {
+    border-color: palette(highlight);
+}
+
+QWidget#testExplorerPanel QPushButton:pressed,
+QWidget#testProgressPanel QPushButton:pressed,
+QDialog#testEditorDialog QPushButton:pressed {
+    background: palette(highlight);
+    color: palette(highlighted-text);
+}
+
+QWidget#testExplorerPanel QTreeView,
+QWidget#testProgressPanel QTableWidget,
+QDialog#testEditorDialog QTableWidget,
+QWidget#testProgressPanel QPlainTextEdit {
+    border: 1px solid palette(mid);
+    background: palette(base);
+    color: palette(text);
+    gridline-color: palette(mid);
+    selection-background-color: palette(highlight);
+    selection-color: palette(highlighted-text);
+}
+
+QWidget#testProgressPanel QTableView QTableCornerButton::section,
+QWidget#testProgressPanel QHeaderView::section,
+QDialog#testEditorDialog QHeaderView::section {
+    border: 1px solid palette(mid);
+    border-top: none;
+    border-left: none;
+    padding: 4px 6px;
+    background: palette(button);
+    color: palette(button-text);
+}
+
+QWidget#testProgressPanel QGroupBox,
+QDialog#testEditorDialog QGroupBox {
+    margin-top: 10px;
+    border: 1px solid palette(mid);
+    border-radius: 4px;
+    background: palette(window);
+    color: palette(text);
+}
+
+QWidget#testProgressPanel QGroupBox::title,
+QDialog#testEditorDialog QGroupBox::title {
+    left: 10px;
+    padding: 0 4px;
+    color: palette(text);
+}
+
+QWidget#testProgressPanel QProgressBar {
+    border: 1px solid palette(mid);
+    border-radius: 4px;
+    background: palette(base);
+    color: palette(text);
+    text-align: center;
+}
+
+QWidget#testProgressPanel QProgressBar::chunk {
+    background: palette(highlight);
+    border-radius: 3px;
+}
+
+QWidget#testProgressPanel QSplitter::handle,
+QDialog#testEditorDialog QSplitter::handle {
+    background: palette(mid);
+}
+
+QDialog#testEditorDialog QTabWidget::pane {
+    border: 1px solid palette(mid);
+    background: palette(window);
+}
+
+QDialog#testEditorDialog QTabBar::tab {
+    border: 1px solid palette(mid);
+    border-bottom: none;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    margin-right: 2px;
+    padding: 6px 12px;
+    background: palette(button);
+    color: palette(button-text);
+}
+
+QDialog#testEditorDialog QTabBar::tab:selected {
+    background: palette(window);
+}

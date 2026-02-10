@@ -8,9 +8,7 @@ namespace StyleLib {
 
 enum class ThemeId : int
 {
-    LightLavender = 0,
-    DarkGreenBlue,
-    DarkOrangePurple
+    DarkGreenBlue = 0
 };
 
 struct ThemeDefinition

@@ -6,8 +6,6 @@
 #include "FramelessTopBar.h"
 #include "WelcomePageWidget.h"
 #include "ActivityRail.h"
-#include "ThemeCatalog.h"
-#include "ThemeManager.h"
 
 #include "DockManager.h"
 #include "DockWidget.h"
@@ -16,7 +14,6 @@
 #include <QMenuBar>
 #include <QMenu>
 #include <QAction>
-#include <QActionGroup>
 #include <QStatusBar>
 #include <QCloseEvent>
 #include <QEvent>
@@ -28,7 +25,6 @@
 #include <QSet>
 #include <QSignalBlocker>
 #include <QStringList>
-#include <QSettings>
 #include <QTimer>
 
 #ifdef Q_OS_WIN
@@ -396,29 +392,6 @@ void DockMainWindow::createMenus()
             d->activityRail->setActiveTask(QString());
         }
     });
-
-    // --- Theme menu ---
-    auto* themeMenu = appBar->addMenu(tr("&Theme"));
-    auto* themeGroup = new QActionGroup(themeMenu);
-    themeGroup->setExclusive(true);
-
-    for (const auto& theme : StyleLib::availableThemes()) {
-        const StyleLib::ThemeId themeId = theme.id;
-        const QString themeKey = theme.key;
-
-        QAction* action = themeMenu->addAction(theme.displayName);
-        action->setCheckable(true);
-        action->setActionGroup(themeGroup);
-        action->setChecked(themeId == StyleLib::ThemeManager::instance().currentTheme());
-
-        connect(action, &QAction::triggered, this, [this, themeId, themeKey]() {
-            StyleLib::ThemeManager::instance().applyTheme(*qApp, themeId);
-            QSettings settings;
-            settings.setValue(QStringLiteral("UI/theme"), themeKey);
-            refreshIcons();
-            updateWelcomePageVisibility();
-        });
-    }
 
     // --- Perspectives menu ---
     d->perspectiveMenu = appBar->addMenu(tr("&Perspectives"));

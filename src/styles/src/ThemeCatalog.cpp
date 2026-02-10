@@ -5,25 +5,9 @@ namespace {
 
 const QVector<ThemeDefinition> kThemes{
     {
-        ThemeId::LightLavender,
-        QStringLiteral("light_lavender"),
-        QStringLiteral("Light Lavender"),
-        QColor(QStringLiteral("#FFFFFF")),
-        QColor(QStringLiteral("#F7F6FC")),
-        QColor(QStringLiteral("#EEEAFB")),
-        QColor(QStringLiteral("#1F2430")),
-        QColor(QStringLiteral("#ECE8FA")),
-        QColor(QStringLiteral("#1F2430")),
-        QColor(QStringLiteral("#C8C2E0")),
-        QColor(QStringLiteral("#7C4DFF")),
-        QColor(QStringLiteral("#FFFFFF")),
-        QColor(QStringLiteral("#FFFFFF")),
-        QColor(QStringLiteral("#1F2430"))
-    },
-    {
         ThemeId::DarkGreenBlue,
-        QStringLiteral("dark_green_blue"),
-        QStringLiteral("Dark Green Blue"),
+        QStringLiteral("dark_acqua_green_blue"),
+        QStringLiteral("Dark Acqua Green Blue"),
         QColor(QStringLiteral("#132028")),
         QColor(QStringLiteral("#0F1A21")),
         QColor(QStringLiteral("#182833")),
@@ -35,22 +19,6 @@ const QVector<ThemeDefinition> kThemes{
         QColor(QStringLiteral("#0F1A21")),
         QColor(QStringLiteral("#1B2B36")),
         QColor(QStringLiteral("#E6EDF3"))
-    },
-    {
-        ThemeId::DarkOrangePurple,
-        QStringLiteral("dark_orange_purple"),
-        QStringLiteral("Dark Orange Purple"),
-        QColor(QStringLiteral("#211826")),
-        QColor(QStringLiteral("#1A1320")),
-        QColor(QStringLiteral("#2A1F33")),
-        QColor(QStringLiteral("#F4EEF9")),
-        QColor(QStringLiteral("#2D2238")),
-        QColor(QStringLiteral("#F4EEF9")),
-        QColor(QStringLiteral("#433651")),
-        QColor(QStringLiteral("#FF6B35")),
-        QColor(QStringLiteral("#1A1320")),
-        QColor(QStringLiteral("#2D2238")),
-        QColor(QStringLiteral("#F4EEF9"))
     }
 };
 
@@ -74,13 +42,17 @@ const ThemeDefinition& themeDefinition(ThemeId id)
 
 ThemeId themeIdFromKey(const QString& key)
 {
+    if (key.compare(QStringLiteral("dark_green_blue"), Qt::CaseInsensitive) == 0) {
+        return ThemeId::DarkGreenBlue;
+    }
+
     for (const ThemeDefinition& theme : kThemes) {
         if (theme.key.compare(key, Qt::CaseInsensitive) == 0) {
             return theme.id;
         }
     }
 
-    return ThemeId::LightLavender;
+    return ThemeId::DarkGreenBlue;
 }
 
 QString themeKey(ThemeId id)

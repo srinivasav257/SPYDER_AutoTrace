@@ -73,7 +73,7 @@ void ThemeManager::applyTheme(QApplication& app, ThemeId themeId)
 
     // Reapply scoped styles that were registered through applyScopedStyle().
     const int minScope = static_cast<int>(ScopedStyle::Application);
-    const int maxScope = static_cast<int>(ScopedStyle::WelcomePage);
+    const int maxScope = static_cast<int>(ScopedStyle::TestExecutor);
     for (QWidget* widget : app.allWidgets()) {
         if (!widget) {
             continue;
@@ -160,6 +160,10 @@ QString ThemeManager::styleSheetFor(ScopedStyle scope) const
     case ScopedStyle::WelcomePage: {
         static const QString welcomePageStyle = loadStyleSheetFromResource(QStringLiteral(":/styles/welcome_page.qss"));
         return welcomePageStyle;
+    }
+    case ScopedStyle::TestExecutor: {
+        static const QString testExecutorStyle = loadStyleSheetFromResource(QStringLiteral(":/styles/test_executor.qss"));
+        return testExecutorStyle;
     }
     }
 
