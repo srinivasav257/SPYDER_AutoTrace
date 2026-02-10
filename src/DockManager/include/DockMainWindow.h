@@ -16,7 +16,6 @@ class QMenu;
 class QMenuBar;
 class QToolBar;
 class QEvent;
-class QByteArray;
 
 namespace DockManager {
 
@@ -109,9 +108,7 @@ public:
     QMap<QString, ads::CDockWidget*> dockWidgets() const;
 
     /**
-     * @brief Get the application menu bar shown in the custom top bar.
-     *
-     * Use this instead of QMainWindow::menuBar() for frameless layouts.
+     * @brief Get the application menu bar.
      */
     QMenuBar* appMenuBar() const;
 
@@ -160,13 +157,6 @@ protected:
     virtual void createMenus();
 
     /**
-     * @brief Create the custom top bar for frameless mode.
-     *
-     * Override to replace top bar behavior while keeping the same API.
-     */
-    virtual void createTopBar();
-
-    /**
      * @brief Create the default welcome page shown when all dock widgets are hidden.
      *
      * Override to customize welcome content.
@@ -200,10 +190,6 @@ protected:
     void closeEvent(QCloseEvent* event) override;
     void changeEvent(QEvent* event) override;
     bool eventFilter(QObject* watched, QEvent* event) override;
-
-#ifdef Q_OS_WIN
-    bool nativeEvent(const QByteArray& eventType, void* message, qintptr* result) override;
-#endif
 
     // --- Protected accessors for derived classes ---
 

@@ -3,7 +3,6 @@
 #include "WorkspaceManager.h"
 #include "DockToolBar.h"
 #include "IconManager.h"
-#include "FramelessTopBar.h"
 #include "WelcomePageWidget.h"
 #include "ActivityRail.h"
 
@@ -27,21 +26,12 @@
 #include <QStringList>
 #include <QTimer>
 
-#ifdef Q_OS_WIN
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-#include <windows.h>
-#include <windowsx.h>
-#endif
-
 namespace DockManager {
 
 struct DockMainWindow::Private
 {
     ads::CDockManager* dockManager = nullptr;
     WorkspaceManager* workspaceManager = nullptr;
-    FramelessTopBar* topBar = nullptr;
     WelcomePageWidget* welcomePage = nullptr;
     ActivityRail* activityRail = nullptr;
     DockToolBar* dockToolBar = nullptr;
@@ -72,7 +62,6 @@ DockMainWindow::DockMainWindow(QWidget* parent)
 
     // Create panels and layout
     createPanels();
-    createTopBar();
     createMenus();
     createActivityRail();
     setupDefaultLayout();
@@ -144,10 +133,6 @@ QMap<QString, ads::CDockWidget*> DockMainWindow::dockWidgets() const
 
 QMenuBar* DockMainWindow::appMenuBar() const
 {
-    if (d->topBar && d->topBar->menuBar()) {
-        return d->topBar->menuBar();
-    }
-
     return QMainWindow::menuBar();
 }
 
@@ -278,14 +263,6 @@ void DockMainWindow::setupDefaultLayout()
         else
             d->dockManager->addDockWidget(def.defaultArea, dw);
     }
-}
-
-void DockMainWindow::createTopBar()
-{
-    setWindowFlag(Qt::FramelessWindowHint, true);
-
-    d->topBar = new FramelessTopBar(this, this);
-    setMenuWidget(d->topBar);
 }
 
 void DockMainWindow::createWelcomePage()
@@ -664,80 +641,5 @@ bool DockMainWindow::eventFilter(QObject* watched, QEvent* event)
 
     return QMainWindow::eventFilter(watched, event);
 }
-
-#ifdef Q_OS_WIN
-bool DockMainWindow::nativeEvent(const QByteArray& eventType, void* message, qintptr* result)
-{
-    Q_UNUSED(eventType)
-
-    if (isMaximized() || isFullScreen()) {
-        return QMainWindow::nativeEvent(eventType, message, result);
-    }
-
-    MSG* msg = static_cast<MSG*>(message);
-    if (msg && msg->message == WM_NCHITTEST) {
-        constexpr LONG kResizeBorder = 8;
-
-        RECT windowRect{};
-        if (!GetWindowRect(reinterpret_cast<HWND>(winId()), &windowRect)) {
-            return QMainWindow::nativeEvent(eventType, message, result);
-        }
-
-        const bool canResizeWidth = minimumWidth() < maximumWidth();
-        const bool canResizeHeight = minimumHeight() < maximumHeight();
-
-        const LONG globalX = GET_X_LPARAM(msg->lParam);
-        const LONG globalY = GET_Y_LPARAM(msg->lParam);
-
-        const bool onLeft = canResizeWidth &&
-                            globalX >= windowRect.left &&
-                            globalX < windowRect.left + kResizeBorder;
-        const bool onRight = canResizeWidth &&
-                             globalX < windowRect.right &&
-                             globalX >= windowRect.right - kResizeBorder;
-        const bool onTop = canResizeHeight &&
-                           globalY >= windowRect.top &&
-                           globalY < windowRect.top + kResizeBorder;
-        const bool onBottom = canResizeHeight &&
-                              globalY < windowRect.bottom &&
-                              globalY >= windowRect.bottom - kResizeBorder;
-
-        if (onTop && onLeft) {
-            *result = HTTOPLEFT;
-            return true;
-        }
-        if (onTop && onRight) {
-            *result = HTTOPRIGHT;
-            return true;
-        }
-        if (onBottom && onLeft) {
-            *result = HTBOTTOMLEFT;
-            return true;
-        }
-        if (onBottom && onRight) {
-            *result = HTBOTTOMRIGHT;
-            return true;
-        }
-        if (onLeft) {
-            *result = HTLEFT;
-            return true;
-        }
-        if (onRight) {
-            *result = HTRIGHT;
-            return true;
-        }
-        if (onTop) {
-            *result = HTTOP;
-            return true;
-        }
-        if (onBottom) {
-            *result = HTBOTTOM;
-            return true;
-        }
-    }
-
-    return QMainWindow::nativeEvent(eventType, message, result);
-}
-#endif
 
 } // namespace DockManager

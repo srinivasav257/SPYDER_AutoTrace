@@ -1,80 +1,28 @@
-QWidget#framelessTopBar {
+QMenuBar {
     border: none;
-    background: #1D252A;
-    color: palette(window-text);
+    background: #0A0D0F;
+    color: palette(text);
 }
 
-QWidget#framelessTopBar QLabel {
-    background: transparent;
-    color: palette(window-text);
-}
-
-QWidget#framelessTopBar QMenuBar {
-    border: none;
-    background: transparent;
-    color: palette(window-text);
-}
-
-QWidget#framelessTopBar QMenuBar::item {
-    padding: 6px 10px 4px 10px;
+QMenuBar::item {
+    padding: 6px 10px;
     margin: 0px 2px;
     border: 1px solid transparent;
     border-radius: 4px;
     background: transparent;
-    color: #c8c8ca;
+    color: palette(text);
 }
 
-QWidget#framelessTopBar QMenuBar::item:selected {
-    background: rgba(29, 37, 42, 36);
-    border-color: rgba(29, 37, 42, 130);
-    color: #ffffff;
-}
-
-QWidget#framelessTopBar QMenuBar::item:pressed {
-    background: rgba(29, 37, 42, 62);
-    border-color: #1D252A;
-    color: #ffffff;
-}
-
-QWidget#framelessTopBar QToolButton#titleMinimizeButton,
-QWidget#framelessTopBar QToolButton#titleMaximizeButton,
-QWidget#framelessTopBar QToolButton#titleCloseButton {
-    border: 1px solid transparent;
-    border-radius: 4px;
-    background: transparent;
-    color: #e0e0e1;
-    padding: 0px;
-    margin: 0px;
-}
-
-QWidget#framelessTopBar QToolButton#titleMinimizeButton:hover,
-QWidget#framelessTopBar QToolButton#titleMaximizeButton:hover {
+QMenuBar::item:selected {
     background: rgba(255, 255, 255, 20);
     border-color: rgba(255, 255, 255, 35);
+    color: #ffffff;
 }
 
-QWidget#framelessTopBar QToolButton#titleMinimizeButton:pressed,
-QWidget#framelessTopBar QToolButton#titleMaximizeButton:pressed {
+QMenuBar::item:pressed {
     background: rgba(255, 255, 255, 34);
     border-color: rgba(255, 255, 255, 50);
     color: #ffffff;
-}
-
-QWidget#framelessTopBar QToolButton#titleCloseButton:hover {
-    background: #e81123;
-    border-color: #e81123;
-    color: #ffffff;
-}
-
-QWidget#framelessTopBar QToolButton#titleCloseButton:pressed {
-    background: #c50f1f;
-    border-color: #c50f1f;
-    color: #ffffff;
-}
-
-QMenuBar {
-    border: none;
-    background: transparent;
 }
 
 QMenu {
