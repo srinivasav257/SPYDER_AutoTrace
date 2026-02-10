@@ -126,15 +126,6 @@ private:
     
     // === Progress ===
     QProgressBar* m_overallProgress = nullptr;
-    QLabel* m_statusLabel = nullptr;
-    QLabel* m_elapsedLabel = nullptr;
-    QLabel* m_currentTestLabel = nullptr;
-    
-    // === Summary ===
-    QLabel* m_summaryLabel = nullptr;
-    QLabel* m_passedLabel = nullptr;
-    QLabel* m_failedLabel = nullptr;
-    QLabel* m_skippedLabel = nullptr;
     
     // === Controls ===
     QPushButton* m_btnRun = nullptr;
@@ -148,6 +139,7 @@ private:
     QTimer* m_elapsedTimer = nullptr;
     QElapsedTimer m_elapsed;
     bool m_isRunning = false;
+    int m_nextRow = 0;
 };
 
 /**

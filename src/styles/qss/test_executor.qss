@@ -75,12 +75,20 @@ QWidget#testExplorerPanel QPushButton[iconOnly="true"]:checked {
 
 QWidget#testExplorerPanel QTreeView,
 QWidget#testProgressPanel QTableWidget,
-QDialog#testEditorDialog QTableWidget,
+QDialog#testEditorDialog QTableWidget {
+    border: 1px solid #4d4b4b;
+    border-radius: 4px;
+    background: #0A0D0F;
+    color: palette(text);
+    gridline-color: #2a2d30;
+    selection-background-color: #0A0D0F;
+    selection-color: palette(text);
+}
+
 QWidget#testProgressPanel QPlainTextEdit {
     border: none;
     background: #0A0D0F;
     color: palette(text);
-    gridline-color: #000000;
     selection-background-color: #0A0D0F;
     selection-color: palette(text);
 }
@@ -170,6 +178,7 @@ QDialog#testEditorDialog QHeaderView::section {
 QWidget#testProgressPanel QGroupBox,
 QDialog#testEditorDialog QGroupBox {
     margin-top: 10px;
+    padding-top: 14px;
     border: 1px solid #4d4b4b;
     border-radius: 4px;
     background: #0A0D0F;
@@ -178,9 +187,11 @@ QDialog#testEditorDialog QGroupBox {
 
 QWidget#testProgressPanel QGroupBox::title,
 QDialog#testEditorDialog QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
     left: 10px;
     padding: 0 4px;
-    color: #4d4b4b;
+    color: palette(text);
 }
 
 QWidget#testProgressPanel QProgressBar {

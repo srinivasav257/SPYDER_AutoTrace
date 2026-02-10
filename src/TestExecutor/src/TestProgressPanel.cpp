@@ -35,16 +35,13 @@ TestProgressPanel::~TestProgressPanel() = default;
 
 void TestProgressPanel::clear()
 {
-    m_resultsTable->setRowCount(0);
+    // Clear content but keep 10 empty rows
+    m_resultsTable->clearContents();
+    m_resultsTable->setRowCount(10);
     m_logViewer->clear();
     m_overallProgress->setValue(0);
-    m_statusLabel->setText("Ready");
-    m_elapsedLabel->setText("00:00:00");
-    m_currentTestLabel->setText("");
-    m_passedLabel->setText("Passed: 0");
-    m_failedLabel->setText("Failed: 0");
-    m_skippedLabel->setText("Skipped: 0");
     m_session = TestSession();
+    m_nextRow = 0;
 }
 
 TestSession TestProgressPanel::currentSession() const
@@ -61,9 +58,8 @@ void TestProgressPanel::onSessionStarted(const QString& sessionId, int totalTest
     
     m_overallProgress->setMaximum(totalTests);
     m_overallProgress->setValue(0);
-    m_statusLabel->setText("Running...");
     m_isRunning = true;
-    
+
     m_elapsed.start();
     m_elapsedTimer->start(1000);
     
@@ -75,14 +71,29 @@ void TestProgressPanel::onSessionCompleted(const TestSession& session)
     m_session = session;
     m_isRunning = false;
     m_elapsedTimer->stop();
-    
-    m_statusLabel->setText("Completed");
+
     updateSummary();
-    
-    appendLog("INFO", QString("Session completed: %1 passed, %2 failed, %3 skipped")
-             .arg(session.passedTests)
-             .arg(session.failedTests)
-             .arg(session.skippedTests));
+
+    // Print test execution summary to log
+    qint64 elapsed = m_elapsed.elapsed();
+    int hours = elapsed / 3600000;
+    int mins = (elapsed % 3600000) / 60000;
+    int secs = (elapsed % 60000) / 1000;
+    QString elapsedStr = QString("%1:%2:%3")
+                         .arg(hours, 2, 10, QChar('0'))
+                         .arg(mins, 2, 10, QChar('0'))
+                         .arg(secs, 2, 10, QChar('0'));
+
+    appendLog("INFO", QString(""));
+    appendLog("INFO", QString("═══════════════════════════════════════════"));
+    appendLog("INFO", QString("  TEST EXECUTION SUMMARY"));
+    appendLog("INFO", QString("═══════════════════════════════════════════"));
+    appendLog("INFO", QString("  Total Tests : %1").arg(session.totalTests));
+    appendLog("INFO", QString("  Passed      : %1").arg(session.passedTests));
+    appendLog("INFO", QString("  Failed      : %1").arg(session.failedTests));
+    appendLog("INFO", QString("  Skipped     : %1").arg(session.skippedTests));
+    appendLog("INFO", QString("  Elapsed     : %1").arg(elapsedStr));
+    appendLog("INFO", QString("═══════════════════════════════════════════"));
     
     // Auto-export if configured
     auto& engine = TestExecutorEngine::instance();
@@ -102,10 +113,15 @@ void TestProgressPanel::onSessionCompleted(const TestSession& session)
 void TestProgressPanel::onTestStarted(const QString& testCaseId, const QString& testName,
                                        int testIndex, int totalTests)
 {
-    // Add row to table
-    int row = m_resultsTable->rowCount();
-    m_resultsTable->insertRow(row);
-    
+    Q_UNUSED(totalTests)
+
+    int row = m_nextRow;
+
+    // Expand table if we've filled all existing rows
+    if (row >= m_resultsTable->rowCount()) {
+        m_resultsTable->setRowCount(row + 1);
+    }
+
     m_resultsTable->setItem(row, 0, new QTableWidgetItem(QString::number(testIndex + 1)));
     m_resultsTable->setItem(row, 1, new QTableWidgetItem(testName));
     m_resultsTable->setItem(row, 2, new QTableWidgetItem(""));  // Description
@@ -113,13 +129,13 @@ void TestProgressPanel::onTestStarted(const QString& testCaseId, const QString& 
     m_resultsTable->setItem(row, 4, new QTableWidgetItem("Running..."));
     m_resultsTable->setItem(row, 5, new QTableWidgetItem(""));  // Requirement
     m_resultsTable->setItem(row, 6, new QTableWidgetItem(""));  // JIRA
-    
+
     // Store test case ID in user data
     m_resultsTable->item(row, 0)->setData(Qt::UserRole, testCaseId);
-    
+
     setRowStatus(row, TestStatus::Running);
-    
-    m_currentTestLabel->setText(testName);
+    m_nextRow++;
+
     m_overallProgress->setValue(testIndex);
     
     // Auto-scroll to new row
@@ -148,7 +164,8 @@ void TestProgressPanel::onTestCompleted(const TestResult& result)
 
 void TestProgressPanel::onTestProgress(const QString& /*testCaseId*/, int stepsCompleted, int totalSteps)
 {
-    m_statusLabel->setText(QString("Step %1/%2").arg(stepsCompleted).arg(totalSteps));
+    Q_UNUSED(stepsCompleted)
+    Q_UNUSED(totalSteps)
 }
 
 void TestProgressPanel::onStepStarted(const QString& /*testCaseId*/, int stepIndex, const QString& description)
@@ -188,28 +205,24 @@ void TestProgressPanel::onStateChanged(ExecutorState newState)
 {
     switch (newState) {
         case ExecutorState::Idle:
-            m_statusLabel->setText("Ready");
             m_btnRun->setEnabled(true);
             m_btnPause->setEnabled(false);
             m_btnStop->setEnabled(false);
             break;
-            
+
         case ExecutorState::Running:
-            m_statusLabel->setText("Running...");
             m_btnRun->setEnabled(false);
             m_btnPause->setEnabled(true);
             m_btnStop->setEnabled(true);
             break;
-            
+
         case ExecutorState::Paused:
-            m_statusLabel->setText("Paused");
             m_btnRun->setEnabled(false);
             m_btnPause->setText("Resume");
             m_btnStop->setEnabled(true);
             break;
-            
+
         case ExecutorState::Stopping:
-            m_statusLabel->setText("Stopping...");
             m_btnRun->setEnabled(false);
             m_btnPause->setEnabled(false);
             m_btnStop->setEnabled(false);
@@ -291,16 +304,7 @@ void TestProgressPanel::onResultTableDoubleClicked(int row, int /*column*/)
 
 void TestProgressPanel::updateElapsedTime()
 {
-    if (m_isRunning) {
-        qint64 elapsed = m_elapsed.elapsed();
-        int hours = elapsed / 3600000;
-        int mins = (elapsed % 3600000) / 60000;
-        int secs = (elapsed % 60000) / 1000;
-        m_elapsedLabel->setText(QString("%1:%2:%3")
-                               .arg(hours, 2, 10, QChar('0'))
-                               .arg(mins, 2, 10, QChar('0'))
-                               .arg(secs, 2, 10, QChar('0')));
-    }
+    // Elapsed timer keeps running to track total time for summary log
 }
 
 void TestProgressPanel::setupUi()
@@ -335,57 +339,26 @@ void TestProgressPanel::setupUi()
     
     // === Progress Bar ===
     auto* progressLayout = new QHBoxLayout();
-    
+
     m_overallProgress = new QProgressBar(this);
     m_overallProgress->setMinimum(0);
     m_overallProgress->setMaximum(100);
     m_overallProgress->setValue(0);
     m_overallProgress->setTextVisible(true);
-    
-    m_elapsedLabel = new QLabel("00:00:00", this);
-    
+
     progressLayout->addWidget(new QLabel("Progress:", this));
     progressLayout->addWidget(m_overallProgress, 1);
-    progressLayout->addWidget(new QLabel("Elapsed:", this));
-    progressLayout->addWidget(m_elapsedLabel);
-    
+
     mainLayout->addLayout(progressLayout);
-    
-    // === Status Bar ===
-    auto* statusLayout = new QHBoxLayout();
-    
-    m_statusLabel = new QLabel("Ready", this);
-    
-    m_currentTestLabel = new QLabel("", this);
-    
-    m_passedLabel = new QLabel("Passed: 0", this);
-    
-    m_failedLabel = new QLabel("Failed: 0", this);
-    
-    m_skippedLabel = new QLabel("Skipped: 0", this);
-    
-    statusLayout->addWidget(new QLabel("Status:", this));
-    statusLayout->addWidget(m_statusLabel);
-    statusLayout->addWidget(m_currentTestLabel);
-    statusLayout->addStretch();
-    statusLayout->addWidget(m_passedLabel);
-    statusLayout->addWidget(m_failedLabel);
-    statusLayout->addWidget(m_skippedLabel);
-    
-    mainLayout->addLayout(statusLayout);
     
     // === Splitter for Table and Log ===
     auto* splitter = new QSplitter(Qt::Vertical, this);
     
     // Results Table
-    auto* tableGroup = new QGroupBox("Test Results", splitter);
-    auto* tableLayout = new QVBoxLayout(tableGroup);
-    tableLayout->setContentsMargins(2, 2, 2, 2);
-    
-    m_resultsTable = new QTableWidget(tableGroup);
+    m_resultsTable = new QTableWidget(splitter);
     m_resultsTable->setColumnCount(7);
     m_resultsTable->setHorizontalHeaderLabels({
-        "#", "Test Name", "Description", "Duration", "Result", "Requirement", "JIRA"
+        "Sl No.", "Test Name", "Description", "Duration", "Result", "Requirement", "JIRA"
     });
     m_resultsTable->horizontalHeader()->setStretchLastSection(false);
     m_resultsTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
@@ -397,23 +370,23 @@ void TestProgressPanel::setupUi()
     m_resultsTable->horizontalHeader()->setSectionResizeMode(6, QHeaderView::ResizeToContents);
     m_resultsTable->verticalHeader()->setVisible(false);
     m_resultsTable->setSelectionBehavior(QAbstractItemView::SelectRows);
-    m_resultsTable->setAlternatingRowColors(true);
-    
-    tableLayout->addWidget(m_resultsTable);
-    
+    m_resultsTable->setAlternatingRowColors(false);
+    m_resultsTable->setFrameShape(QFrame::NoFrame);
+    m_resultsTable->setRowCount(10);
+
     // Log Viewer
     auto* logGroup = new QGroupBox("Execution Log", splitter);
     auto* logLayout = new QVBoxLayout(logGroup);
     logLayout->setContentsMargins(2, 2, 2, 2);
-    
+
     m_logViewer = new QPlainTextEdit(logGroup);
     m_logViewer->setReadOnly(true);
     m_logViewer->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
     m_logViewer->setMaximumBlockCount(10000); // Limit log size
-    
+
     logLayout->addWidget(m_logViewer);
-    
-    splitter->addWidget(tableGroup);
+
+    splitter->addWidget(m_resultsTable);
     splitter->addWidget(logGroup);
     splitter->setStretchFactor(0, 2);
     splitter->setStretchFactor(1, 1);
@@ -467,7 +440,7 @@ void TestProgressPanel::connectToEngine()
 void TestProgressPanel::updateSummary()
 {
     int passed = 0, failed = 0, skipped = 0;
-    
+
     for (const auto& result : m_session.results) {
         switch (result.status) {
             case TestStatus::Passed: passed++; break;
@@ -477,11 +450,7 @@ void TestProgressPanel::updateSummary()
             default: break;
         }
     }
-    
-    m_passedLabel->setText(QString("Passed: %1").arg(passed));
-    m_failedLabel->setText(QString("Failed: %1").arg(failed));
-    m_skippedLabel->setText(QString("Skipped: %1").arg(skipped));
-    
+
     m_session.passedTests = passed;
     m_session.failedTests = failed;
     m_session.skippedTests = skipped;
