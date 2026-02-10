@@ -1,24 +1,29 @@
 QToolBar#ActivityRail {
-    spacing: 4px;
-    padding-top: 6px;
-    padding-bottom: 6px;
+    spacing: 0px;
+    padding-top: 4px;
+    padding-bottom: 4px;
     border: none;
-    background: palette(midlight);
+    background: #000000;
 }
 
 QToolBar#ActivityRail QToolButton {
-    width: 36px;
-    height: 36px;
+    width: 34px;
+    height: 38px;
     border: none;
-    margin: 0px 4px;
-    border-radius: 4px;
+    margin: 0px;
+    padding: 0px;
+    border-radius: 0px;
+    background: transparent;
 }
 
 QToolBar#ActivityRail QToolButton:checked {
-    background: palette(highlight);
-    color: palette(highlighted-text);
+    background: transparent;
+    color: #ffffff;
 }
 
-QToolBar#ActivityRail QToolButton:hover:!checked {
-    background: palette(button);
+QToolBar#ActivityRail QToolButton:hover,
+QToolBar#ActivityRail QToolButton:pressed,
+QToolBar#ActivityRail QToolButton:checked:hover,
+QToolBar#ActivityRail QToolButton:checked:pressed {
+    background: transparent;
 }

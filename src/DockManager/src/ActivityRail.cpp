@@ -17,10 +17,11 @@ ActivityRail::ActivityRail(QWidget* parent)
     setMovable(false);
     setFloatable(false);
     setToolButtonStyle(Qt::ToolButtonIconOnly);
-    setIconSize(QSize(20, 20));
+    setIconSize(QSize(24, 24));
     setContextMenuPolicy(Qt::PreventContextMenu);
     setAllowedAreas(Qt::LeftToolBarArea);
-    setMinimumWidth(46);
+    setMinimumWidth(40);
+    setMaximumWidth(40);
 
     StyleLib::ThemeManager::instance().applyScopedStyle(this, StyleLib::ScopedStyle::ActivityRail);
 

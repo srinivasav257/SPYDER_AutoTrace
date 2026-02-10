@@ -13,6 +13,17 @@ namespace DockManager::Icons {
 namespace {
 
 constexpr int kIconSize = 18;
+constexpr int kActivityRailIconSize = 24;
+
+bool isActivityRailContext(const QWidget* context)
+{
+    return context && context->objectName() == QStringLiteral("ActivityRail");
+}
+
+int iconCanvasSize(const QWidget* context)
+{
+    return isActivityRailContext(context) ? kActivityRailIconSize : kIconSize;
+}
 
 QStyle* activeStyle(const QWidget* context)
 {
@@ -28,6 +39,9 @@ QStyle* activeStyle(const QWidget* context)
 
 QColor iconColor(const QWidget* context)
 {
+    if (isActivityRailContext(context)) {
+        return QColor(QStringLiteral("#A6A5A2"));
+    }
     if (context) {
         return context->palette().color(QPalette::WindowText);
     }
@@ -47,6 +61,9 @@ QColor disabledIconColor(const QColor& color)
 
 QColor activeIconColor(const QWidget* context, const QColor& fallback)
 {
+    if (isActivityRailContext(context)) {
+        return QColor(QStringLiteral("#FFFFFF"));
+    }
     if (context) {
         return context->palette().color(QPalette::HighlightedText);
     }
@@ -318,14 +335,15 @@ void drawProfile(QPainter& painter, const QRectF& rect, const QColor& color)
 QIcon buildIcon(const QWidget* context,
                 const std::function<void(QPainter&, const QRectF&, const QColor&)>& draw)
 {
+    const int iconSize = iconCanvasSize(context);
     const auto render = [&](const QColor& color) {
-        QPixmap pixmap(kIconSize, kIconSize);
+        QPixmap pixmap(iconSize, iconSize);
         pixmap.fill(Qt::transparent);
 
         QPainter painter(&pixmap);
         painter.setRenderHint(QPainter::Antialiasing, true);
         painter.setRenderHint(QPainter::TextAntialiasing, true);
-        draw(painter, QRectF(1.0, 1.0, kIconSize - 2.0, kIconSize - 2.0), color);
+        draw(painter, QRectF(1.0, 1.0, iconSize - 2.0, iconSize - 2.0), color);
         return pixmap;
     };
 
