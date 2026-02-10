@@ -1,6 +1,6 @@
 QWidget#framelessTopBar {
     border: none;
-    background: #322628;
+    background: #1D252A;
     color: palette(window-text);
 }
 
@@ -25,14 +25,14 @@ QWidget#framelessTopBar QMenuBar::item {
 }
 
 QWidget#framelessTopBar QMenuBar::item:selected {
-    background: rgba(210, 110, 65, 36);
-    border-color: rgba(210, 110, 65, 130);
+    background: rgba(29, 37, 42, 36);
+    border-color: rgba(29, 37, 42, 130);
     color: #ffffff;
 }
 
 QWidget#framelessTopBar QMenuBar::item:pressed {
-    background: rgba(210, 110, 65, 62);
-    border-color: #d26e41;
+    background: rgba(29, 37, 42, 62);
+    border-color: #1D252A;
     color: #ffffff;
 }
 

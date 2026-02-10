@@ -1,7 +1,7 @@
 QWidget#testExplorerPanel,
 QWidget#testProgressPanel,
 QDialog#testEditorDialog {
-    background: palette(base);
+    background: #0A0D0F;
     color: palette(text);
 }
 
@@ -11,69 +11,73 @@ QDialog#testEditorDialog QLineEdit,
 QDialog#testEditorDialog QComboBox,
 QDialog#testEditorDialog QSpinBox,
 QDialog#testEditorDialog QDoubleSpinBox {
-    border: 1px solid palette(mid);
+    border: 1px solid #000000;
     border-radius: 4px;
     padding: 4px 6px;
-    background: palette(base);
+    background: #0A0D0F;
     color: palette(text);
-    selection-background-color: palette(highlight);
-    selection-color: palette(highlighted-text);
+    selection-background-color: #0A0D0F;
+    selection-color: palette(text);
 }
 
 QWidget#testExplorerPanel QPushButton,
 QWidget#testProgressPanel QPushButton,
 QDialog#testEditorDialog QPushButton {
-    border: 1px solid palette(mid);
+    border: 1px solid #000000;
     border-radius: 4px;
     padding: 5px 10px;
-    background: palette(button);
-    color: palette(button-text);
+    background: #0A0D0F;
+    color: palette(text);
 }
 
 QWidget#testExplorerPanel QPushButton:hover,
 QWidget#testProgressPanel QPushButton:hover,
 QDialog#testEditorDialog QPushButton:hover {
-    border-color: palette(highlight);
+    border-color: #000000;
+    background: #0A0D0F;
 }
 
 QWidget#testExplorerPanel QPushButton:pressed,
 QWidget#testProgressPanel QPushButton:pressed,
 QDialog#testEditorDialog QPushButton:pressed {
-    background: palette(highlight);
-    color: palette(highlighted-text);
+    border-color: #000000;
+    background: #0A0D0F;
+    color: palette(text);
 }
 
 QWidget#testExplorerPanel QPushButton[iconOnly="true"] {
-    border: none;
+    border: 1px solid #000000;
     border-radius: 4px;
     padding: 0px;
-    background: transparent;
+    background: #0A0D0F;
 }
 
 QWidget#testExplorerPanel QPushButton[iconOnly="true"]:hover {
-    background: palette(button);
+    border-color: #000000;
+    background: #0A0D0F;
 }
 
 QWidget#testExplorerPanel QPushButton[iconOnly="true"]:pressed,
 QWidget#testExplorerPanel QPushButton[iconOnly="true"]:checked {
-    background: palette(highlight);
-    color: palette(highlighted-text);
+    border-color: #000000;
+    background: #0A0D0F;
+    color: palette(text);
 }
 
 QWidget#testExplorerPanel QTreeView,
 QWidget#testProgressPanel QTableWidget,
 QDialog#testEditorDialog QTableWidget,
 QWidget#testProgressPanel QPlainTextEdit {
-    border: 1px solid palette(mid);
-    background: palette(base);
+    border: 1px solid #000000;
+    background: #0A0D0F;
     color: palette(text);
-    gridline-color: palette(mid);
-    selection-background-color: palette(highlight);
-    selection-color: palette(highlighted-text);
+    gridline-color: #000000;
+    selection-background-color: #0A0D0F;
+    selection-color: palette(text);
 }
 
 QWidget#testExplorerPanel QTreeView {
-    border: 1px solid palette(mid);
+    border: 1px solid #000000;
     outline: none;
     show-decoration-selected: 1;
 }
@@ -81,17 +85,17 @@ QWidget#testExplorerPanel QTreeView {
 QWidget#testExplorerPanel QTreeView::item {
     min-height: 20px;
     padding: 1px 4px;
-    border: 1px solid transparent;
+    border: 1px solid #000000;
     color: palette(text);
 }
 
 QWidget#testExplorerPanel QTreeView::item:hover {
-    background: palette(button);
+    background: #0A0D0F;
 }
 
 QWidget#testExplorerPanel QTreeView::item:selected {
-    background: palette(highlight);
-    color: palette(highlighted-text);
+    background: #0A0D0F;
+    color: palette(text);
 }
 
 QWidget#testExplorerPanel QTreeView::branch {
@@ -111,43 +115,43 @@ QWidget#testExplorerPanel QTreeView::branch:open:has-children:has-siblings {
 QWidget#testExplorerPanel QTreeView::indicator {
     width: 13px;
     height: 13px;
-    border: 1px solid palette(mid);
+    border: 1px solid #000000;
     border-radius: 2px;
-    background: palette(base);
+    background: #0A0D0F;
 }
 
 QWidget#testExplorerPanel QTreeView::indicator:hover {
-    border-color: palette(highlight);
+    border-color: #000000;
 }
 
 QWidget#testExplorerPanel QTreeView::indicator:checked {
-    border-color: palette(highlight);
-    background: palette(highlight);
+    border-color: #000000;
+    background: #0A0D0F;
     image: url(:/icons/WindowStyle/check_mark.png);
 }
 
 QWidget#testExplorerPanel QTreeView::indicator:indeterminate {
-    border-color: palette(highlight);
-    background: palette(button);
+    border-color: #000000;
+    background: #0A0D0F;
 }
 
 QWidget#testProgressPanel QTableView QTableCornerButton::section,
 QWidget#testProgressPanel QHeaderView::section,
 QDialog#testEditorDialog QHeaderView::section {
-    border: 1px solid palette(mid);
+    border: 1px solid #000000;
     border-top: none;
     border-left: none;
     padding: 4px 6px;
-    background: palette(button);
-    color: palette(button-text);
+    background: #0A0D0F;
+    color: palette(text);
 }
 
 QWidget#testProgressPanel QGroupBox,
 QDialog#testEditorDialog QGroupBox {
     margin-top: 10px;
-    border: 1px solid palette(mid);
+    border: 1px solid #000000;
     border-radius: 4px;
-    background: palette(window);
+    background: #0A0D0F;
     color: palette(text);
 }
 
@@ -159,15 +163,15 @@ QDialog#testEditorDialog QGroupBox::title {
 }
 
 QWidget#testProgressPanel QProgressBar {
-    border: 1px solid palette(mid);
+    border: 1px solid #000000;
     border-radius: 4px;
-    background: palette(base);
+    background: #0A0D0F;
     color: palette(text);
     text-align: center;
 }
 
 QWidget#testProgressPanel QProgressBar::chunk {
-    background: palette(highlight);
+    background: #0A0D0F;
     border-radius: 3px;
 }
 
@@ -177,21 +181,21 @@ QDialog#testEditorDialog QSplitter::handle {
 }
 
 QDialog#testEditorDialog QTabWidget::pane {
-    border: 1px solid palette(mid);
-    background: palette(window);
+    border: 1px solid #000000;
+    background: #0A0D0F;
 }
 
 QDialog#testEditorDialog QTabBar::tab {
-    border: 1px solid palette(mid);
+    border: 1px solid #000000;
     border-bottom: none;
     border-top-left-radius: 4px;
     border-top-right-radius: 4px;
     margin-right: 2px;
     padding: 6px 12px;
-    background: palette(button);
-    color: palette(button-text);
+    background: #0A0D0F;
+    color: palette(text);
 }
 
 QDialog#testEditorDialog QTabBar::tab:selected {
-    background: palette(window);
+    background: #0A0D0F;
 }

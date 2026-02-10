@@ -3,7 +3,7 @@ QToolBar#ActivityRail {
     padding-top: 4px;
     padding-bottom: 4px;
     border: none;
-    background: #322628;
+    background: #1D252A;
 }
 
 QToolBar#ActivityRail QToolButton {
