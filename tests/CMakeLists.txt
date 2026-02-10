@@ -45,6 +45,7 @@ target_link_libraries(UnitTests_QtTest PRIVATE
     SerialManager::SerialManager
     CANManager::CANManager
     DBCManager::DBCManager
+    StyleLib::StyleLib
 )
 
 # Register with CTest

@@ -25,6 +25,10 @@ target_link_libraries(StyleLib PUBLIC
     Qt6::Widgets
 )
 
+if(WIN32)
+    target_link_libraries(StyleLib PRIVATE dwmapi)
+endif()
+
 target_compile_features(StyleLib PUBLIC cxx_std_17)
 
 add_library(StyleLib::StyleLib ALIAS StyleLib)

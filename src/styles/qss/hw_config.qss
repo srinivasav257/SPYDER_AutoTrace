@@ -1,0 +1,78 @@
+QDialog#hwConfigDialog {
+    background: #0A0D0F;
+    color: palette(text);
+}
+
+QDialog#hwConfigDialog QTabWidget::pane {
+    border: 1px solid #000000;
+    background: #0A0D0F;
+}
+
+QDialog#hwConfigDialog QTabBar::tab {
+    border: 1px solid #000000;
+    border-bottom: none;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    margin-right: 2px;
+    padding: 6px 12px;
+    background: #0A0D0F;
+    color: palette(text);
+}
+
+QDialog#hwConfigDialog QTabBar::tab:selected {
+    background: #1D252A;
+}
+
+QDialog#hwConfigDialog QLineEdit,
+QDialog#hwConfigDialog QComboBox,
+QDialog#hwConfigDialog QSpinBox,
+QDialog#hwConfigDialog QDoubleSpinBox {
+    border: 1px solid #4d4b4b;
+    border-radius: 4px;
+    padding: 4px 6px;
+    background: #0A0D0F;
+    color: palette(text);
+    selection-background-color: palette(highlight);
+    selection-color: palette(highlighted-text);
+}
+
+QDialog#hwConfigDialog QPushButton {
+    border: 1px solid #000000;
+    border-radius: 4px;
+    padding: 5px 10px;
+    background: #0A0D0F;
+    color: palette(text);
+}
+
+QDialog#hwConfigDialog QPushButton:hover {
+    border-color: #4d4b4b;
+    background: #4d4b4b;
+}
+
+QDialog#hwConfigDialog QPushButton:pressed {
+    border-color: #4d4b4b;
+    background: #0A0D0F;
+    color: palette(text);
+}
+
+QDialog#hwConfigDialog QLabel {
+    background: transparent;
+    color: palette(text);
+}
+
+QDialog#hwConfigDialog QGroupBox {
+    margin-top: 10px;
+    padding-top: 14px;
+    border: 1px solid #4d4b4b;
+    border-radius: 4px;
+    background: #0A0D0F;
+    color: palette(text);
+}
+
+QDialog#hwConfigDialog QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+    left: 10px;
+    padding: 0 4px;
+    color: palette(text);
+}

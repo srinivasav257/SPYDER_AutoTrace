@@ -541,6 +541,7 @@ TestEditorDialog::TestEditorDialog(QWidget* parent)
     setAttribute(Qt::WA_StyledBackground, true);
     setupUi();
     StyleLib::ThemeManager::instance().applyScopedStyle(this, StyleLib::ScopedStyle::TestExecutor);
+    StyleLib::ThemeManager::setDarkTitleBar(this);
     setupConnections();
 }
 

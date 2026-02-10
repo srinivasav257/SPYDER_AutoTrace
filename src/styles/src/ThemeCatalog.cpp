@@ -8,17 +8,17 @@ const QVector<ThemeDefinition> kThemes{
         ThemeId::DarkGreenBlue,
         QStringLiteral("hackers_curiosity"),
         QStringLiteral("Hacker's Curiosity"),
-        QColor(QStringLiteral("#322628")),
-        QColor(QStringLiteral("#000000")),
-        QColor(QStringLiteral("#655B55")),
-        QColor(QStringLiteral("#E0E0E1")),
-        QColor(QStringLiteral("#322628")),
-        QColor(QStringLiteral("#E0E0E1")),
-        QColor(QStringLiteral("#655B55")),
-        QColor(QStringLiteral("#D26E41")),
-        QColor(QStringLiteral("#0A181E")),
-        QColor(QStringLiteral("#322628")),
-        QColor(QStringLiteral("#A6A5A2"))
+        QColor(QStringLiteral("#0A0D0F")),          // window
+        QColor(QStringLiteral("#000000")),          // base
+        QColor(QStringLiteral("#1D252A")),          // alternateBase
+        QColor(QStringLiteral("#E0E0E1")),          // text
+        QColor(QStringLiteral("#1D252A")),          // button
+        QColor(QStringLiteral("#E0E0E1")),          // buttonText
+        QColor(QStringLiteral("#4d4b4b")),          // mid
+        QColor(QStringLiteral("#D26E41")),          // highlight
+        QColor(QStringLiteral("#0A181E")),          // highlightedText
+        QColor(QStringLiteral("#1D252A")),          // tooltipBase
+        QColor(QStringLiteral("#A6A5A2"))           // tooltipText
     }
 };
 

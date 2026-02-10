@@ -145,6 +145,7 @@ int main(int argc, char *argv[])
     }
 
     window.show();
+    StyleLib::ThemeManager::setDarkTitleBar(&window);
 
     // Close splash once main window is visible
     splash.finish(&window);

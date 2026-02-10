@@ -8,6 +8,15 @@
 #include <QStyle>
 #include <QWidget>
 
+#ifdef Q_OS_WIN
+#include <QWindow>
+#include <dwmapi.h>
+#pragma comment(lib, "dwmapi.lib")
+#ifndef DWMWA_USE_IMMERSIVE_DARK_MODE
+#define DWMWA_USE_IMMERSIVE_DARK_MODE 20
+#endif
+#endif
+
 namespace StyleLib {
 namespace {
 
@@ -73,7 +82,7 @@ void ThemeManager::applyTheme(QApplication& app, ThemeId themeId)
 
     // Reapply scoped styles that were registered through applyScopedStyle().
     const int minScope = static_cast<int>(ScopedStyle::Application);
-    const int maxScope = static_cast<int>(ScopedStyle::TestExecutor);
+    const int maxScope = static_cast<int>(ScopedStyle::HWConfig);
     for (QWidget* widget : app.allWidgets()) {
         if (!widget) {
             continue;
@@ -113,6 +122,28 @@ void ThemeManager::applyScopedStyle(QWidget* widget, ScopedStyle scope) const
 
     widget->setProperty("spyder.styleScope", static_cast<int>(scope));
     widget->setStyleSheet(styleSheetFor(scope));
+}
+
+void ThemeManager::setDarkTitleBar(QWidget* window)
+{
+#ifdef Q_OS_WIN
+    if (!window) {
+        return;
+    }
+
+    window->winId(); // ensure native window handle is created
+    QWindow* qWin = window->windowHandle();
+    if (!qWin) {
+        return;
+    }
+
+    BOOL darkMode = TRUE;
+    DwmSetWindowAttribute(reinterpret_cast<HWND>(qWin->winId()),
+                          DWMWA_USE_IMMERSIVE_DARK_MODE,
+                          &darkMode, sizeof(darkMode));
+#else
+    Q_UNUSED(window);
+#endif
 }
 
 void ThemeManager::ensurePerformanceStyle(QApplication& app) const
@@ -164,6 +195,10 @@ QString ThemeManager::styleSheetFor(ScopedStyle scope) const
     case ScopedStyle::TestExecutor: {
         static const QString testExecutorStyle = loadStyleSheetFromResource(QStringLiteral(":/styles/test_executor.qss"));
         return testExecutorStyle;
+    }
+    case ScopedStyle::HWConfig: {
+        static const QString hwConfigStyle = loadStyleSheetFromResource(QStringLiteral(":/styles/hw_config.qss"));
+        return hwConfigStyle;
     }
     }
 

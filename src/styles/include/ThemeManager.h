@@ -13,7 +13,8 @@ enum class ScopedStyle : int
     Application = 0,
     ActivityRail,
     WelcomePage,
-    TestExecutor
+    TestExecutor,
+    HWConfig
 };
 
 class ThemeManager
@@ -28,6 +29,7 @@ public:
     QString currentThemeKey() const;
 
     void applyScopedStyle(QWidget* widget, ScopedStyle scope) const;
+    static void setDarkTitleBar(QWidget* window);
 
 private:
     ThemeManager() = default;
