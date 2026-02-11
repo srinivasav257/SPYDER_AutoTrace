@@ -58,7 +58,8 @@ TEST(TestDataModels, TestStep_CategoryToStringRoundTrip)
     auto cats = {CommandCategory::Serial, CommandCategory::CAN,
                  CommandCategory::Power, CommandCategory::Flow,
                  CommandCategory::Validation, CommandCategory::System,
-                 CommandCategory::mdEOL};
+                 CommandCategory::ManDiagITS, CommandCategory::ManDiagPITS,
+                 CommandCategory::ManDiagMOL};
 
     for (auto cat : cats) {
         QString str = TestStep::categoryToString(cat);
@@ -66,6 +67,8 @@ TEST(TestDataModels, TestStep_CategoryToStringRoundTrip)
         EXPECT_EQ(back, cat) << "Round-trip failed for category: "
                              << str.toStdString();
     }
+
+    EXPECT_EQ(TestStep::categoryFromString("mdEOL"), CommandCategory::ManDiagITS);
 }
 
 // ============================================================================

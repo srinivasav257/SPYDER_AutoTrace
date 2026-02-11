@@ -47,7 +47,9 @@ enum class CommandCategory {
     Flow,       ///< Flow control (wait, loop, condition)
     Validation, ///< Response validation/assertion
     System,     ///< System commands (file, log, etc.)
-    mdEOL       ///< Manufacturing Diagnostics via UART (End-of-Line)
+    ManDiagITS, ///< Manufacturing Diagnostics - ITS protocol
+    ManDiagPITS,///< Manufacturing Diagnostics - PITS protocol
+    ManDiagMOL  ///< Manufacturing Diagnostics - MOL protocol
 };
 
 //=============================================================================
