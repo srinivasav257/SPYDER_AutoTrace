@@ -6,7 +6,6 @@
 #include "TestProgressPanel.h"
 #include "TestExecutorEngine.h"
 #include "TestReportGenerator.h"
-#include "ThemeManager.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QSplitter>
@@ -24,9 +23,7 @@ TestProgressPanel::TestProgressPanel(QWidget* parent)
     : QWidget(parent)
 {
     setObjectName(QStringLiteral("testProgressPanel"));
-    setAttribute(Qt::WA_StyledBackground, true);
     setupUi();
-    StyleLib::ThemeManager::instance().applyScopedStyle(this, StyleLib::ScopedStyle::TestExecutor);
     setupConnections();
     connectToEngine();
 }

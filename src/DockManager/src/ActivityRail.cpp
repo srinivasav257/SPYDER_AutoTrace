@@ -1,6 +1,5 @@
 #include "ActivityRail.h"
 #include "IconManager.h"
-#include "ThemeManager.h"
 
 #include <QAction>
 #include <QActionGroup>
@@ -22,8 +21,6 @@ ActivityRail::ActivityRail(QWidget* parent)
     setAllowedAreas(Qt::LeftToolBarArea);
     setMinimumWidth(46);
     setMaximumWidth(46);
-
-    StyleLib::ThemeManager::instance().applyScopedStyle(this, StyleLib::ScopedStyle::ActivityRail);
 
     auto* taskGroup = new QActionGroup(this);
     taskGroup->setExclusive(true);

@@ -7,7 +7,6 @@
 #include "TestRepository.h"
 #include "CommandRegistry.h"
 #include "HWConfigManager.h"
-#include "ThemeManager.h"
 #include <DBCManager.h>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -539,10 +538,7 @@ TestEditorDialog::TestEditorDialog(QWidget* parent)
     : QDialog(parent)
 {
     setObjectName(QStringLiteral("testEditorDialog"));
-    setAttribute(Qt::WA_StyledBackground, true);
     setupUi();
-    StyleLib::ThemeManager::instance().applyScopedStyle(this, StyleLib::ScopedStyle::TestExecutor);
-    StyleLib::ThemeManager::setDarkTitleBar(this);
     setupConnections();
 }
 

@@ -55,7 +55,6 @@ target_link_libraries(TestExecutor
         Qt6::Core
         Qt6::Concurrent
     PRIVATE
-        StyleLib::StyleLib
         DockManager::DockManager
         SerialManager::SerialManager
         CANManager::CANManager

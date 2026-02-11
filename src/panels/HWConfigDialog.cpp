@@ -1,5 +1,4 @@
 #include "HWConfigDialog.h"
-#include "ThemeManager.h"
 
 #include <CANManager.h>
 #include <VectorCANDriver.h>
@@ -26,9 +25,6 @@ HWConfigDialog::HWConfigDialog(QWidget* parent)
     setObjectName(QStringLiteral("hwConfigDialog"));
     setMinimumSize(500, 450);
     resize(560, 520);
-
-    StyleLib::ThemeManager::instance().applyScopedStyle(this, StyleLib::ScopedStyle::HWConfig);
-    StyleLib::ThemeManager::setDarkTitleBar(this);
 
     auto* mainLayout = new QVBoxLayout(this);
 

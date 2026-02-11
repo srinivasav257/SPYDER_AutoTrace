@@ -1,6 +1,3 @@
-# Style library (palette, proxy style, scoped QSS)
-add_subdirectory(styles)
-
 # DockManager library
 add_subdirectory(DockManager)
 
@@ -46,7 +43,6 @@ target_include_directories(SPYDER_AutoTrace PRIVATE
 
 # Link DockManager - it brings in qtads and Qt dependencies automatically
 target_link_libraries(SPYDER_AutoTrace PRIVATE
-    StyleLib::StyleLib
     DockManager::DockManager
     TestExecutor::TestExecutor
     ManDiag::ManDiag

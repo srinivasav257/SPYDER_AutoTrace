@@ -41,8 +41,6 @@ target_link_libraries(DockManager PUBLIC
     Qt6::Core
     Qt6::Gui
     Qt6::Widgets
-    PRIVATE
-    StyleLib::StyleLib
 )
 
 # C++ standard

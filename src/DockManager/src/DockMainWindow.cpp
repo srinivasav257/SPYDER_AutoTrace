@@ -55,7 +55,6 @@ DockMainWindow::DockMainWindow(QWidget* parent)
 
     // Create dock manager
     d->dockManager = new ads::CDockManager(this);
-    d->dockManager->setStyleSheet(QString());
 
     // Create workspace manager
     d->workspaceManager = new WorkspaceManager(d->dockManager, this);

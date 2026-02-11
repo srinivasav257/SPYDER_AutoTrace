@@ -1,5 +1,4 @@
 #include "WelcomePageWidget.h"
-#include "ThemeManager.h"
 
 #include <QApplication>
 #include <QFrame>
@@ -15,7 +14,6 @@ WelcomePageWidget::WelcomePageWidget(QWidget* parent)
     : QWidget(parent)
 {
     setObjectName("welcomePage");
-    setAttribute(Qt::WA_StyledBackground, true);
 
     auto* rootLayout = new QVBoxLayout(this);
     rootLayout->setContentsMargins(32, 32, 32, 32);
@@ -78,7 +76,6 @@ WelcomePageWidget::WelcomePageWidget(QWidget* parent)
         emit shortcutRequested(QStringLiteral("quick_start_dummy"));
     });
 
-    StyleLib::ThemeManager::instance().applyScopedStyle(this, StyleLib::ScopedStyle::WelcomePage);
 }
 
 void WelcomePageWidget::setAppIcon(const QIcon& icon)
