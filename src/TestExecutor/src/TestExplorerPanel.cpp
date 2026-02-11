@@ -278,6 +278,12 @@ void TestExplorerPanel::setupConnections()
             this, [this]() {
                 emit selectionChanged(selectedTestCaseIds());
             });
+
+    auto* sourceModel = TestRepository::instance().treeModel();
+    connect(sourceModel, &QAbstractItemModel::modelAboutToBeReset,
+            this, &TestExplorerPanel::onSourceModelAboutToBeReset);
+    connect(sourceModel, &QAbstractItemModel::modelReset,
+            this, &TestExplorerPanel::onSourceModelReset);
 }
 
 void TestExplorerPanel::createContextMenu()
@@ -603,6 +609,21 @@ void TestExplorerPanel::onRunSelectedClicked()
     TestExecutorEngine::instance().runTests(ids);
 }
 
+void TestExplorerPanel::onSourceModelAboutToBeReset()
+{
+    m_expandedSourceIdsBeforeReset.clear();
+    collectExpandedSourceIds(QModelIndex(), m_expandedSourceIdsBeforeReset);
+}
+
+void TestExplorerPanel::onSourceModelReset()
+{
+    if (m_expandedSourceIdsBeforeReset.isEmpty()) {
+        return;
+    }
+
+    restoreExpandedSourceIds(QModelIndex(), m_expandedSourceIdsBeforeReset);
+}
+
 void TestExplorerPanel::resolveSelectionContext(QString& groupName, QString& featureName) const
 {
     groupName.clear();
@@ -649,6 +670,52 @@ void TestExplorerPanel::collectTestCaseIdsFromSourceIndex(const QModelIndex& sou
     const int childCount = model->rowCount(sourceIndex);
     for (int i = 0; i < childCount; ++i) {
         collectTestCaseIdsFromSourceIndex(model->index(i, 0, sourceIndex), ids, seen);
+    }
+}
+
+void TestExplorerPanel::collectExpandedSourceIds(const QModelIndex& sourceParent,
+                                                 QSet<QString>& expandedIds) const
+{
+    auto* model = TestRepository::instance().treeModel();
+    const int childCount = model->rowCount(sourceParent);
+    for (int i = 0; i < childCount; ++i) {
+        const QModelIndex sourceIndex = model->index(i, 0, sourceParent);
+        if (!sourceIndex.isValid()) {
+            continue;
+        }
+
+        const QModelIndex proxyIndex = m_proxyModel->mapFromSource(sourceIndex);
+        if (proxyIndex.isValid() && m_treeView->isExpanded(proxyIndex)) {
+            const QString id = model->itemId(sourceIndex);
+            if (!id.isEmpty()) {
+                expandedIds.insert(id);
+            }
+        }
+
+        collectExpandedSourceIds(sourceIndex, expandedIds);
+    }
+}
+
+void TestExplorerPanel::restoreExpandedSourceIds(const QModelIndex& sourceParent,
+                                                 const QSet<QString>& expandedIds)
+{
+    auto* model = TestRepository::instance().treeModel();
+    const int childCount = model->rowCount(sourceParent);
+    for (int i = 0; i < childCount; ++i) {
+        const QModelIndex sourceIndex = model->index(i, 0, sourceParent);
+        if (!sourceIndex.isValid()) {
+            continue;
+        }
+
+        const QString id = model->itemId(sourceIndex);
+        if (!id.isEmpty() && expandedIds.contains(id)) {
+            const QModelIndex proxyIndex = m_proxyModel->mapFromSource(sourceIndex);
+            if (proxyIndex.isValid()) {
+                m_treeView->setExpanded(proxyIndex, true);
+            }
+        }
+
+        restoreExpandedSourceIds(sourceIndex, expandedIds);
     }
 }
 

@@ -82,10 +82,15 @@ ITSResult MD_ITS_Request_Fixed_response(const QString& requestCommand,
 /**
  * @brief Command 2: request with variable-response field checks.
  *
- * Expected response can use `XX` in data bytes as don't-care wildcard.
+ * `XX` means don't-care for each field:
+ * - Expected Status Byte: "XX" skips status check
+ * - Expected Data Length: "XX" skips data-length check
+ * - Expected Data Bytes: token-level `XX` wildcard; field value "XX" skips byte check
  */
 ITSResult MD_ITS_request_Variable_reponse(const QString& requestCommand,
-                                          const QString& expectedResponse,
+                                          const QString& expectedStatusByte,
+                                          const QString& expectedDataLength,
+                                          const QString& expectedDataBytes,
                                           const ITSConfig& config);
 
 /**
@@ -94,4 +99,3 @@ ITSResult MD_ITS_request_Variable_reponse(const QString& requestCommand,
 void registerITSCommands();
 
 } // namespace ManDiag::ITS
-

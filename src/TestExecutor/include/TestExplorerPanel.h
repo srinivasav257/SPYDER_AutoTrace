@@ -93,6 +93,8 @@ private slots:
     void onTreeDoubleClicked(const QModelIndex& index);
     void onTreeContextMenu(const QPoint& pos);
     void onRunSelectedClicked();
+    void onSourceModelAboutToBeReset();
+    void onSourceModelReset();
 
 private:
     void setupUi();
@@ -101,6 +103,8 @@ private:
     void refreshIcons();
     void resolveSelectionContext(QString& groupName, QString& featureName) const;
     void collectTestCaseIdsFromSourceIndex(const QModelIndex& sourceIndex, QStringList& ids, QSet<QString>& seen) const;
+    void collectExpandedSourceIds(const QModelIndex& parent, QSet<QString>& expandedIds) const;
+    void restoreExpandedSourceIds(const QModelIndex& parent, const QSet<QString>& expandedIds);
 
     QTreeView* m_treeView = nullptr;
     QLineEdit* m_searchBox = nullptr;
@@ -116,6 +120,7 @@ private:
     
     QSortFilterProxyModel* m_proxyModel = nullptr;
     QMenu* m_contextMenu = nullptr;
+    QSet<QString> m_expandedSourceIdsBeforeReset;
 };
 
 /**

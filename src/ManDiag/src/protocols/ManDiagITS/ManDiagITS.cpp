@@ -144,6 +144,41 @@ VariableExpectation parseVariableExpectation(const QString& expectedResponse)
     return expected;
 }
 
+bool isDontCareField(const QString& value)
+{
+    const QString normalized = value.trimmed().toUpper();
+    return normalized.isEmpty() || normalized == "XX";
+}
+
+bool parseExpectedByte(const QString& fieldName, const QString& value, QString* parsed, QString* error)
+{
+    if (!parsed) {
+        if (error) {
+            *error = fieldName + ": internal parse error";
+        }
+        return false;
+    }
+
+    if (error) {
+        error->clear();
+    }
+
+    QString localError;
+    const QStringList tokens = Protocol::tokenizeHex(value, true, &localError);
+    if (tokens.size() != 1) {
+        if (error) {
+            const QString reason = localError.isEmpty()
+                ? QString("Expected single byte, got %1 token(s)").arg(tokens.size())
+                : localError;
+            *error = fieldName + ": " + reason;
+        }
+        return false;
+    }
+
+    *parsed = tokens[0];
+    return true;
+}
+
 ITSConfig buildConfigFromContext(const QVariantMap& params, const QVariantMap& contextConfig)
 {
     ITSConfig config;
@@ -224,7 +259,9 @@ ITSResult MD_ITS_Request_Fixed_response(const QString& requestCommand,
 }
 
 ITSResult MD_ITS_request_Variable_reponse(const QString& requestCommand,
-                                          const QString& expectedResponse,
+                                          const QString& expectedStatusByte,
+                                          const QString& expectedDataLength,
+                                          const QString& expectedDataBytes,
                                           const ITSConfig& config)
 {
     QString error;
@@ -233,9 +270,28 @@ ITSResult MD_ITS_request_Variable_reponse(const QString& requestCommand,
         return ITSResult::Failure("Invalid request command: " + error);
     }
 
-    const VariableExpectation expected = parseVariableExpectation(expectedResponse);
-    if (!expected.valid) {
-        return ITSResult::Failure("Invalid expected response: " + expected.error);
+    const bool skipStatusCheck = isDontCareField(expectedStatusByte);
+    const bool skipDataLengthCheck = isDontCareField(expectedDataLength);
+    const bool skipDataBytesCheck = isDontCareField(expectedDataBytes);
+
+    QString parsedStatusByte;
+    QString parsedDataLengthByte;
+    QStringList parsedDataBytes;
+
+    if (!skipStatusCheck && !parseExpectedByte("Expected Status Byte", expectedStatusByte, &parsedStatusByte, &error)) {
+        return ITSResult::Failure("Invalid expected status byte: " + error);
+    }
+
+    if (!skipDataLengthCheck
+        && !parseExpectedByte("Expected Data Length", expectedDataLength, &parsedDataLengthByte, &error)) {
+        return ITSResult::Failure("Invalid expected data length: " + error);
+    }
+
+    if (!skipDataBytesCheck) {
+        parsedDataBytes = Protocol::tokenizeHex(expectedDataBytes, true, &error);
+        if (parsedDataBytes.isEmpty()) {
+            return ITSResult::Failure("Invalid expected data bytes: " + error);
+        }
     }
 
     ITSResult result = sendAndReceiveSerial(Protocol::tokensToBytes(requestTokens), config);
@@ -243,30 +299,32 @@ ITSResult MD_ITS_request_Variable_reponse(const QString& requestCommand,
         return result;
     }
 
-    if (!Protocol::tokenMatches(result.response.statusByte, expected.statusByte)) {
+    if (!skipStatusCheck
+        && !Protocol::tokenMatches(result.response.statusByte, parsedStatusByte)) {
         ITSResult failed = ITSResult::Failure(
             QString("Status byte mismatch. Expected %1, got %2")
-                .arg(expected.statusByte, result.response.statusByte),
+                .arg(parsedStatusByte, result.response.statusByte),
             result.rawResponse,
             result.response);
         failed.attempts = result.attempts;
         return failed;
     }
 
-    if (!Protocol::tokenMatches(result.response.dataLengthByte, expected.dataLengthByte)) {
+    if (!skipDataLengthCheck
+        && !Protocol::tokenMatches(result.response.dataLengthByte, parsedDataLengthByte)) {
         ITSResult failed = ITSResult::Failure(
             QString("Data length mismatch. Expected %1, got %2")
-                .arg(expected.dataLengthByte, result.response.dataLengthByte),
+                .arg(parsedDataLengthByte, result.response.dataLengthByte),
             result.rawResponse,
             result.response);
         failed.attempts = result.attempts;
         return failed;
     }
 
-    if (!expected.dataBytes.isEmpty()) {
+    if (!skipDataBytesCheck) {
         QString mismatch;
         if (!Protocol::bytesMatchWithWildcards(
-                result.response.dataBytes, expected.dataBytes, &mismatch, true)) {
+                result.response.dataBytes, parsedDataBytes, &mismatch, true)) {
             ITSResult failed = ITSResult::Failure(
                 "Data bytes mismatch: " + mismatch,
                 result.rawResponse,
@@ -356,12 +414,28 @@ void registerITSCommands()
                 .required = true
             },
             {
-                .name = "expected_response",
-                .displayName = "Expected response",
-                .description = "Full expected frame or '<Status> <Length> <Data...>' pattern. Use XX as wildcard.",
+                .name = "expected_status_byte",
+                .displayName = "Expected Status Byte",
+                .description = "Expected status byte (e.g. '01'). Use XX to skip status check.",
                 .type = ParameterType::HexString,
-                .defaultValue = "6D643E 50 04 00 01 02 01 XX",
-                .required = true
+                .defaultValue = "01",
+                .required = false
+            },
+            {
+                .name = "expected_data_length",
+                .displayName = "Expected Data Length",
+                .description = "Expected data length byte (e.g. '02'). Use XX to skip data length check.",
+                .type = ParameterType::HexString,
+                .defaultValue = "02",
+                .required = false
+            },
+            {
+                .name = "expected_data_bytes",
+                .displayName = "Expected Data Bytes",
+                .description = "Expected data bytes (e.g. '01 XX'). Use XX as byte wildcard, or XX to skip this check.",
+                .type = ParameterType::HexString,
+                .defaultValue = "01 XX",
+                .required = false
             }
         },
         .handler = [](const QVariantMap& params,
@@ -370,8 +444,32 @@ void registerITSCommands()
             ITSConfig itsConfig = buildConfigFromContext(params, config);
             itsConfig.repetition = 1;
             const QString request = params.value("request_command").toString();
-            const QString expected = params.value("expected_response").toString();
-            return toCommandResult(MD_ITS_request_Variable_reponse(request, expected, itsConfig));
+            QString expectedStatusByte = params.value("expected_status_byte").toString();
+            QString expectedDataLength = params.value("expected_data_length").toString();
+            QString expectedDataBytes = params.value("expected_data_bytes").toString();
+
+            // Backward compatibility for older steps that still provide expected_response.
+            if (expectedStatusByte.trimmed().isEmpty()
+                && expectedDataLength.trimmed().isEmpty()
+                && expectedDataBytes.trimmed().isEmpty()) {
+                const QString legacyExpected = params.value("expected_response").toString();
+                if (!legacyExpected.trimmed().isEmpty()) {
+                    const VariableExpectation legacy = parseVariableExpectation(legacyExpected);
+                    if (!legacy.valid) {
+                        return CommandResult::Failure("Invalid legacy expected_response: " + legacy.error);
+                    }
+                    expectedStatusByte = legacy.statusByte;
+                    expectedDataLength = legacy.dataLengthByte;
+                    expectedDataBytes = legacy.dataBytes.join(" ");
+                }
+            }
+
+            return toCommandResult(MD_ITS_request_Variable_reponse(
+                request,
+                expectedStatusByte,
+                expectedDataLength,
+                expectedDataBytes,
+                itsConfig));
         }
     });
 
